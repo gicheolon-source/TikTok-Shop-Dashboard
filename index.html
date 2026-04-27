@@ -387,6 +387,12 @@ textarea.form-input{resize:vertical}
     <div class="nav-item" onclick="nav('launch',this)">
       <span class="nav-icon">&#128640;</span> 런칭 체크리스트
     </div>
+    <div class="nav-item" onclick="nav('reseller',this)">
+      <span class="nav-icon">&#128274;</span> 리셀러 검토
+    </div>
+    <div class="nav-item" onclick="nav('partnerdb',this)">
+      <span class="nav-icon">&#128200;</span> Partner Dashboard
+    </div>
     <div class="sb-section">Finance</div>
     <div class="nav-item" onclick="nav('settlement',this)">
       <span class="nav-icon">&#128181;</span> 정산 트래커
@@ -1563,6 +1569,46 @@ textarea.form-input{resize:vertical}
     </div>
 
     <!-- spark modal -->
+    <!-- RESELLER MODAL -->
+    <div class="modal-overlay hidden" id="reseller-modal"><div class="modal-box">
+      <div class="modal-title" id="rs-modal-title">리셀러 추가</div>
+      <input type="hidden" id="rs-edit-id">
+      <div class="form-row2">
+        <div><label>마켓 *</label>
+          <select class="form-input" id="rs-f-market">
+            <option value="us">🇺🇸 미국 (US)</option>
+            <option value="uk">🇬🇧 영국 (UK)</option>
+          </select>
+        </div>
+        <div><label>유형 *</label>
+          <select class="form-input" id="rs-f-type">
+            <option value="fake">🚫 짝퉁·가품</option>
+            <option value="resell">📦 리셀</option>
+            <option value="etc">기타</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row2">
+        <div><label>리셀러명 *</label><input class="form-input" id="rs-f-name" placeholder="예: MUEOS STORE"></div>
+        <div><label>제품명 *</label><input class="form-input" id="rs-f-product" placeholder="예: PDRN Cream"></div>
+      </div>
+      <div class="form-row2">
+        <div><label>가격</label><input class="form-input" id="rs-f-price" placeholder="예: $6.99"></div>
+        <div><label>판매 상태 *</label>
+          <select class="form-input" id="rs-f-status">
+            <option value="active">🔴 판매중</option>
+            <option value="inactive">⚫ 판매종료</option>
+          </select>
+        </div>
+      </div>
+      <div><label>URL (틱톡샵 링크 등)</label><input class="form-input" id="rs-f-url" placeholder="https://..."></div>
+      <div style="margin-top:8px"><label>메모</label><textarea class="form-input" id="rs-f-note" rows="2" placeholder="추가 메모..."></textarea></div>
+      <div class="modal-actions">
+        <button class="btn-ghost" onclick="closeModal('reseller-modal')">취소</button>
+        <button class="btn-primary" onclick="resellerSave()">저장</button>
+      </div>
+    </div></div>
+
     <div class="modal-overlay hidden" id="spark-modal"><div class="modal-box">
       <div class="modal-title">Spark Ads Code 추가</div>
       <input type="hidden" id="spark-edit-id">
@@ -1602,6 +1648,100 @@ textarea.form-input{resize:vertical}
         <button class="crm-tab" onclick="launchTab('uk',this)">🇬🇧 영국 법인 (UK)</button>
       </div>
       <div id="launch-panel"></div>
+    </div>
+
+    <!-- ═══ RESELLER 검토 ═══════════════════════ -->
+    <div id="sec-reseller" class="page-section">
+      <div class="sec-head">
+        <div>
+          <div class="sec-title">🔒 리셀러 검토</div>
+          <div class="sec-sub">무단 리셀러 및 짝퉁 판매자 모니터링 · 미국 &amp; 영국 TikTok Shop</div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn-primary" onclick="resellerOpenModal()">+ 리셀러 추가</button>
+          <button class="btn-ghost" onclick="resellerExport()">CSV 내보내기</button>
+        </div>
+      </div>
+
+      <!-- KPI -->
+      <div class="kpi-grid" id="reseller-kpi-grid">
+        <div class="kpi-card"><div class="kpi-label">전체</div><div class="kpi-value" id="rs-kpi-total">0</div></div>
+        <div class="kpi-card"><div class="kpi-label">🚨 현재 판매중</div><div class="kpi-value" id="rs-kpi-active" style="color:var(--pink)">0</div></div>
+        <div class="kpi-card"><div class="kpi-label">🇺🇸 US</div><div class="kpi-value" id="rs-kpi-us">0</div></div>
+        <div class="kpi-card"><div class="kpi-label">🇬🇧 UK</div><div class="kpi-value" id="rs-kpi-uk">0</div></div>
+      </div>
+
+      <!-- 탭 + 필터 -->
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:12px">
+        <div class="crm-tabs" id="rs-market-tabs" style="margin-bottom:0">
+          <button class="crm-tab active" onclick="rsMarket('all',this)">전체</button>
+          <button class="crm-tab" onclick="rsMarket('us',this)">🇺🇸 US</button>
+          <button class="crm-tab" onclick="rsMarket('uk',this)">🇬🇧 UK</button>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <div class="filter-bar" id="rs-type-filter" style="margin-bottom:0">
+            <button class="filter-btn active" onclick="rsType('all',this)">전체</button>
+            <button class="filter-btn" onclick="rsType('fake',this)">🚫 짝퉁·가품</button>
+            <button class="filter-btn" onclick="rsType('resell',this)">📦 리셀</button>
+            <button class="filter-btn" onclick="rsType('etc',this)">기타</button>
+          </div>
+          <div class="filter-bar" id="rs-status-filter" style="margin-bottom:0">
+            <button class="filter-btn active" onclick="rsStatus('all',this)">전체</button>
+            <button class="filter-btn" onclick="rsStatus('active',this)">판매중</button>
+            <button class="filter-btn" onclick="rsStatus('inactive',this)">판매종료</button>
+          </div>
+        </div>
+      </div>
+      <div style="margin-bottom:12px">
+        <input class="search-box" id="rs-search" placeholder="리셀러명 또는 제품명 검색..." oninput="resellerRender()" style="max-width:320px" />
+      </div>
+
+      <!-- 테이블 -->
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr>
+            <th>마켓</th><th>리셀러명</th><th>제품</th><th>유형</th><th>가격</th><th>판매 상태</th><th>등록일</th><th>메모</th><th>액션</th>
+          </tr></thead>
+          <tbody id="rs-tbody"></tbody>
+        </table>
+        <div class="empty-state" id="rs-empty" style="display:none">등록된 리셀러가 없습니다.</div>
+      </div>
+    </div>
+
+    <!-- ═══ PARTNER DASHBOARD ═══════════════════════ -->
+    <div id="sec-partnerdb" class="page-section">
+      <div class="sec-head">
+        <div>
+          <div class="sec-title">📊 Partner Dashboard</div>
+          <div class="sec-sub">Euka TikTok Shop Shared Dashboard · 실시간 데이터</div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button class="btn-ghost" onclick="document.getElementById('partnerdb-iframe').src=document.getElementById('partnerdb-iframe').src">&#8635; 새로고침</button>
+          <a href="https://www.tiktokshoppartner.us/dashboard/0c72da7bd6a48c87" target="_blank" class="btn-primary" style="text-decoration:none">&#8599; 새 탭에서 열기</a>
+        </div>
+      </div>
+
+      <!-- iframe embed -->
+      <div id="partnerdb-wrap" style="position:relative;width:100%;height:calc(100vh - 180px);min-height:600px;border-radius:12px;overflow:hidden;background:var(--card);border:1px solid var(--border)">
+        <iframe
+          id="partnerdb-iframe"
+          src="https://www.tiktokshoppartner.us/dashboard/0c72da7bd6a48c87"
+          style="width:100%;height:100%;border:none;border-radius:12px"
+          allowfullscreen
+          onload="partnerDBLoaded(this)"
+          onerror="partnerDBFallback()"
+        ></iframe>
+        <!-- fallback overlay (shown if iframe blocked) -->
+        <div id="partnerdb-fallback" style="display:none;position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--card);border-radius:12px;gap:16px">
+          <div style="font-size:48px">🔒</div>
+          <div style="font-size:18px;font-weight:700;color:var(--text)">임베딩이 차단된 대시보드예요</div>
+          <div style="font-size:13px;color:var(--muted);text-align:center;max-width:360px">보안 정책으로 인해 이 대시보드는 외부에서 iframe으로 불러올 수 없어요.<br>아래 버튼을 눌러 새 탭에서 직접 확인해주세요.</div>
+          <a href="https://www.tiktokshoppartner.us/dashboard/0c72da7bd6a48c87" target="_blank" class="btn-primary" style="text-decoration:none;font-size:15px;padding:12px 28px">
+            &#8599; Partner Dashboard 열기
+          </a>
+          <div style="font-size:11px;color:var(--muted)">https://www.tiktokshoppartner.us/dashboard/0c72da7bd6a48c87</div>
+        </div>
+      </div>
     </div>
 
     <!-- ═══ TEAM DASHBOARD ═══════════════════════ -->
@@ -1713,7 +1853,7 @@ const UK_MONTHLY = [
 const PAGE_TITLES = {
   overview:'Overview', sales:'Sales & Revenue', inventory:'Inventory',
   affiliates:'Affiliates', competitors:'Competitors', promotions:'Promotions',
-  uk:'UK Market', affiliatelist:'Affiliate List', cs:'CS 봇', customercrm:'Customer CRM 전략', team:'Team Dashboard', spark:'Spark Ads Codes', launch:'런칭 체크리스트',
+  uk:'UK Market', affiliatelist:'Affiliate List', cs:'CS 봇', customercrm:'Customer CRM 전략', team:'Team Dashboard', spark:'Spark Ads Codes', launch:'런칭 체크리스트', reseller:'리셀러 검토', partnerdb:'Partner Dashboard',
   crm:'Creator CRM', seeding:'샘플 시딩 트래커', live:'LIVE 스트림 트래커',
   viral:'바이럴 영상 트래커', brief:'콘텐츠 브리프 생성기',
   settlement:'정산 트래커', report:'주간 리포트'
@@ -1759,6 +1899,8 @@ function renderSection(id) {
   if (id === 'team')        initTeam();
   if (id === 'spark')       renderSpark();
   if (id === 'launch')      renderLaunch();
+  if (id === 'reseller')    renderReseller();
+  if (id === 'partnerdb')   renderPartnerDB();
 }
 
 const PINK='#FE2C55', CYAN='#25F4EE', PURPLE='#A855F7', BLUE='#3B82F6',
@@ -2682,6 +2824,203 @@ function launchSetNote(tab, no, note){
   if(!saved[no]) saved[no] = {};
   saved[no].note = note;
   lsSet('launch_'+tab, saved);
+}
+
+/* ══════════════════════════════════════════════════════════
+   PARTNER DASHBOARD
+══════════════════════════════════════════════════════════ */
+const PARTNER_DB_URL = 'https://www.tiktokshoppartner.us/dashboard/0c72da7bd6a48c87';
+
+function renderPartnerDB() {
+  // iframe is already in HTML; just make sure fallback state is correct
+  const fb = gEl('partnerdb-fallback');
+  if (fb) fb.style.display = 'none';
+  const iframe = gEl('partnerdb-iframe');
+  if (iframe && !iframe.src) iframe.src = PARTNER_DB_URL;
+}
+
+function partnerDBLoaded(iframe) {
+  // If iframe loads but is blank/blocked, contentDocument will be inaccessible
+  try {
+    const doc = iframe.contentDocument || iframe.contentWindow.document;
+    if (!doc || doc.body === null || doc.body.innerHTML.trim() === '') {
+      partnerDBFallback();
+    }
+  } catch(e) {
+    // cross-origin: if we can't read it, it actually loaded (same-origin error means it loaded)
+    // do nothing - iframe is showing content
+  }
+}
+
+function partnerDBFallback() {
+  const fb = gEl('partnerdb-fallback');
+  const iframe = gEl('partnerdb-iframe');
+  if (fb) { fb.style.display = 'flex'; }
+  if (iframe) iframe.style.display = 'none';
+}
+
+/* ══════════════════════════════════════════════════════════
+   RESELLER 검토
+══════════════════════════════════════════════════════════ */
+const RESELLER_DEFAULT = [
+  {id:'rs1', market:'us', name:'MUEOS STORE MCDWE', product:'PDRN Cream',              type:'fake',   price:'$6.99',  status:'inactive', url:'', note:'짝퉁, 가품 확인',          date:'2025-01-01'},
+  {id:'rs2', market:'us', name:'MFUOE STORE23',     product:'PDRN Cream',              type:'fake',   price:'$6.99',  status:'inactive', url:'', note:'짝퉁, 가품 확인',          date:'2025-01-01'},
+  {id:'rs3', market:'us', name:'HEALTHY.LIVING',    product:'LC-Ceramide Barrier Cream',type:'resell', price:'$19.46', status:'inactive', url:'', note:'리셀',                    date:'2025-01-01'},
+  {id:'rs4', market:'us', name:'Zarabive Co.',      product:'PDRN Cream (OLD)',         type:'resell', price:'$39.98', status:'inactive', url:'', note:'리셀',                    date:'2025-01-01'},
+  {id:'rs5', market:'us', name:'Zarabive Co.',      product:'PDRN Cream (OLD) X2 2개', type:'resell', price:'$41.98', status:'inactive', url:'', note:'리셀',                    date:'2025-01-01'},
+  {id:'rs6', market:'us', name:'Amyroikipc6',       product:'PDRN Cream (OLD) X2',     type:'etc',    price:'$19.36', status:'active',   url:'', note:'둘 중 하나 판매 확인 필요', date:'2025-01-01'},
+];
+
+let rsFltMarket = 'all', rsFltType = 'all', rsFltStatus = 'all';
+
+function resellerGetData(){
+  const d = localStorage.getItem('reseller_list');
+  if(d) return JSON.parse(d);
+  localStorage.setItem('reseller_list', JSON.stringify(RESELLER_DEFAULT));
+  return RESELLER_DEFAULT;
+}
+function resellerSetData(d){ localStorage.setItem('reseller_list', JSON.stringify(d)); }
+
+function renderReseller(){
+  const d = resellerGetData();
+  const active = d.filter(x=>x.status==='active').length;
+  const us = d.filter(x=>x.market==='us').length;
+  const uk = d.filter(x=>x.market==='uk').length;
+  const kTotal = gEl('rs-kpi-total'), kActive = gEl('rs-kpi-active');
+  const kUS = gEl('rs-kpi-us'), kUK = gEl('rs-kpi-uk');
+  if(kTotal) kTotal.textContent = d.length;
+  if(kActive) kActive.textContent = active;
+  if(kUS) kUS.textContent = us;
+  if(kUK) kUK.textContent = uk;
+  resellerRender();
+}
+
+function resellerRender(){
+  let d = resellerGetData();
+  const q = ((gEl('rs-search')||{}).value||'').toLowerCase();
+  if(rsFltMarket !== 'all') d = d.filter(x=>x.market===rsFltMarket);
+  if(rsFltType !== 'all'){
+    d = d.filter(x=> rsFltType==='fake'?x.type==='fake': rsFltType==='resell'?x.type==='resell': x.type==='etc');
+  }
+  if(rsFltStatus !== 'all') d = d.filter(x=>x.status===rsFltStatus);
+  if(q) d = d.filter(x=>(x.name+x.product).toLowerCase().includes(q));
+
+  const tb = gEl('rs-tbody'), em = gEl('rs-empty');
+  if(!d.length){ if(tb)tb.innerHTML=''; if(em)em.style.display='block'; return; }
+  if(em) em.style.display='none';
+
+  const typeLabel = t => t==='fake'?'<span style="background:#FEE2E2;color:#991B1B;padding:2px 8px;border-radius:12px;font-size:10px;font-weight:700">🚫 짝퉁·가품</span>':
+                          t==='resell'?'<span style="background:#FEF3C7;color:#92400E;padding:2px 8px;border-radius:12px;font-size:10px;font-weight:700">📦 리셀</span>':
+                          '<span style="background:#F3F4F6;color:#6B7280;padding:2px 8px;border-radius:12px;font-size:10px;font-weight:700">기타</span>';
+  const mktLabel = m => m==='us'?'<span style="font-size:13px">🇺🇸</span> <span style="font-size:10px;font-weight:700;color:#3B82F6">US</span>':
+                         '<span style="font-size:13px">🇬🇧</span> <span style="font-size:10px;font-weight:700;color:#10B981">UK</span>';
+  const stLabel = s => s==='active'?
+    '<span style="background:#FEE2E2;color:#991B1B;padding:2px 8px;border-radius:12px;font-size:10px;font-weight:700">🔴 판매중</span>':
+    '<span style="background:#F3F4F6;color:#6B7280;padding:2px 8px;border-radius:12px;font-size:10px;font-weight:700">⚫ 종료</span>';
+
+  if(tb) tb.innerHTML = d.map(x=>`<tr>
+    <td>${mktLabel(x.market)}</td>
+    <td style="font-weight:600">${esc(x.name)}${x.url?` <a href="${esc(x.url)}" target="_blank" style="font-size:10px;color:var(--blue);margin-left:4px">↗</a>`:''}</td>
+    <td>${esc(x.product)}</td>
+    <td>${typeLabel(x.type)}</td>
+    <td style="font-weight:700;color:var(--pink)">${esc(x.price||'-')}</td>
+    <td>${stLabel(x.status)}</td>
+    <td style="font-size:11px;color:var(--muted)">${x.date||''}</td>
+    <td style="font-size:11px;color:var(--muted);max-width:180px">${esc(x.note||'')}</td>
+    <td>
+      <button class="btn-ghost" style="font-size:11px;padding:3px 8px" onclick="resellerEdit('${x.id}')">수정</button>
+      <button class="btn-ghost" style="font-size:11px;padding:3px 8px;color:var(--pink)" onclick="resellerDel('${x.id}')">삭제</button>
+    </td>
+  </tr>`).join('');
+}
+
+function rsMarket(v, el){
+  rsFltMarket = v;
+  document.querySelectorAll('#rs-market-tabs .crm-tab').forEach(b=>b.classList.remove('active'));
+  if(el) el.classList.add('active');
+  resellerRender();
+}
+function rsType(v, el){
+  rsFltType = v;
+  document.querySelectorAll('#rs-type-filter .filter-btn').forEach(b=>b.classList.remove('active'));
+  if(el) el.classList.add('active');
+  resellerRender();
+}
+function rsStatus(v, el){
+  rsFltStatus = v;
+  document.querySelectorAll('#rs-status-filter .filter-btn').forEach(b=>b.classList.remove('active'));
+  if(el) el.classList.add('active');
+  resellerRender();
+}
+
+function resellerOpenModal(id){
+  const m = gEl('rs-modal-title');
+  gEl('rs-edit-id').value = id||'';
+  if(id){
+    if(m) m.textContent = '리셀러 수정';
+    const x = resellerGetData().find(r=>r.id===id);
+    if(!x) return;
+    gEl('rs-f-market').value = x.market;
+    gEl('rs-f-type').value = x.type;
+    gEl('rs-f-name').value = x.name;
+    gEl('rs-f-product').value = x.product;
+    gEl('rs-f-price').value = x.price||'';
+    gEl('rs-f-status').value = x.status;
+    gEl('rs-f-url').value = x.url||'';
+    gEl('rs-f-note').value = x.note||'';
+  } else {
+    if(m) m.textContent = '리셀러 추가';
+    ['rs-f-name','rs-f-product','rs-f-price','rs-f-url','rs-f-note'].forEach(i=>{ const e=gEl(i); if(e) e.value=''; });
+    gEl('rs-f-market').value = 'us';
+    gEl('rs-f-type').value = 'fake';
+    gEl('rs-f-status').value = 'active';
+  }
+  gEl('reseller-modal').classList.remove('hidden');
+}
+function resellerEdit(id){ resellerOpenModal(id); }
+
+function resellerSave(){
+  const id = gEl('rs-edit-id').value;
+  const name = (gEl('rs-f-name').value||'').trim();
+  const product = (gEl('rs-f-product').value||'').trim();
+  if(!name||!product){ alert('리셀러명과 제품명을 입력해주세요.'); return; }
+  const entry = {
+    id: id || 'rs'+Date.now(),
+    market: gEl('rs-f-market').value,
+    type:   gEl('rs-f-type').value,
+    name, product,
+    price:  (gEl('rs-f-price').value||'').trim(),
+    status: gEl('rs-f-status').value,
+    url:    (gEl('rs-f-url').value||'').trim(),
+    note:   (gEl('rs-f-note').value||'').trim(),
+    date:   id ? (resellerGetData().find(r=>r.id===id)||{}).date||new Date().toISOString().slice(0,10)
+               : new Date().toISOString().slice(0,10)
+  };
+  let d = resellerGetData();
+  if(id) d = d.map(r=>r.id===id?entry:r);
+  else d = [...d, entry];
+  resellerSetData(d);
+  closeModal('reseller-modal');
+  renderReseller();
+}
+
+function resellerDel(id){
+  if(!confirm('이 리셀러를 삭제하시겠습니까?')) return;
+  resellerSetData(resellerGetData().filter(r=>r.id!==id));
+  renderReseller();
+}
+
+function resellerExport(){
+  const d = resellerGetData();
+  const rows = ['마켓,리셀러명,제품,유형,가격,판매상태,등록일,URL,메모',
+    ...d.map(x=>[x.market==='us'?'US':'UK', x.name, x.product,
+      x.type==='fake'?'짝퉁·가품':x.type==='resell'?'리셀':'기타',
+      x.price||'', x.status==='active'?'판매중':'판매종료',
+      x.date||'', x.url||'', x.note||''].map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(','))
+  ];
+  const blob = new Blob(['\uFEFF'+rows.join('\n')], {type:'text/csv;charset=utf-8'});
+  const a = document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download='reseller_list.csv'; a.click();
 }
 
 /* ── VIRAL VIDEO TRACKER ───────────────────────────────── */
