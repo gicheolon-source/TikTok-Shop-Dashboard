@@ -136,6 +136,44 @@ tbody tr:hover td{background:#FAFAFA}
 .price-val{font-size:17px;font-weight:800}
 .price-product{font-size:10px;color:var(--muted)}
 
+/* ── Modals ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:1000}
+.modal-overlay.hidden{display:none}
+.modal-box{background:#fff;border-radius:14px;padding:28px;width:490px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.modal-title{font-size:15px;font-weight:800;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;padding-top:12px;border-top:1px solid var(--border)}
+/* Forms */
+.form-row{margin-bottom:11px}
+.form-row label,.form-row2 label{display:block;font-size:10px;font-weight:700;color:var(--muted);margin-bottom:3px;text-transform:uppercase;letter-spacing:.4px}
+.form-row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:11px}
+.form-input{border:1px solid var(--border);border-radius:8px;padding:8px 11px;font-size:12px;width:100%;outline:none;background:#fff;color:var(--text);box-sizing:border-box}
+.form-input:focus{border-color:var(--pink)}
+textarea.form-input{resize:vertical}
+/* Buttons */
+.btn-primary{background:var(--pink);color:#fff;border:none;padding:8px 18px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap}
+.btn-primary:hover{opacity:.9}
+.btn-ghost{background:#fff;border:1px solid var(--border);color:var(--text);padding:8px 18px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer}
+.btn-ghost:hover{background:var(--bg)}
+/* Filter buttons */
+.filter-btn{background:#fff;border:1px solid var(--border);color:var(--muted);padding:5px 12px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;transition:all .15s}
+.filter-btn:hover{border-color:var(--pink);color:var(--pink)}
+.filter-btn.active{background:var(--pink);border-color:var(--pink);color:#fff}
+/* Brief */
+.brief-out{background:#F8F9FA;border-radius:8px;padding:16px;font-size:12px;line-height:1.9;white-space:pre-wrap;min-height:320px;border:1px solid var(--border)}
+/* Print */
+@media print{.sidebar,.topbar{display:none!important}.content{overflow:visible}.pages{overflow:visible}#login-overlay{display:none!important}}
+
+/* ── Creator Profile Card ── */
+.creator-link{cursor:pointer;color:var(--pink);transition:opacity .15s}
+.creator-link:hover{opacity:.75;text-decoration:underline}
+.cp-avatar{width:68px;height:68px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:#fff;flex-shrink:0}
+.cp-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0}
+.cp-metric{background:var(--bg);border-radius:8px;padding:10px;text-align:center}
+.cp-metric-val{font-size:17px;font-weight:800;color:var(--text);line-height:1.2}
+.cp-metric-lbl{font-size:10px;color:var(--muted);margin-top:3px;text-transform:uppercase;letter-spacing:.3px}
+.cp-actions{display:flex;gap:8px;margin-top:14px}
+.cp-actions button{flex:1;font-size:11px;padding:7px 10px}
+
 /* ── Upload / drop zone ── */
 .drop-zone{border:2px dashed var(--border);border-radius:12px;padding:28px;text-align:center;cursor:pointer;transition:all .2s;background:var(--bg)}
 .drop-zone:hover,.drop-zone.drag-over{border-color:var(--pink);background:#FFF0F3}
@@ -241,6 +279,30 @@ tbody tr:hover td{background:#FAFAFA}
     <div class="sb-section">Affiliates</div>
     <div class="nav-item" onclick="nav('affiliatelist',this)">
       <span class="nav-icon">&#128101;</span> Affiliate List
+    </div>
+    <div class="sb-section">Creator Tools</div>
+    <div class="nav-item" onclick="nav('crm',this)">
+      <span class="nav-icon">&#128100;</span> Creator CRM
+    </div>
+    <div class="nav-item" onclick="nav('seeding',this)">
+      <span class="nav-icon">&#127873;</span> 샘플 시딩
+    </div>
+    <div class="nav-item" onclick="nav('live',this)">
+      <span class="nav-icon">&#128250;</span> LIVE 트래커
+    </div>
+    <div class="nav-item" onclick="nav('viral',this)">
+      <span class="nav-icon">&#128293;</span> 바이럴 영상
+    </div>
+    <div class="nav-item" onclick="nav('brief',this)">
+      <span class="nav-icon">&#128203;</span> 콘텐츠 브리프
+    </div>
+    <div class="sb-section">Finance</div>
+    <div class="nav-item" onclick="nav('settlement',this)">
+      <span class="nav-icon">&#128181;</span> 정산 트래커
+    </div>
+    <div class="sb-section">Reports</div>
+    <div class="nav-item" onclick="nav('report',this)">
+      <span class="nav-icon">&#128196;</span> 주간 리포트
     </div>
   </nav>
   <div class="sb-footer">
@@ -842,6 +904,318 @@ tbody tr:hover td{background:#FAFAFA}
       </div>
     </div>
 
+    <!-- ═══ CREATOR PROFILE MODAL ═══════════════ -->
+    <div class="modal-overlay hidden" id="creator-profile-modal">
+      <div class="modal-box" style="max-width:420px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--border)">
+          <div style="display:flex;align-items:center;gap:14px">
+            <div class="cp-avatar" id="cp-avatar"></div>
+            <div>
+              <div id="cp-name" style="font-size:17px;font-weight:800"></div>
+              <div id="cp-tier" style="font-size:11px;color:var(--muted);margin-top:2px"></div>
+              <a id="cp-tiktok" target="_blank" rel="noopener" style="font-size:11px;color:var(--pink);text-decoration:none">&#128279; TikTok 프로필 보기</a>
+            </div>
+          </div>
+          <button onclick="closeModal('creator-profile-modal')" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted);line-height:1">&#215;</button>
+        </div>
+        <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">This Week Performance</div>
+        <div class="cp-grid">
+          <div class="cp-metric"><div class="cp-metric-val c-pink" id="cp-gmv"></div><div class="cp-metric-lbl">GMV</div></div>
+          <div class="cp-metric"><div class="cp-metric-val" id="cp-orders"></div><div class="cp-metric-lbl">Orders</div></div>
+          <div class="cp-metric"><div class="cp-metric-val" id="cp-items"></div><div class="cp-metric-lbl">Items Sold</div></div>
+          <div class="cp-metric"><div class="cp-metric-val c-green" id="cp-comm"></div><div class="cp-metric-lbl">Est. Commission</div></div>
+          <div class="cp-metric"><div class="cp-metric-val" id="cp-aov"></div><div class="cp-metric-lbl">Avg. Order</div></div>
+          <div class="cp-metric"><div class="cp-metric-val" id="cp-followers"></div><div class="cp-metric-lbl">Followers</div></div>
+        </div>
+        <div id="cp-open-collab" style="background:var(--bg);border-radius:8px;padding:10px 12px;font-size:12px;display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+          <span style="color:var(--muted);font-size:11px">Open Collab GMV</span>
+          <span id="cp-open-gmv" style="font-weight:700"></span>
+        </div>
+        <div class="cp-actions">
+          <button class="btn-primary" onclick="cpAddCRM()">+ CRM 등록</button>
+          <button class="btn-ghost" onclick="cpAddSeed()">&#127873; 샘플 발송</button>
+          <button class="btn-ghost" onclick="closeModal('creator-profile-modal')">닫기</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ 9. CREATOR CRM ═══════════════════════ -->
+    <div id="sec-crm" class="page-section">
+      <div class="sec-head">
+        <div><div class="sec-title">Creator CRM</div><div class="sec-sub">크리에이터 관계 관리 · 상태 추적</div></div>
+        <button class="btn-primary" onclick="openModal('crm-modal')">+ 크리에이터 추가</button>
+      </div>
+      <div class="kpi-grid">
+        <div class="kpi"><div class="kpi-bar" style="background:var(--pink)"></div><div class="kpi-lbl">Total</div><div class="kpi-val" id="crm-kpi-total">0</div><div class="kpi-sub neu">등록된 크리에이터</div></div>
+        <div class="kpi"><div class="kpi-bar" style="background:var(--green)"></div><div class="kpi-lbl">Active</div><div class="kpi-val" id="crm-kpi-active">0</div><div class="kpi-sub up">활성 크리에이터</div></div>
+        <div class="kpi"><div class="kpi-bar" style="background:var(--cyan)"></div><div class="kpi-lbl">샘플 발송</div><div class="kpi-val" id="crm-kpi-sampled">0</div><div class="kpi-sub neu">명</div></div>
+        <div class="kpi"><div class="kpi-bar" style="background:var(--purple)"></div><div class="kpi-lbl">전환율</div><div class="kpi-val" id="crm-kpi-conv">0%</div><div class="kpi-sub neu">샘플 → 활성</div></div>
+      </div>
+      <div class="card full">
+        <div class="tbl-toolbar">
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <button class="filter-btn active" onclick="crmFilter('all',this)">All</button>
+            <button class="filter-btn" onclick="crmFilter('contacted',this)">연락함</button>
+            <button class="filter-btn" onclick="crmFilter('sampled',this)">샘플발송</button>
+            <button class="filter-btn" onclick="crmFilter('active',this)">활성</button>
+            <button class="filter-btn" onclick="crmFilter('inactive',this)">비활성</button>
+          </div>
+          <div style="display:flex;gap:8px">
+            <input class="tbl-search" id="crm-search" placeholder="검색..." oninput="crmRender()">
+            <button class="export-btn" onclick="crmExport()">&#11015; CSV</button>
+          </div>
+        </div>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>#</th><th class="th-sort" onclick="crmSort('username')">Username &#8597;</th><th>Tier</th><th class="th-sort" onclick="crmSort('followers')">Followers &#8597;</th><th>Status</th><th class="th-sort" onclick="crmSort('gmv')">GMV &#8597;</th><th>Notes</th><th>날짜</th><th></th></tr></thead>
+          <tbody id="crm-tbody"></tbody>
+        </table></div>
+        <div id="crm-empty" style="text-align:center;padding:40px;color:var(--muted);font-size:13px">크리에이터를 추가해서 CRM을 시작하세요</div>
+      </div>
+    </div>
+    <div class="modal-overlay hidden" id="crm-modal"><div class="modal-box">
+      <div class="modal-title">크리에이터 추가/수정</div>
+      <input type="hidden" id="crm-edit-id">
+      <div class="form-row"><label>TikTok Username *</label><input class="form-input" id="crm-f-user" placeholder="@username"></div>
+      <div class="form-row2">
+        <div><label>Tier</label><select class="form-input" id="crm-f-tier"><option>Nano (&lt;10K)</option><option>Micro (10K-100K)</option><option>Mid (100K-500K)</option><option>Macro (500K+)</option></select></div>
+        <div><label>Followers</label><input class="form-input" id="crm-f-followers" type="number" placeholder="50000"></div>
+      </div>
+      <div class="form-row2">
+        <div><label>Status</label><select class="form-input" id="crm-f-status"><option value="none">미연락</option><option value="contacted">연락함</option><option value="sampled">샘플발송</option><option value="active">활성</option><option value="inactive">비활성</option></select></div>
+        <div><label>GMV ($)</label><input class="form-input" id="crm-f-gmv" type="number" placeholder="0.00" step="0.01"></div>
+      </div>
+      <div class="form-row"><label>Notes</label><textarea class="form-input" id="crm-f-notes" rows="2" placeholder="메모..."></textarea></div>
+      <div class="modal-actions"><button class="btn-ghost" onclick="closeModal('crm-modal')">취소</button><button class="btn-primary" onclick="crmSave()">저장</button></div>
+    </div></div>
+
+    <!-- ═══ 10. 샘플 시딩 ══════════════════════════ -->
+    <div id="sec-seeding" class="page-section">
+      <div class="sec-head">
+        <div><div class="sec-title">샘플 시딩 트래커</div><div class="sec-sub">샘플 발송 현황 및 전환율 추적</div></div>
+        <button class="btn-primary" onclick="openModal('seed-modal')">+ 시딩 추가</button>
+      </div>
+      <div class="kpi-grid">
+        <div class="kpi"><div class="kpi-bar" style="background:var(--pink)"></div><div class="kpi-lbl">총 발송</div><div class="kpi-val" id="seed-kpi-total">0</div><div class="kpi-sub neu">건</div></div>
+        <div class="kpi"><div class="kpi-bar" style="background:var(--yellow)"></div><div class="kpi-lbl">총 비용</div><div class="kpi-val" id="seed-kpi-cost">$0</div><div class="kpi-sub neu">원가 기준</div></div>
+        <div class="kpi"><div class="kpi-bar" style="background:var(--green)"></div><div class="kpi-lbl">전환</div><div class="kpi-val" id="seed-kpi-conv">0</div><div class="kpi-sub up">콘텐츠 업로드</div></div>
+        <div class="kpi"><div class="kpi-bar" style="background:var(--purple)"></div><div class="kpi-lbl">시딩 ROI</div><div class="kpi-val" id="seed-kpi-roi">0x</div><div class="kpi-sub neu">GMV / 비용</div></div>
+      </div>
+      <div class="card full">
+        <div class="tbl-toolbar">
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <button class="filter-btn active" onclick="seedFilter('all',this)">All</button>
+            <button class="filter-btn" onclick="seedFilter('pending',this)">대기</button>
+            <button class="filter-btn" onclick="seedFilter('shipped',this)">발송완료</button>
+            <button class="filter-btn" onclick="seedFilter('posted',this)">업로드</button>
+            <button class="filter-btn" onclick="seedFilter('converted',this)">전환완료</button>
+          </div>
+          <button class="export-btn" onclick="seedExport()">&#11015; CSV</button>
+        </div>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>#</th><th>Creator</th><th>Product</th><th>수량</th><th>비용</th><th>발송일</th><th>Status</th><th>GMV 발생</th><th>Notes</th><th></th></tr></thead>
+          <tbody id="seed-tbody"></tbody>
+        </table></div>
+        <div id="seed-empty" style="text-align:center;padding:40px;color:var(--muted);font-size:13px">시딩 기록을 추가하세요</div>
+      </div>
+    </div>
+    <div class="modal-overlay hidden" id="seed-modal"><div class="modal-box">
+      <div class="modal-title">샘플 시딩 추가</div>
+      <input type="hidden" id="seed-edit-id">
+      <div class="form-row2">
+        <div><label>Creator *</label><input class="form-input" id="seed-f-creator" placeholder="@username"></div>
+        <div><label>Product</label><select class="form-input" id="seed-f-product"><option>PDRN Cream 20ml</option><option>PDRN Cream 60ml</option><option>PDRN Lip Serum</option><option>Ceramide Cream</option><option>Retino-mela Serum</option><option>PDRN Mask</option></select></div>
+      </div>
+      <div class="form-row2">
+        <div><label>수량</label><input class="form-input" id="seed-f-qty" type="number" placeholder="1" min="1"></div>
+        <div><label>비용 ($)</label><input class="form-input" id="seed-f-cost" type="number" placeholder="0.00" step="0.01"></div>
+      </div>
+      <div class="form-row2">
+        <div><label>발송일</label><input class="form-input" id="seed-f-date" type="date"></div>
+        <div><label>Status</label><select class="form-input" id="seed-f-status"><option value="pending">발송 대기</option><option value="shipped">발송 완료</option><option value="posted">콘텐츠 업로드</option><option value="converted">전환 완료</option></select></div>
+      </div>
+      <div class="form-row"><label>발생 GMV ($)</label><input class="form-input" id="seed-f-gmv" type="number" placeholder="0.00" step="0.01"></div>
+      <div class="form-row"><label>Notes</label><textarea class="form-input" id="seed-f-notes" rows="2" placeholder="메모..."></textarea></div>
+      <div class="modal-actions"><button class="btn-ghost" onclick="closeModal('seed-modal')">취소</button><button class="btn-primary" onclick="seedSave()">저장</button></div>
+    </div></div>
+
+    <!-- ═══ 11. LIVE 트래커 ══════════════════════ -->
+    <div id="sec-live" class="page-section">
+      <div class="sec-head">
+        <div><div class="sec-title">LIVE 스트림 트래커</div><div class="sec-sub">라이브 방송 성과 기록 및 분석</div></div>
+        <button class="btn-primary" onclick="openModal('live-modal')">+ LIVE 추가</button>
+      </div>
+      <div class="kpi-grid">
+        <div class="kpi"><div class="kpi-bar" style="background:var(--pink)"></div><div class="kpi-lbl">총 LIVE</div><div class="kpi-val" id="live-kpi-total">0</div><div class="kpi-sub neu">회</div></div>
+        <div class="kpi"><div class="kpi-bar" style="background:var(--green)"></div><div class="kpi-lbl">총 LIVE GMV</div><div class="kpi-val" id="live-kpi-gmv">$0</div><div class="kpi-sub neu">누적</div></div>
+        <div class="kpi"><div class="kpi-bar" style="background:var(--cyan)"></div><div class="kpi-lbl">평균 최고 시청자</div><div class="kpi-val" id="live-kpi-viewers">0</div><div class="kpi-sub neu">명</div></div>
+        <div class="kpi"><div class="kpi-bar" style="background:var(--yellow)"></div><div class="kpi-lbl">최고 단일 LIVE</div><div class="kpi-val" id="live-kpi-best">$0</div><div class="kpi-sub c-yellow">GMV 기준</div></div>
+      </div>
+      <div class="g2">
+        <div class="card"><div class="card-title">LIVE GMV 추이</div><div class="card-sub">방송별 GMV</div><div class="ch ch-200"><canvas id="c-live-gmv"></canvas></div></div>
+        <div class="card"><div class="card-title">최고 시청자 추이</div><div class="card-sub">방송별 피크 시청자</div><div class="ch ch-200"><canvas id="c-live-viewers"></canvas></div></div>
+      </div>
+      <div class="card full">
+        <div class="tbl-toolbar">
+          <div class="card-title">LIVE 기록</div>
+          <button class="export-btn" onclick="liveExport()">&#11015; CSV</button>
+        </div>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>#</th><th>날짜</th><th>Host</th><th>방송시간(분)</th><th>최고 시청자</th><th>GMV</th><th>제품</th><th>Notes</th><th></th></tr></thead>
+          <tbody id="live-tbody"></tbody>
+        </table></div>
+        <div id="live-empty" style="text-align:center;padding:40px;color:var(--muted);font-size:13px">LIVE 기록을 추가하세요</div>
+      </div>
+    </div>
+    <div class="modal-overlay hidden" id="live-modal"><div class="modal-box">
+      <div class="modal-title">LIVE 기록 추가</div>
+      <input type="hidden" id="live-edit-id">
+      <div class="form-row2">
+        <div><label>날짜 *</label><input class="form-input" id="live-f-date" type="date"></div>
+        <div><label>Host</label><input class="form-input" id="live-f-host" placeholder="@username 또는 자체"></div>
+      </div>
+      <div class="form-row2">
+        <div><label>방송 시간 (분)</label><input class="form-input" id="live-f-dur" type="number" placeholder="60"></div>
+        <div><label>최고 시청자</label><input class="form-input" id="live-f-viewers" type="number" placeholder="500"></div>
+      </div>
+      <div class="form-row2">
+        <div><label>GMV ($) *</label><input class="form-input" id="live-f-gmv" type="number" placeholder="0.00" step="0.01"></div>
+        <div><label>주요 제품</label><input class="form-input" id="live-f-products" placeholder="PDRN Cream, Lip..."></div>
+      </div>
+      <div class="form-row"><label>Notes</label><textarea class="form-input" id="live-f-notes" rows="2" placeholder="메모..."></textarea></div>
+      <div class="modal-actions"><button class="btn-ghost" onclick="closeModal('live-modal')">취소</button><button class="btn-primary" onclick="liveSave()">저장</button></div>
+    </div></div>
+
+    <!-- ═══ 12. 바이럴 영상 ══════════════════════ -->
+    <div id="sec-viral" class="page-section">
+      <div class="sec-head">
+        <div><div class="sec-title">바이럴 영상 트래커</div><div class="sec-sub">조회수 급상승 영상 및 GMV 스파이크 기록</div></div>
+        <button class="btn-primary" onclick="openModal('viral-modal')">+ 영상 추가</button>
+      </div>
+      <div class="kpi-grid">
+        <div class="kpi"><div class="kpi-bar" style="background:var(--pink)"></div><div class="kpi-lbl">바이럴 영상</div><div class="kpi-val" id="viral-kpi-total">0</div><div class="kpi-sub neu">개</div></div>
+        <div class="kpi"><div class="kpi-bar" style="background:var(--cyan)"></div><div class="kpi-lbl">총 조회수</div><div class="kpi-val" id="viral-kpi-views">0</div><div class="kpi-sub neu">누적</div></div>
+        <div class="kpi"><div class="kpi-bar" style="background:var(--green)"></div><div class="kpi-lbl">바이럴 GMV</div><div class="kpi-val" id="viral-kpi-gmv">$0</div><div class="kpi-sub up">스파이크 기여</div></div>
+        <div class="kpi"><div class="kpi-bar" style="background:var(--purple)"></div><div class="kpi-lbl">1K 조회당 GMV</div><div class="kpi-val" id="viral-kpi-cpm">$0</div><div class="kpi-sub neu">평균</div></div>
+      </div>
+      <div class="card full">
+        <div class="tbl-toolbar">
+          <div><div class="card-title">바이럴 영상 기록</div></div>
+          <div style="display:flex;gap:8px">
+            <input class="tbl-search" id="viral-search" placeholder="검색..." oninput="viralRender()">
+            <button class="export-btn" onclick="viralExport()">&#11015; CSV</button>
+          </div>
+        </div>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>#</th><th>Creator</th><th>날짜</th><th>조회수</th><th>좋아요</th><th>제품</th><th>GMV 스파이크</th><th>Video ID</th><th>Notes</th><th></th></tr></thead>
+          <tbody id="viral-tbody"></tbody>
+        </table></div>
+        <div id="viral-empty" style="text-align:center;padding:40px;color:var(--muted);font-size:13px">바이럴 영상 기록을 추가하세요</div>
+      </div>
+    </div>
+    <div class="modal-overlay hidden" id="viral-modal"><div class="modal-box">
+      <div class="modal-title">바이럴 영상 추가</div>
+      <input type="hidden" id="viral-edit-id">
+      <div class="form-row2">
+        <div><label>Creator *</label><input class="form-input" id="viral-f-creator" placeholder="@username"></div>
+        <div><label>날짜</label><input class="form-input" id="viral-f-date" type="date"></div>
+      </div>
+      <div class="form-row2">
+        <div><label>조회수</label><input class="form-input" id="viral-f-views" type="number" placeholder="100000"></div>
+        <div><label>좋아요</label><input class="form-input" id="viral-f-likes" type="number" placeholder="5000"></div>
+      </div>
+      <div class="form-row2">
+        <div><label>제품</label><select class="form-input" id="viral-f-product"><option>PDRN Cream 20ml</option><option>PDRN Cream 60ml</option><option>PDRN Lip Serum</option><option>Ceramide Cream</option><option>Retino-mela Serum</option><option>PDRN Mask</option></select></div>
+        <div><label>GMV 스파이크 ($)</label><input class="form-input" id="viral-f-gmv" type="number" placeholder="0.00" step="0.01"></div>
+      </div>
+      <div class="form-row"><label>Video ID / URL</label><input class="form-input" id="viral-f-vid" placeholder="TikTok video ID or URL"></div>
+      <div class="form-row"><label>Notes</label><textarea class="form-input" id="viral-f-notes" rows="2" placeholder="메모..."></textarea></div>
+      <div class="modal-actions"><button class="btn-ghost" onclick="closeModal('viral-modal')">취소</button><button class="btn-primary" onclick="viralSave()">저장</button></div>
+    </div></div>
+
+    <!-- ═══ 13. 콘텐츠 브리프 ══════════════════ -->
+    <div id="sec-brief" class="page-section">
+      <div class="sec-head">
+        <div><div class="sec-title">콘텐츠 브리프 생성기</div><div class="sec-sub">크리에이터용 콘텐츠 가이드 자동 생성</div></div>
+      </div>
+      <div class="g2">
+        <div class="card">
+          <div class="card-title">브리프 설정</div>
+          <div class="card-sub">옵션 선택 후 브리프 자동 생성</div>
+          <div style="margin-top:14px">
+            <div class="form-row"><label>제품 *</label><select class="form-input" id="brief-product" onchange="generateBrief()"><option value="pdrn20">PDRN Cream 20ml</option><option value="pdrn60">PDRN Cream 60ml</option><option value="lip">PDRN Lip Serum</option><option value="cera">Ceramide Cream</option><option value="reti">Retino-mela Serum</option><option value="mask">PDRN Mask</option></select></div>
+            <div class="form-row"><label>콘텐츠 타입</label><select class="form-input" id="brief-type" onchange="generateBrief()"><option value="review">제품 리뷰</option><option value="routine">스킨케어 루틴</option><option value="before_after">Before &amp; After</option><option value="unboxing">언박싱</option><option value="live">LIVE 방송</option></select></div>
+            <div class="form-row"><label>크리에이터 Tier</label><select class="form-input" id="brief-tier" onchange="generateBrief()"><option value="nano">Nano (&lt;10K)</option><option value="micro">Micro (10K-100K)</option><option value="mid">Mid (100K-500K)</option><option value="macro">Macro (500K+)</option></select></div>
+            <div class="form-row"><label>크리에이터명 (선택)</label><input class="form-input" id="brief-creator" placeholder="@username" oninput="generateBrief()"></div>
+            <button class="btn-primary" style="width:100%;margin-top:4px" onclick="copyBrief()">&#128203; 브리프 복사</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">생성된 브리프</div>
+          <div class="card-sub">아래 내용을 크리에이터에게 전달하세요</div>
+          <div id="brief-output" class="brief-out" style="margin-top:12px"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ 14. 정산 트래커 ══════════════════════ -->
+    <div id="sec-settlement" class="page-section">
+      <div class="sec-head">
+        <div><div class="sec-title">정산 트래커</div><div class="sec-sub">크리에이터 커미션 지급 관리</div></div>
+        <button class="btn-primary" onclick="openModal('settle-modal')">+ 정산 추가</button>
+      </div>
+      <div class="kpi-grid">
+        <div class="kpi"><div class="kpi-bar" style="background:var(--pink)"></div><div class="kpi-lbl">총 정산액</div><div class="kpi-val" id="settle-kpi-total">$0</div><div class="kpi-sub neu">누적</div></div>
+        <div class="kpi"><div class="kpi-bar" style="background:var(--green)"></div><div class="kpi-lbl">지급 완료</div><div class="kpi-val" id="settle-kpi-paid">$0</div><div class="kpi-sub up">정산 완료</div></div>
+        <div class="kpi"><div class="kpi-bar" style="background:var(--yellow)"></div><div class="kpi-lbl">지급 대기</div><div class="kpi-val" id="settle-kpi-pending">$0</div><div class="kpi-sub c-yellow">미지급</div></div>
+        <div class="kpi"><div class="kpi-bar" style="background:var(--cyan)"></div><div class="kpi-lbl">정산 건수</div><div class="kpi-val" id="settle-kpi-count">0</div><div class="kpi-sub neu">건</div></div>
+      </div>
+      <div class="card full">
+        <div class="tbl-toolbar">
+          <div style="display:flex;gap:6px">
+            <button class="filter-btn active" onclick="settleFilter('all',this)">All</button>
+            <button class="filter-btn" onclick="settleFilter('pending',this)">대기</button>
+            <button class="filter-btn" onclick="settleFilter('paid',this)">완료</button>
+          </div>
+          <button class="export-btn" onclick="settleExport()">&#11015; CSV</button>
+        </div>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>#</th><th>Creator</th><th>기간</th><th>GMV</th><th>Commission%</th><th>지급액</th><th>Status</th><th>지급일</th><th>Notes</th><th></th></tr></thead>
+          <tbody id="settle-tbody"></tbody>
+        </table></div>
+        <div id="settle-empty" style="text-align:center;padding:40px;color:var(--muted);font-size:13px">정산 기록을 추가하세요</div>
+      </div>
+    </div>
+    <div class="modal-overlay hidden" id="settle-modal"><div class="modal-box">
+      <div class="modal-title">정산 추가</div>
+      <input type="hidden" id="settle-edit-id">
+      <div class="form-row2">
+        <div><label>Creator *</label><input class="form-input" id="settle-f-creator" placeholder="@username"></div>
+        <div><label>정산 기간</label><input class="form-input" id="settle-f-period" placeholder="2026-04 W3"></div>
+      </div>
+      <div class="form-row2">
+        <div><label>GMV ($)</label><input class="form-input" id="settle-f-gmv" type="number" placeholder="0.00" step="0.01"></div>
+        <div><label>Commission (%)</label><input class="form-input" id="settle-f-rate" type="number" placeholder="10" step="0.1"></div>
+      </div>
+      <div class="form-row2">
+        <div><label>Status</label><select class="form-input" id="settle-f-status"><option value="pending">대기</option><option value="paid">완료</option></select></div>
+        <div><label>지급일</label><input class="form-input" id="settle-f-paiddate" type="date"></div>
+      </div>
+      <div class="form-row"><label>Notes</label><textarea class="form-input" id="settle-f-notes" rows="2" placeholder="메모..."></textarea></div>
+      <div class="modal-actions"><button class="btn-ghost" onclick="closeModal('settle-modal')">취소</button><button class="btn-primary" onclick="settleSave()">저장</button></div>
+    </div></div>
+
+    <!-- ═══ 15. 주간 리포트 ══════════════════════ -->
+    <div id="sec-report" class="page-section">
+      <div class="sec-head">
+        <div><div class="sec-title">주간 리포트</div><div class="sec-sub">전체 데이터 자동 통합 요약</div></div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input type="week" class="form-input" id="report-week" style="width:170px" onchange="generateReport()">
+          <button class="btn-primary" onclick="window.print()">&#128424; 인쇄/PDF</button>
+        </div>
+      </div>
+      <div id="report-content"></div>
+    </div>
+
   </div><!-- /pages -->
 </div><!-- /content -->
 
@@ -934,7 +1308,10 @@ const UK_MONTHLY = [
 const PAGE_TITLES = {
   overview:'Overview', sales:'Sales & Revenue', inventory:'Inventory',
   affiliates:'Affiliates', competitors:'Competitors', promotions:'Promotions',
-  uk:'UK Market', affiliatelist:'Affiliate List'
+  uk:'UK Market', affiliatelist:'Affiliate List',
+  crm:'Creator CRM', seeding:'샘플 시딩 트래커', live:'LIVE 스트림 트래커',
+  viral:'바이럴 영상 트래커', brief:'콘텐츠 브리프 생성기',
+  settlement:'정산 트래커', report:'주간 리포트'
 };
 let activeCharts = {};
 let currentSection = 'overview';
@@ -965,6 +1342,13 @@ function renderSection(id) {
   if (id === 'promotions')    renderPromotions();
   if (id === 'uk')            renderUK();
   if (id === 'affiliatelist') renderAffiliateList();
+  if (id === 'crm')        renderCRM();
+  if (id === 'seeding')    renderSeeding();
+  if (id === 'live')       renderLive();
+  if (id === 'viral')      renderViral();
+  if (id === 'brief')      generateBrief();
+  if (id === 'settlement') renderSettlement();
+  if (id === 'report')     generateReport();
 }
 
 const PINK='#FE2C55', CYAN='#25F4EE', PURPLE='#A855F7', BLUE='#3B82F6',
@@ -1274,7 +1658,7 @@ function alRenderTable() {
     const gmvColor = c.gmv >= 1000 ? 'c-pink' : c.gmv >= 500 ? 'c-yellow' : '';
     return `<tr>
       <td class="c-muted">${rank}</td>
-      <td class="fw7">@${esc(c.u)}</td>
+      <td class="fw7"><span class="creator-link" onclick="openCreatorProfile('${esc(c.u)}')">@${esc(c.u)}</span></td>
       <td class="fw7 ${gmvColor}">$${c.gmv.toFixed(2)}</td>
       <td>${c.orders}</td>
       <td>${c.items}</td>
@@ -1417,6 +1801,440 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function gEl(id){return document.getElementById(id)}
+function setTxt(id,v){const e=gEl(id);if(e)e.textContent=v}
+function openModal(id){const m=gEl(id);if(m)m.classList.remove('hidden')}
+function closeModal(id){const m=gEl(id);if(m)m.classList.add('hidden')}
+function dlCSV(csv,name){const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);a.download=name;a.click()}
+
+/* ── HELPERS ───────────────────────────────────────────── */
+const lsGet = k => JSON.parse(localStorage.getItem(k)||'[]');
+const lsSet = (k,v) => localStorage.setItem(k,JSON.stringify(v));
+const fmtUSD = v => '$'+(parseFloat(v)||0).toFixed(2);
+const STATUS_BADGE = {
+  none:{l:'미연락',c:'b-gray'}, contacted:{l:'연락함',c:'b-blue'},
+  sampled:{l:'샘플발송',c:'b-cyan'}, active:{l:'활성',c:'b-green'}, inactive:{l:'비활성',c:'b-red'},
+  pending:{l:'대기',c:'b-yellow'}, shipped:{l:'발송완료',c:'b-cyan'},
+  posted:{l:'업로드',c:'b-blue'}, converted:{l:'전환완료',c:'b-green'},
+  paid:{l:'완료',c:'b-green'}
+};
+function sb(status){const s=STATUS_BADGE[status]||{l:status,c:'b-gray'};return `<span class="b ${s.c}">${s.l}</span>`;}
+
+/* ── CREATOR CRM ───────────────────────────────────────── */
+let crmFlt='all', crmSK='username', crmSD=1;
+function renderCRM(){
+  const d=lsGet('crm_creators');
+  const active=d.filter(c=>c.status==='active').length;
+  const sampled=d.filter(c=>c.status==='sampled').length;
+  const conv=sampled+active?Math.round(active/(sampled+active)*100):0;
+  setTxt('crm-kpi-total',d.length); setTxt('crm-kpi-active',active);
+  setTxt('crm-kpi-sampled',sampled); setTxt('crm-kpi-conv',conv+'%');
+  crmRender();
+}
+function crmRender(){
+  let d=lsGet('crm_creators');
+  if(crmFlt!=='all') d=d.filter(c=>c.status===crmFlt);
+  const q=(gEl('crm-search')||{}).value||'';
+  if(q) d=d.filter(c=>c.username.toLowerCase().includes(q.toLowerCase()));
+  d.sort((a,b)=>{const av=a[crmSK]||'',bv=b[crmSK]||'';return(typeof av==='number'?av-bv:String(av).localeCompare(String(bv)))*crmSD;});
+  const tb=gEl('crm-tbody'),em=gEl('crm-empty');
+  if(!d.length){if(tb)tb.innerHTML='';if(em)em.style.display='block';return;}
+  if(em)em.style.display='none';
+  if(tb)tb.innerHTML=d.map((c,i)=>`<tr>
+    <td class="c-muted">${i+1}</td>
+    <td class="fw7"><span class="creator-link" onclick="openCreatorProfile('${esc(c.username)}')" style="cursor:pointer">@${esc(c.username)}</span></td>
+    <td><span class="b b-gray">${esc(c.tier||'—')}</span></td>
+    <td>${c.followers>=1000?(c.followers/1000).toFixed(1)+'K':c.followers||'—'}</td>
+    <td>${sb(c.status||'none')}</td>
+    <td>${c.gmv?fmtUSD(c.gmv):'—'}</td>
+    <td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(c.notes||'—')}</td>
+    <td class="c-muted">${c.date||'—'}</td>
+    <td><button class="export-btn" style="padding:3px 8px;font-size:10px" onclick="crmEdit('${c.id}')">수정</button>
+    <button class="export-btn" style="padding:3px 8px;font-size:10px;color:var(--pink)" onclick="crmDel('${c.id}')">삭제</button></td>
+  </tr>`).join('');
+}
+function crmFilter(v,el){crmFlt=v;document.querySelectorAll('#sec-crm .filter-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');crmRender();}
+function crmSort(k){if(crmSK===k)crmSD*=-1;else{crmSK=k;crmSD=1;}crmRender();}
+function crmSave(){
+  const id=gEl('crm-edit-id').value;
+  const e={id:id||Date.now().toString(),username:(gEl('crm-f-user').value||'').replace('@','').trim(),
+    tier:gEl('crm-f-tier').value,followers:parseInt(gEl('crm-f-followers').value)||0,
+    status:gEl('crm-f-status').value,gmv:parseFloat(gEl('crm-f-gmv').value)||0,
+    notes:gEl('crm-f-notes').value,date:new Date().toLocaleDateString('ko-KR')};
+  if(!e.username){alert('Username을 입력하세요');return;}
+  let d=lsGet('crm_creators');
+  lsSet('crm_creators',id?d.map(c=>c.id===id?e:c):[...d,e]);
+  closeModal('crm-modal');renderCRM();
+}
+function crmEdit(id){
+  const c=lsGet('crm_creators').find(x=>x.id===id);if(!c)return;
+  gEl('crm-edit-id').value=c.id; gEl('crm-f-user').value=c.username;
+  gEl('crm-f-tier').value=c.tier||'Nano (<10K)'; gEl('crm-f-followers').value=c.followers||'';
+  gEl('crm-f-status').value=c.status||'none'; gEl('crm-f-gmv').value=c.gmv||'';
+  gEl('crm-f-notes').value=c.notes||''; openModal('crm-modal');
+}
+function crmDel(id){if(!confirm('삭제하시겠습니까?'))return;lsSet('crm_creators',lsGet('crm_creators').filter(c=>c.id!==id));renderCRM();}
+function crmExport(){const d=lsGet('crm_creators');dlCSV(['Username,Tier,Followers,Status,GMV,Notes,Date',...d.map(c=>[c.username,c.tier,c.followers,c.status,c.gmv,c.notes,c.date].join(','))].join('\n'),'crm.csv');}
+
+/* ── SAMPLE SEEDING ────────────────────────────────────── */
+let seedFlt='all';
+function renderSeeding(){
+  const d=lsGet('seeding');
+  const cost=d.reduce((s,x)=>s+(x.cost||0),0);
+  const conv=d.filter(x=>x.status==='converted'||x.status==='posted').length;
+  const gmv=d.reduce((s,x)=>s+(x.gmv||0),0);
+  setTxt('seed-kpi-total',d.length); setTxt('seed-kpi-cost',fmtUSD(cost));
+  setTxt('seed-kpi-conv',conv); setTxt('seed-kpi-roi',cost?+(gmv/cost).toFixed(1)+'x':'0x');
+  seedRender();
+}
+function seedRender(){
+  let d=lsGet('seeding');
+  if(seedFlt!=='all') d=d.filter(x=>x.status===seedFlt);
+  const q=(gEl('seed-search')||{}).value||'';
+  if(q) d=d.filter(x=>x.creator.toLowerCase().includes(q.toLowerCase()));
+  const tb=gEl('seed-tbody'),em=gEl('seed-empty');
+  if(!d.length){if(tb)tb.innerHTML='';if(em)em.style.display='block';return;}
+  if(em)em.style.display='none';
+  if(tb)tb.innerHTML=d.map((x,i)=>`<tr>
+    <td class="c-muted">${i+1}</td><td class="fw7">@${esc(x.creator)}</td>
+    <td>${esc(x.product)}</td><td>${x.qty||1}</td><td>${fmtUSD(x.cost)}</td>
+    <td class="c-muted">${x.date||'—'}</td><td>${sb(x.status)}</td>
+    <td class="fw7 ${x.gmv>=100?'c-green':''}">${fmtUSD(x.gmv)}</td>
+    <td style="max-width:120px;overflow:hidden;text-overflow:ellipsis">${esc(x.notes||'—')}</td>
+    <td><button class="export-btn" style="padding:3px 8px;font-size:10px" onclick="seedEdit('${x.id}')">수정</button>
+    <button class="export-btn" style="padding:3px 8px;font-size:10px;color:var(--pink)" onclick="seedDel('${x.id}')">삭제</button></td>
+  </tr>`).join('');
+}
+function seedFilter(v,el){seedFlt=v;document.querySelectorAll('#sec-seeding .filter-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');seedRender();}
+function seedSave(){
+  const id=gEl('seed-edit-id').value;
+  const e={id:id||Date.now().toString(),creator:(gEl('seed-f-creator').value||'').replace('@','').trim(),
+    product:gEl('seed-f-product').value,qty:parseInt(gEl('seed-f-qty').value)||1,
+    cost:parseFloat(gEl('seed-f-cost').value)||0,date:gEl('seed-f-date').value,
+    status:gEl('seed-f-status').value,gmv:parseFloat(gEl('seed-f-gmv').value)||0,
+    notes:gEl('seed-f-notes').value};
+  if(!e.creator){alert('Creator를 입력하세요');return;}
+  let d=lsGet('seeding');
+  lsSet('seeding',id?d.map(x=>x.id===id?e:x):[...d,e]);
+  closeModal('seed-modal');renderSeeding();
+}
+function seedEdit(id){
+  const x=lsGet('seeding').find(s=>s.id===id);if(!x)return;
+  gEl('seed-edit-id').value=x.id; gEl('seed-f-creator').value=x.creator;
+  gEl('seed-f-product').value=x.product; gEl('seed-f-qty').value=x.qty;
+  gEl('seed-f-cost').value=x.cost; gEl('seed-f-date').value=x.date||'';
+  gEl('seed-f-status').value=x.status; gEl('seed-f-gmv').value=x.gmv;
+  gEl('seed-f-notes').value=x.notes||''; openModal('seed-modal');
+}
+function seedDel(id){if(!confirm('삭제?'))return;lsSet('seeding',lsGet('seeding').filter(x=>x.id!==id));renderSeeding();}
+function seedExport(){const d=lsGet('seeding');dlCSV(['Creator,Product,Qty,Cost,Date,Status,GMV,Notes',...d.map(x=>[x.creator,x.product,x.qty,x.cost,x.date,x.status,x.gmv,x.notes].join(','))].join('\n'),'seeding.csv');}
+
+/* ── LIVE TRACKER ──────────────────────────────────────── */
+function renderLive(){
+  const d=lsGet('live_records');
+  const totalGMV=d.reduce((s,x)=>s+(x.gmv||0),0);
+  const avgV=d.length?Math.round(d.reduce((s,x)=>s+(x.viewers||0),0)/d.length):0;
+  const best=d.length?Math.max(...d.map(x=>x.gmv||0)):0;
+  setTxt('live-kpi-total',d.length); setTxt('live-kpi-gmv',fmtUSD(totalGMV));
+  setTxt('live-kpi-viewers',avgV.toLocaleString()); setTxt('live-kpi-best',fmtUSD(best));
+  const sorted=[...d].sort((a,b)=>new Date(a.date)-new Date(b.date));
+  mkChart('c-live-gmv','line',{labels:sorted.map(x=>x.date),datasets:[{label:'GMV',data:sorted.map(x=>x.gmv||0),borderColor:PINK,backgroundColor:PINK+'22',fill:true,tension:.3,pointRadius:3}]},{plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:9}}},y:{ticks:{callback:v=>'$'+v}}}});
+  mkChart('c-live-viewers','bar',{labels:sorted.map(x=>x.date),datasets:[{label:'Viewers',data:sorted.map(x=>x.viewers||0),backgroundColor:CYAN+'99',borderRadius:4,borderWidth:0}]},{plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:9}}}}});
+  liveRender();
+}
+function liveRender(){
+  const d=lsGet('live_records').sort((a,b)=>new Date(b.date)-new Date(a.date));
+  const tb=gEl('live-tbody'),em=gEl('live-empty');
+  if(!d.length){if(tb)tb.innerHTML='';if(em)em.style.display='block';return;}
+  if(em)em.style.display='none';
+  if(tb)tb.innerHTML=d.map((x,i)=>`<tr>
+    <td class="c-muted">${i+1}</td><td class="c-muted">${x.date||'—'}</td>
+    <td class="fw7">@${esc(x.host||'—')}</td><td>${x.duration||'—'}</td>
+    <td>${(x.viewers||0).toLocaleString()}</td><td class="fw7 c-pink">${fmtUSD(x.gmv)}</td>
+    <td>${esc(x.products||'—')}</td><td>${esc(x.notes||'—')}</td>
+    <td><button class="export-btn" style="padding:3px 8px;font-size:10px;color:var(--pink)" onclick="liveDel('${x.id}')">삭제</button></td>
+  </tr>`).join('');
+}
+function liveSave(){
+  const id=gEl('live-edit-id').value;
+  const e={id:id||Date.now().toString(),date:gEl('live-f-date').value,host:(gEl('live-f-host').value||'').replace('@','').trim(),
+    duration:parseInt(gEl('live-f-dur').value)||0,viewers:parseInt(gEl('live-f-viewers').value)||0,
+    gmv:parseFloat(gEl('live-f-gmv').value)||0,products:gEl('live-f-products').value,notes:gEl('live-f-notes').value};
+  if(!e.date){alert('날짜를 입력하세요');return;}
+  let d=lsGet('live_records');
+  lsSet('live_records',id?d.map(x=>x.id===id?e:x):[...d,e]);
+  closeModal('live-modal');renderLive();
+}
+function liveDel(id){if(!confirm('삭제?'))return;lsSet('live_records',lsGet('live_records').filter(x=>x.id!==id));renderLive();}
+function liveExport(){const d=lsGet('live_records');dlCSV(['Date,Host,Duration(min),Peak Viewers,GMV,Products,Notes',...d.map(x=>[x.date,x.host,x.duration,x.viewers,x.gmv,x.products,x.notes].join(','))].join('\n'),'live_tracker.csv');}
+
+/* ── VIRAL VIDEO TRACKER ───────────────────────────────── */
+function renderViral(){
+  const d=lsGet('viral_records');
+  const views=d.reduce((s,x)=>s+(x.views||0),0);
+  const gmv=d.reduce((s,x)=>s+(x.gmv||0),0);
+  const cpm=views?+(gmv/(views/1000)).toFixed(2):0;
+  const vStr=views>=1000000?(views/1000000).toFixed(1)+'M':views>=1000?(views/1000).toFixed(1)+'K':String(views);
+  setTxt('viral-kpi-total',d.length); setTxt('viral-kpi-views',vStr);
+  setTxt('viral-kpi-gmv',fmtUSD(gmv)); setTxt('viral-kpi-cpm',fmtUSD(cpm));
+  viralRender();
+}
+function viralRender(){
+  let d=lsGet('viral_records').sort((a,b)=>(b.views||0)-(a.views||0));
+  const q=(gEl('viral-search')||{}).value||'';
+  if(q) d=d.filter(x=>(x.creator+x.product).toLowerCase().includes(q.toLowerCase()));
+  const tb=gEl('viral-tbody'),em=gEl('viral-empty');
+  if(!d.length){if(tb)tb.innerHTML='';if(em)em.style.display='block';return;}
+  if(em)em.style.display='none';
+  const fmtV=v=>v>=1000000?(v/1000000).toFixed(1)+'M':v>=1000?(v/1000).toFixed(1)+'K':String(v||0);
+  if(tb)tb.innerHTML=d.map((x,i)=>`<tr>
+    <td class="c-muted">${i+1}</td><td class="fw7">@${esc(x.creator)}</td>
+    <td class="c-muted">${x.date||'—'}</td><td class="fw7">${fmtV(x.views)}</td>
+    <td>${fmtV(x.likes)}</td><td>${esc(x.product)}</td>
+    <td class="fw7 c-pink">${fmtUSD(x.gmv)}</td>
+    <td><span style="font-size:10px;color:var(--muted)">${esc(x.vid||'—')}</span></td>
+    <td>${esc(x.notes||'—')}</td>
+    <td><button class="export-btn" style="padding:3px 8px;font-size:10px;color:var(--pink)" onclick="viralDel('${x.id}')">삭제</button></td>
+  </tr>`).join('');
+}
+function viralSave(){
+  const id=gEl('viral-edit-id').value;
+  const e={id:id||Date.now().toString(),creator:(gEl('viral-f-creator').value||'').replace('@','').trim(),
+    date:gEl('viral-f-date').value,views:parseInt(gEl('viral-f-views').value)||0,
+    likes:parseInt(gEl('viral-f-likes').value)||0,product:gEl('viral-f-product').value,
+    gmv:parseFloat(gEl('viral-f-gmv').value)||0,vid:gEl('viral-f-vid').value,notes:gEl('viral-f-notes').value};
+  if(!e.creator){alert('Creator를 입력하세요');return;}
+  let d=lsGet('viral_records');
+  lsSet('viral_records',id?d.map(x=>x.id===id?e:x):[...d,e]);
+  closeModal('viral-modal');renderViral();
+}
+function viralDel(id){if(!confirm('삭제?'))return;lsSet('viral_records',lsGet('viral_records').filter(x=>x.id!==id));renderViral();}
+function viralExport(){const d=lsGet('viral_records');dlCSV(['Creator,Date,Views,Likes,Product,GMV Spike,Video ID,Notes',...d.map(x=>[x.creator,x.date,x.views,x.likes,x.product,x.gmv,x.vid,x.notes].join(','))].join('\n'),'viral.csv');}
+
+/* ── CONTENT BRIEF GENERATOR ───────────────────────────── */
+const BRIEF_PRODUCTS={
+  pdrn20:{name:'PDRN Cream 20ml',price:'$42',key:['PDRN 5000ppm 고함량','피부 재생 앰플 크림','K-Beauty 피부과 성분','즉각적인 보습 & 탄력'],hook:['내 피부가 이렇게 될 줄 몰랐어요','피부과 가기 전에 이거 써보세요','3일만에 변한 내 피부']},
+  pdrn60:{name:'PDRN Cream 60ml',price:'$78',key:['PDRN 고함량 대용량','가성비 최고의 재생크림','2개월 이상 사용 가능','피부과 성분 홈케어'],hook:['60ml 대용량으로 매일 아낌없이','이 가격에 이 성분이?','피부과 안 가도 되는 이유']},
+  lip:{name:'PDRN Lip Serum',price:'$28',key:['입술 PDRN 세럼','각질 제거 & 보습','촉촉한 입술 연출','K-Beauty 립케어'],hook:['립밤만 발랐던 나에게','입술 각질 끝내는 법','이게 진짜 입술 케어']},
+  cera:{name:'Ceramide Cream',price:'$38',key:['세라마이드 7중 복합','피부 장벽 강화','건성/민감성 피부 추천','무향 저자극 포뮬라'],hook:['피부 장벽 무너진 사람 모여봐','건조한 피부 구원투수','민감피부도 OK']},
+  reti:{name:'Retino-mela Serum',price:'$52',key:['레티놀 + 나이아신아마이드','미백 & 안티에이징','잡티 & 칙칙함 개선','저자극 안정화 레티놀'],hook:['30대 피부 고민 해결','잡티 없애는 K-Beauty 루틴','레티놀 처음이라면']},
+  mask:{name:'PDRN Mask',price:'$22',key:['PDRN 시트마스크','즉각 보습 & 광채','주 2-3회 집중케어','피부과 시술 후 사용 가능'],hook:['주 2회로 달라진 내 피부','피부과 다녀온 것처럼','10분 투자로 피부 리셋']},
+};
+const BRIEF_TYPES={
+  review:{label:'제품 리뷰',duration:'60-90초',format:'제품 소개 → 텍스처/향 → 발림성 → 사용 후 느낌 → 추천'},
+  routine:{label:'스킨케어 루틴',duration:'90-120초',format:'세안 후 스킨케어 스텝 중 제품 등장 → 레이어링 팁 → 완성된 피부'},
+  before_after:{label:'Before & After',duration:'15-30초 (숏폼)',format:'Before 피부 → 사용 기간 자막 → After 피부 → 제품 클로즈업'},
+  unboxing:{label:'언박싱',duration:'45-60초',format:'패키지 오픈 → 성분 설명 → 텍스처 테스트 → 첫인상'},
+  live:{label:'LIVE 방송',duration:'최소 30분',format:'인트로 제품 소개 → 성분 설명 → 라이브 사용 → Q&A → 구매 유도'},
+};
+function generateBrief(){
+  const p=BRIEF_PRODUCTS[gEl('brief-product').value]||BRIEF_PRODUCTS.pdrn20;
+  const t=BRIEF_TYPES[gEl('brief-type').value]||BRIEF_TYPES.review;
+  const tier=(gEl('brief-tier')||{}).value||'micro';
+  const creator=((gEl('brief-creator')||{}).value||'').replace('@','').trim();
+  const tierNote={nano:'진정성 있는 일상 리뷰 스타일로',micro:'나만의 시각으로 솔직하게',mid:'스킨케어 전문성을 살려서',macro:'브랜드 스토리와 함께 임팩트 있게'}[tier]||'';
+  const brief=`━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Dr. Reju-All · Creator Brief
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+${creator?'Creator: @'+creator+'\n':''}제품: ${p.name} (${p.price})
+콘텐츠: ${t.label} | 영상 길이: ${t.duration}
+
+📌 Key Messages
+${p.key.map((k,i)=>`${i+1}. ${k}`).join('\n')}
+
+🎬 추천 Hook
+• "${p.hook[0]}"
+• "${p.hook[1]}"
+• "${p.hook[2]}"
+
+📋 콘텐츠 구성
+${t.format}
+
+💡 크리에이터 방향
+${tierNote} 표현해 주세요.
+시청자가 공감할 수 있는 피부 고민을 먼저 언급하고,
+Dr. Reju-All이 그 솔루션이 되는 스토리로 연결해 주세요.
+
+🛒 CTA (반드시 포함)
+• "링크 인 바이오" 또는 TikTok Shop 태그
+• 제품명 + 가격 언급 ($${p.price.replace('$','')})
+• 한정 할인 또는 리뷰 코드 (협의 시)
+
+#️⃣ 권장 해시태그
+#DrRejuAll #KBeauty #Skincare #PDRNCream
+#TikTokShop #SkincareRoutine #KoreanSkincare
+
+📩 문의: operations@drrejuall.com
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
+  const out=gEl('brief-output');if(out)out.textContent=brief;
+}
+function copyBrief(){
+  const t=(gEl('brief-output')||{}).textContent||'';
+  navigator.clipboard.writeText(t).then(()=>{
+    const b=document.querySelector('#sec-brief .btn-primary');
+    if(b){b.textContent='✅ 복사 완료!';setTimeout(()=>{b.innerHTML='&#128203; 브리프 복사';},2000);}
+  });
+}
+
+/* ── SETTLEMENT TRACKER ────────────────────────────────── */
+let settleFlt='all';
+function renderSettlement(){
+  const d=lsGet('settlement');
+  const total=d.reduce((s,x)=>s+(x.amount||0),0);
+  const paid=d.filter(x=>x.status==='paid').reduce((s,x)=>s+(x.amount||0),0);
+  const pending=d.filter(x=>x.status==='pending').reduce((s,x)=>s+(x.amount||0),0);
+  setTxt('settle-kpi-total',fmtUSD(total)); setTxt('settle-kpi-paid',fmtUSD(paid));
+  setTxt('settle-kpi-pending',fmtUSD(pending)); setTxt('settle-kpi-count',d.length);
+  settleRender();
+}
+function settleRender(){
+  let d=lsGet('settlement');
+  if(settleFlt!=='all') d=d.filter(x=>x.status===settleFlt);
+  const tb=gEl('settle-tbody'),em=gEl('settle-empty');
+  if(!d.length){if(tb)tb.innerHTML='';if(em)em.style.display='block';return;}
+  if(em)em.style.display='none';
+  if(tb)tb.innerHTML=d.map((x,i)=>`<tr>
+    <td class="c-muted">${i+1}</td><td class="fw7">@${esc(x.creator)}</td>
+    <td class="c-muted">${esc(x.period||'—')}</td><td>${fmtUSD(x.gmv)}</td>
+    <td>${x.rate||0}%</td><td class="fw7 c-pink">${fmtUSD(x.amount)}</td>
+    <td>${sb(x.status)}</td><td class="c-muted">${x.paiddate||'—'}</td>
+    <td>${esc(x.notes||'—')}</td>
+    <td><button class="export-btn" style="padding:3px 8px;font-size:10px" onclick="settleEdit('${x.id}')">수정</button>
+    <button class="export-btn" style="padding:3px 8px;font-size:10px;color:var(--pink)" onclick="settleDel('${x.id}')">삭제</button></td>
+  </tr>`).join('');
+}
+function settleFilter(v,el){settleFlt=v;document.querySelectorAll('#sec-settlement .filter-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');settleRender();}
+function settleSave(){
+  const id=gEl('settle-edit-id').value;
+  const gmv=parseFloat(gEl('settle-f-gmv').value)||0;
+  const rate=parseFloat(gEl('settle-f-rate').value)||0;
+  const e={id:id||Date.now().toString(),creator:(gEl('settle-f-creator').value||'').replace('@','').trim(),
+    period:gEl('settle-f-period').value,gmv,rate,amount:+(gmv*rate/100).toFixed(2),
+    status:gEl('settle-f-status').value,paiddate:gEl('settle-f-paiddate').value,notes:gEl('settle-f-notes').value};
+  if(!e.creator){alert('Creator를 입력하세요');return;}
+  let d=lsGet('settlement');
+  lsSet('settlement',id?d.map(x=>x.id===id?e:x):[...d,e]);
+  closeModal('settle-modal');renderSettlement();
+}
+function settleEdit(id){
+  const x=lsGet('settlement').find(s=>s.id===id);if(!x)return;
+  gEl('settle-edit-id').value=x.id; gEl('settle-f-creator').value=x.creator;
+  gEl('settle-f-period').value=x.period||''; gEl('settle-f-gmv').value=x.gmv;
+  gEl('settle-f-rate').value=x.rate; gEl('settle-f-status').value=x.status;
+  gEl('settle-f-paiddate').value=x.paiddate||''; gEl('settle-f-notes').value=x.notes||'';
+  openModal('settle-modal');
+}
+function settleDel(id){if(!confirm('삭제?'))return;lsSet('settlement',lsGet('settlement').filter(x=>x.id!==id));renderSettlement();}
+function settleExport(){const d=lsGet('settlement');dlCSV(['Creator,Period,GMV,Rate%,Amount,Status,PaidDate,Notes',...d.map(x=>[x.creator,x.period,x.gmv,x.rate,x.amount,x.status,x.paiddate,x.notes].join(','))].join('\n'),'settlement.csv');}
+
+/* ── WEEKLY REPORT ─────────────────────────────────────── */
+function generateReport(){
+  const w=gEl('report-week');
+  const weekLabel=w&&w.value?w.value:'이번 주';
+  const crm=lsGet('crm_creators'); const seed=lsGet('seeding');
+  const live=lsGet('live_records'); const settle=lsGet('settlement');
+  const viral=lsGet('viral_records');
+  const alGMV=alData.reduce((s,x)=>s+(x.gmv||0),0);
+  const alActive=alData.filter(x=>x.gmv>0).length;
+  const liveGMV=live.reduce((s,x)=>s+(x.gmv||0),0);
+  const seedCost=seed.reduce((s,x)=>s+(x.cost||0),0);
+  const settleTotal=settle.filter(x=>x.status==='pending').reduce((s,x)=>s+(x.amount||0),0);
+  const viralGMV=viral.reduce((s,x)=>s+(x.gmv||0),0);
+  const top5=alData.slice(0,5).map(c=>`<tr><td class="fw7">@${esc(c.u)}</td><td class="c-pink fw7">${fmtUSD(c.gmv)}</td><td>${c.orders}</td><td>${fmtUSD(c.comm)}</td></tr>`).join('');
+  const rc=document.getElementById('report-content');
+  if(!rc)return;
+  rc.innerHTML=`
+    <div style="background:linear-gradient(135deg,var(--pink) 0%,var(--purple) 100%);border-radius:14px;padding:24px;color:#fff;margin-bottom:16px">
+      <div style="font-size:11px;opacity:.8;text-transform:uppercase;letter-spacing:.8px">Dr. Reju-All TikTok Shop</div>
+      <div style="font-size:22px;font-weight:800;margin:4px 0">주간 리포트</div>
+      <div style="font-size:13px;opacity:.85">${weekLabel} · 자동 생성</div>
+    </div>
+    <div class="kpi-grid">
+      <div class="kpi"><div class="kpi-bar" style="background:var(--pink)"></div><div class="kpi-lbl">어필리에이트 GMV</div><div class="kpi-val">${fmtUSD(alGMV)}</div><div class="kpi-sub neu">이번 주</div></div>
+      <div class="kpi"><div class="kpi-bar" style="background:var(--cyan)"></div><div class="kpi-lbl">활성 크리에이터</div><div class="kpi-val">${alActive}</div><div class="kpi-sub neu">명</div></div>
+      <div class="kpi"><div class="kpi-bar" style="background:var(--green)"></div><div class="kpi-lbl">LIVE GMV</div><div class="kpi-val">${fmtUSD(liveGMV)}</div><div class="kpi-sub neu">누적</div></div>
+      <div class="kpi"><div class="kpi-bar" style="background:var(--yellow)"></div><div class="kpi-lbl">샘플 비용</div><div class="kpi-val">${fmtUSD(seedCost)}</div><div class="kpi-sub c-yellow">이번 주 투자</div></div>
+    </div>
+    <div class="g2">
+      <div class="card">
+        <div class="card-title">&#128293; Top 5 크리에이터</div>
+        <div class="card-sub">이번 주 GMV 기준</div>
+        <div class="tbl-wrap" style="margin-top:10px"><table>
+          <thead><tr><th>Creator</th><th>GMV</th><th>Orders</th><th>Commission</th></tr></thead>
+          <tbody>${top5||'<tr><td colspan="4" style="text-align:center;color:var(--muted)">데이터 없음</td></tr>'}</tbody>
+        </table></div>
+      </div>
+      <div class="card">
+        <div class="card-title">&#128203; 주요 지표 요약</div>
+        <div class="card-sub">이번 주 Operations</div>
+        <div style="margin-top:12px;display:flex;flex-direction:column;gap:8px">
+          ${[
+            ['CRM 등록 크리에이터',crm.length+'명'],
+            ['활성 크리에이터',crm.filter(c=>c.status==='active').length+'명'],
+            ['시딩 발송 건수',seed.length+'건 / '+fmtUSD(seedCost)],
+            ['LIVE 방송',live.length+'회 / '+fmtUSD(liveGMV)],
+            ['바이럴 영상',viral.length+'개 / '+fmtUSD(viralGMV)],
+            ['미정산 커미션',fmtUSD(settleTotal)],
+          ].map(([k,v])=>`<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px"><span style="color:var(--muted)">${k}</span><span class="fw7">${v}</span></div>`).join('')}
+        </div>
+      </div>
+    </div>
+    <div class="card full" style="margin-top:0">
+      <div class="card-title">&#128221; 다음 주 Action Items</div>
+      <div style="margin-top:10px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+        ${[
+          ['&#128100; CRM','미연락 크리에이터 팔로업 & 샘플 시딩 우선순위 확인'],
+          ['&#127873; 시딩','샘플 발송 후 콘텐츠 업로드 여부 확인 및 전환 추적'],
+          ['&#128250; LIVE','이번 주 LIVE 성과 분석 후 최적 시간대 스케줄 조정'],
+        ].map(([icon,txt])=>`<div style="background:var(--bg);border-radius:8px;padding:12px"><div style="font-size:13px;font-weight:700;margin-bottom:4px">${icon}</div><div style="font-size:11px;color:var(--muted);line-height:1.5">${txt}</div></div>`).join('')}
+      </div>
+    </div>`;
+}
+
+/* ── CREATOR PROFILE ───────────────────────────────────── */
+const CP_COLORS=['#FE2C55','#7C3AED','#06B6D4','#10B981','#F59E0B','#EF4444','#8B5CF6','#EC4899'];
+function openCreatorProfile(username) {
+  const c = alData.find(x=>x.u===username); if(!c) return;
+  const col = CP_COLORS[username.charCodeAt(0)%CP_COLORS.length];
+  const av = gEl('cp-avatar');
+  av.style.background = col;
+  av.textContent = username.substring(0,2).toUpperCase();
+  setTxt('cp-name','@'+c.u);
+  const fStr = c.followers>=1000000?(c.followers/1000000).toFixed(1)+'M':c.followers>=1000?(c.followers/1000).toFixed(1)+'K':String(c.followers);
+  const tier = c.followers>=500000?'Macro Creator':c.followers>=100000?'Mid-tier Creator':c.followers>=10000?'Micro Creator':'Nano Creator';
+  setTxt('cp-tier',tier+' · '+fStr+' followers');
+  const lnk = gEl('cp-tiktok'); if(lnk) lnk.href='https://www.tiktok.com/@'+c.u;
+  setTxt('cp-gmv','$'+c.gmv.toFixed(2));
+  setTxt('cp-orders',c.orders);
+  setTxt('cp-items',c.items);
+  setTxt('cp-comm','$'+c.comm.toFixed(2));
+  setTxt('cp-aov','$'+c.aov.toFixed(2));
+  setTxt('cp-followers',fStr);
+  setTxt('cp-open-gmv','$'+c.openGMV.toFixed(2));
+  gEl('creator-profile-modal').dataset.creator = username;
+  openModal('creator-profile-modal');
+}
+function cpAddCRM() {
+  const username = gEl('creator-profile-modal').dataset.creator;
+  const c = alData.find(x=>x.u===username);
+  closeModal('creator-profile-modal');
+  const ti = c.followers>=500000?'Macro (500K+)':c.followers>=100000?'Mid (100K-500K)':c.followers>=10000?'Micro (10K-100K)':'Nano (<10K)';
+  const fi = gEl('crm-f-user'); if(fi) fi.value=username;
+  const ff = gEl('crm-f-followers'); if(ff&&c) ff.value=c.followers;
+  const fg = gEl('crm-f-gmv'); if(fg&&c) fg.value=c.gmv;
+  const ft = gEl('crm-f-tier'); if(ft) ft.value=ti;
+  const navEl = document.querySelector('.nav-item[onclick*="\'crm\'"]');
+  nav('crm', navEl);
+  setTimeout(()=>openModal('crm-modal'),150);
+}
+function cpAddSeed() {
+  const username = gEl('creator-profile-modal').dataset.creator;
+  closeModal('creator-profile-modal');
+  const fc = gEl('seed-f-creator'); if(fc) fc.value=username;
+  const navEl = document.querySelector('.nav-item[onclick*="\'seeding\'"]');
+  nav('seeding', navEl);
+  setTimeout(()=>openModal('seed-modal'),150);
+}
 
 /* ════════════════════════════════════════════════
    INIT
