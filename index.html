@@ -1780,12 +1780,32 @@ textarea.form-input{resize:vertical}
         <!-- 하단: 제품별 + 재구매 분석 -->
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
           <div class="kpi-card" style="padding:16px">
-            <div style="font-size:13px;font-weight:700;margin-bottom:12px">🏆 제품별 매출</div>
+            <div style="font-size:13px;font-weight:700;margin-bottom:12px">🏆 제품별 판매수량</div>
             <canvas id="oa-chart-products" height="220"></canvas>
           </div>
           <div class="kpi-card" style="padding:16px">
             <div style="font-size:13px;font-weight:700;margin-bottom:12px">🔁 재구매 분석</div>
             <div id="oa-repeat-detail" style="font-size:13px;line-height:2.2"></div>
+          </div>
+        </div>
+
+        <!-- 일별 매출 요약 테이블 (매출 시트 형식) -->
+        <div class="kpi-card" style="padding:16px;margin-bottom:16px">
+          <div style="font-size:13px;font-weight:700;margin-bottom:12px">📅 일별 매출 요약</div>
+          <div class="table-wrap" style="max-height:340px;overflow-y:auto">
+            <table class="data-table">
+              <thead><tr>
+                <th>날짜</th><th style="text-align:center">요일</th><th>매출 (USD)</th><th style="text-align:center">판매수량</th>
+                <th style="text-align:center">PDRN<br>Cream</th>
+                <th style="text-align:center">Lip<br>Serum</th>
+                <th style="text-align:center">Ceramide</th>
+                <th style="text-align:center">Retino-<br>Mela</th>
+                <th style="text-align:center">B&R<br>Duo</th>
+                <th style="text-align:center">Routine<br>Set</th>
+                <th style="text-align:center">PDRN<br>Mask</th>
+              </tr></thead>
+              <tbody id="oa-daily-tbody"></tbody>
+            </table>
           </div>
         </div>
 
@@ -2929,240 +2949,193 @@ function launchSetNote(tab, no, note){
 /* ══════════════════════════════════════════════════════════
    ORDER ANALYTICS
 ══════════════════════════════════════════════════════════ */
-let oaRawOrders = [];   // all parsed orders
-let oaFiltered  = [];   // after date filter
+let oaRawOrders = [];
+let oaFiltered  = [];
+
+// SKU detection from TikTok Shop product name
+const OA_SKU_MAP = [
+  {key:'mask',      label:'PDRN Mask'},
+  {key:'lip serum', label:'Lip Serum'},
+  {key:'ceramide',  label:'Ceramide'},
+  {key:'retino',    label:'Retino-Mela'},
+  {key:'duo',       label:'Barrier & Repair Duo'},
+  {key:'bundle',    label:'Skin Routine Set'},
+  {key:'routine',   label:'Skin Routine Set'},
+  {key:'pdrn',      label:'PDRN Cream'},
+];
+const OA_SKU_LABELS = ['PDRN Cream','Lip Serum','Ceramide','Retino-Mela','Barrier & Repair Duo','Skin Routine Set','PDRN Mask'];
+
+function oaDetectSKU(name) {
+  const n = (name||'').toLowerCase();
+  for (const m of OA_SKU_MAP) { if (n.includes(m.key)) return m.label; }
+  return 'Other';
+}
+
+// Multi-line CSV parser (handles embedded newlines in quoted fields)
+function oaParseCSVText(text) {
+  if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
+  const rows = []; let row = []; let cur = ''; let inQ = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i], nx = text[i+1];
+    if (c === '"') {
+      if (!inQ) { inQ = true; }
+      else if (nx === '"') { cur += '"'; i++; }
+      else { inQ = false; }
+    } else if (c === ',' && !inQ) {
+      row.push(cur.trim()); cur = '';
+    } else if ((c === '\n' || (c === '\r' && nx === '\n')) && !inQ) {
+      if (c === '\r') i++;
+      row.push(cur.trim()); cur = '';
+      if (row.some(x => x)) rows.push(row);
+      row = [];
+    } else { cur += c; }
+  }
+  if (cur || row.length) { row.push(cur.trim()); if (row.some(x=>x)) rows.push(row); }
+  return rows;
+}
+
+// Parse TikTok Shop date: "MM/DD/YYYY HH:MM:SS AM/PM" (may have trailing tab)
+function oaParseDate(raw) {
+  const s = (raw||'').replace(/\t/g,'').trim();
+  const m = s.match(/(\d{2})\/(\d{2})\/(\d{4})/);
+  if (m) return m[3]+'-'+m[1]+'-'+m[2];
+  const m2 = s.match(/(\d{4}-\d{2}-\d{2})/);
+  return m2 ? m2[1] : '';
+}
 
 function renderOrderAnalytics() {
   const saved = localStorage.getItem('oa_orders');
-  if (saved) {
-    oaRawOrders = JSON.parse(saved);
-    oaShowResults();
-  }
+  if (saved) { oaRawOrders = JSON.parse(saved); oaShowResults(); }
 }
 
 function oaHandleFile(input) {
-  const file = input.files[0];
-  if (!file) return;
+  const file = input.files[0]; if (!file) return;
   const reader = new FileReader();
   reader.onload = e => {
     try {
-      oaRawOrders = oaParseCSV(e.target.result);
-      if (!oaRawOrders.length) { alert('주문 데이터를 파싱할 수 없었어요. CSV 파일 형식을 확인해주세요.'); return; }
+      const rows = oaParseCSVText(e.target.result);
+      if (rows.length < 2) { alert('주문 데이터를 찾을 수 없어요.'); return; }
+      // TikTok Shop fixed columns: 0=OrderID, 1=Status, 7=Product, 10=Qty, 25=Amount, 27=CreatedTime, 43=BuyerUsername
+      oaRawOrders = rows.slice(1).filter(r => {
+        const st = (r[1]||'').toLowerCase();
+        return !st.includes('cancel') && !st.includes('refund');
+      }).map(r => ({
+        orderId: r[0]||'', status: r[1]||'',
+        product: r[7]||'', sku: oaDetectSKU(r[7]),
+        qty:     parseInt(r[10])||1,
+        amount:  parseFloat((r[25]||'').replace(/[^0-9.]/g,''))||0,
+        date:    oaParseDate(r[27]),
+        buyer:   r[43]||''
+      })).filter(o => o.date);
+      if (!oaRawOrders.length) { alert('유효한 주문이 없어요. (취소 제외 후 0건)'); return; }
       localStorage.setItem('oa_orders', JSON.stringify(oaRawOrders));
       oaShowResults();
-    } catch(err) { alert('파일 파싱 오류: ' + err.message); }
+    } catch(err) { alert('파싱 오류: ' + err.message); console.error(err); }
   };
   reader.readAsText(file, 'UTF-8');
   input.value = '';
 }
 
-function oaParseCSV(text) {
-  // Handle BOM
-  if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
-  const lines = text.split(/\r?\n/).filter(l => l.trim());
-  if (lines.length < 2) return [];
-
-  // Parse header - handle quoted fields
-  const parseRow = row => {
-    const cols = []; let cur = ''; let inQ = false;
-    for (let i = 0; i < row.length; i++) {
-      const c = row[i];
-      if (c === '"' && !inQ) { inQ = true; }
-      else if (c === '"' && inQ) { if (row[i+1] === '"') { cur += '"'; i++; } else inQ = false; }
-      else if (c === ',' && !inQ) { cols.push(cur.trim()); cur = ''; }
-      else cur += c;
-    }
-    cols.push(cur.trim());
-    return cols;
-  };
-
-  const headers = parseRow(lines[0]).map(h => h.toLowerCase().replace(/[\s_\-]+/g, ' '));
-
-  // Flexible column detection
-  const colIdx = (keywords) => {
-    for (const kw of keywords) {
-      const i = headers.findIndex(h => h.includes(kw));
-      if (i >= 0) return i;
-    }
-    return -1;
-  };
-
-  const iDate    = colIdx(['created time','paid time','order date','created at','date','time']);
-  const iBuyer   = colIdx(['buyer username','buyer name','buyer','customer name','customer','username']);
-  const iRevenue = colIdx(['revenue','customer paid','order amount','total amount','amount','price','subtotal']);
-  const iProduct = colIdx(['product name','product','sku name','item name','name']);
-  const iStatus  = colIdx(['order status','status']);
-  const iQty     = colIdx(['quantity','qty','units','count']);
-  const iOrderId = colIdx(['order id','order no','order number','id']);
-  console.log('[OA] headers:', headers);
-  console.log('[OA] col idx → date:', iDate, 'buyer:', iBuyer, 'rev:', iRevenue, 'product:', iProduct, 'status:', iStatus);
-
-  const orders = [];
-  for (let i = 1; i < lines.length; i++) {
-    const row = parseRow(lines[i]);
-    if (row.length < 2) continue;
-    const status = iStatus >= 0 ? (row[iStatus]||'').toLowerCase() : '';
-    if (status && (status.includes('cancel') || status.includes('refund'))) continue;
-
-    const rawDate = (iDate >= 0 ? row[iDate] : '') || '';
-    let dateStr = '';
-    if (rawDate) {
-      const dateObj = new Date(rawDate);
-      if (!isNaN(dateObj)) {
-        dateStr = dateObj.toISOString().slice(0, 10);
-      } else {
-        // fallback: grab first 10 chars that look like a date
-        const m = rawDate.match(/\d{4}[-\/]\d{2}[-\/]\d{2}/);
-        dateStr = m ? m[0].replace(/\//g, '-') : rawDate.slice(0, 10);
-      }
-    }
-
-    const rawRev = ((iRevenue >= 0 ? row[iRevenue] : '') || '').replace(/[^0-9.]/g, '');
-    orders.push({
-      date:    dateStr,
-      orderId: (iOrderId >= 0 ? row[iOrderId] : '') || '',
-      buyer:   (iBuyer   >= 0 ? row[iBuyer]   : '') || '',
-      product: (iProduct >= 0 ? row[iProduct] : '') || '',
-      qty:     iQty >= 0 ? parseInt(row[iQty])||1 : 1,
-      revenue: parseFloat(rawRev) || 0,
-      status:  (iStatus  >= 0 ? row[iStatus]  : '') || ''
-    });
-  }
-  return orders;
-}
-
 function oaShowResults() {
   gEl('oa-upload-guide').style.display = 'none';
   gEl('oa-results').style.display = 'block';
-  const clearBtn = gEl('oa-clear-btn');
-  if (clearBtn) clearBtn.style.display = '';
-
-  // Set default date range
-  const dates = oaRawOrders.map(o=>o.date).filter(Boolean).sort();
-  if (dates.length) {
-    gEl('oa-date-from').value = dates[0];
-    gEl('oa-date-to').value   = dates[dates.length-1];
-  }
-  const fileInfo = gEl('oa-file-info');
-  if (fileInfo) fileInfo.textContent = `총 ${oaRawOrders.length}건 로드됨 · ${dates[0]} ~ ${dates[dates.length-1]}`;
+  const cb = gEl('oa-clear-btn'); if (cb) cb.style.display = '';
+  const dates = oaRawOrders.map(o=>o.date).sort();
+  gEl('oa-date-from').value = dates[0];
+  gEl('oa-date-to').value   = dates[dates.length-1];
+  const fi = gEl('oa-file-info');
+  if (fi) fi.textContent = oaRawOrders.length + '건 로드 · ' + dates[0] + ' ~ ' + dates[dates.length-1];
   oaApplyFilter();
 }
 
 function oaApplyFilter() {
-  const from = gEl('oa-date-from').value;
-  const to   = gEl('oa-date-to').value;
-  oaFiltered = oaRawOrders.filter(o => {
-    if (from && o.date < from) return false;
-    if (to   && o.date > to)   return false;
-    return true;
-  });
+  const from = gEl('oa-date-from').value, to = gEl('oa-date-to').value;
+  oaFiltered = oaRawOrders.filter(o => (!from||o.date>=from) && (!to||o.date<=to));
   oaComputeAndRender();
 }
 
 function oaResetFilter() {
-  const dates = oaRawOrders.map(o=>o.date).filter(Boolean).sort();
-  if (dates.length) {
-    gEl('oa-date-from').value = dates[0];
-    gEl('oa-date-to').value   = dates[dates.length-1];
-  }
+  const dates = oaRawOrders.map(o=>o.date).sort();
+  gEl('oa-date-from').value = dates[0];
+  gEl('oa-date-to').value   = dates[dates.length-1];
   oaApplyFilter();
 }
 
 function oaComputeAndRender() {
-  const orders = oaFiltered;
-  if (!orders.length) return;
-
-  const totalOrders  = orders.length;
-  const totalRevenue = orders.reduce((s,o)=>s+o.revenue, 0);
-  const aov          = totalRevenue / totalOrders;
-
-  // Unique buyers & repurchase
-  const buyerMap = {};
-  orders.forEach(o => {
-    if (!o.buyer) return;
-    buyerMap[o.buyer] = (buyerMap[o.buyer]||0) + 1;
-  });
-  const buyers     = Object.keys(buyerMap).length;
-  const repeatBuyers = Object.values(buyerMap).filter(c=>c>1).length;
-  const repeatRate   = buyers > 0 ? (repeatBuyers / buyers * 100) : 0;
-
-  // Daily aggregation
+  const orders = oaFiltered; if (!orders.length) return;
+  const totalRev = orders.reduce((s,o)=>s+o.amount, 0);
+  const totalOrders = orders.length;
+  // Daily map with SKU breakdown
   const dayMap = {};
   orders.forEach(o => {
-    if (!o.date) return;
-    if (!dayMap[o.date]) dayMap[o.date] = {rev:0, cnt:0};
-    dayMap[o.date].rev += o.revenue;
+    if (!dayMap[o.date]) {
+      dayMap[o.date] = {rev:0, cnt:0, qty:0, skus:{}};
+      OA_SKU_LABELS.forEach(s => dayMap[o.date].skus[s]=0);
+    }
+    dayMap[o.date].rev += o.amount;
     dayMap[o.date].cnt += 1;
+    dayMap[o.date].qty += o.qty;
+    if (dayMap[o.date].skus[o.sku] !== undefined) dayMap[o.date].skus[o.sku] += o.qty;
   });
   const days = Object.keys(dayMap).sort();
-  const dailyRevArr = days.map(d=>dayMap[d].rev);
-  const dailyOrdArr = days.map(d=>dayMap[d].cnt);
-  const avgDailyRev = days.length ? totalRevenue/days.length : 0;
-
-  // Product revenue
-  const prodMap = {};
-  orders.forEach(o => {
-    const p = o.product || '(미분류)';
-    prodMap[p] = (prodMap[p]||0) + o.revenue;
-  });
-  const prodEntries = Object.entries(prodMap).sort((a,b)=>b[1]-a[1]).slice(0,8);
-
+  const avgDailyRev = days.length ? totalRev/days.length : 0;
+  // Repurchase rate
+  const buyerMap = {};
+  orders.forEach(o => { if(o.buyer) buyerMap[o.buyer]=(buyerMap[o.buyer]||0)+1; });
+  const uniqueBuyers = Object.keys(buyerMap).length;
+  const repeatBuyers = Object.values(buyerMap).filter(c=>c>1).length;
+  const repeatRate   = uniqueBuyers ? repeatBuyers/uniqueBuyers*100 : 0;
+  // SKU totals
+  const skuTotals = {}; OA_SKU_LABELS.forEach(s=>skuTotals[s]=0);
+  orders.forEach(o=>{ if(skuTotals[o.sku]!==undefined) skuTotals[o.sku]+=o.qty; });
   // KPIs
-  const fmt = n => '$' + n.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+  const fmt = n => '$' + n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
   gEl('oa-k-orders').textContent    = totalOrders.toLocaleString();
-  gEl('oa-k-revenue').textContent   = fmt(totalRevenue);
-  gEl('oa-k-aov').textContent       = fmt(aov);
+  gEl('oa-k-revenue').textContent   = fmt(totalRev);
+  gEl('oa-k-aov').textContent       = fmt(totalRev/totalOrders);
   gEl('oa-k-daily-rev').textContent = fmt(avgDailyRev);
-  gEl('oa-k-buyers').textContent    = buyers.toLocaleString();
-  gEl('oa-k-repeat').textContent    = repeatRate.toFixed(1) + '%';
-
+  gEl('oa-k-buyers').textContent    = uniqueBuyers.toLocaleString();
+  gEl('oa-k-repeat').textContent    = repeatRate.toFixed(1)+'%';
   // Repeat detail
   const rd = gEl('oa-repeat-detail');
   if (rd) {
-    const once = Object.values(buyerMap).filter(c=>c===1).length;
-    const twice = Object.values(buyerMap).filter(c=>c===2).length;
-    const more  = Object.values(buyerMap).filter(c=>c>=3).length;
-    rd.innerHTML = `
-      <div style="display:flex;flex-direction:column;gap:10px">
-        <div style="display:flex;justify-content:space-between;padding:8px 12px;background:var(--bg);border-radius:8px">
-          <span>1회 구매자</span><strong>${once.toLocaleString()}명</strong>
-        </div>
-        <div style="display:flex;justify-content:space-between;padding:8px 12px;background:var(--bg);border-radius:8px">
-          <span>2회 구매자</span><strong style="color:var(--cyan)">${twice.toLocaleString()}명</strong>
-        </div>
-        <div style="display:flex;justify-content:space-between;padding:8px 12px;background:var(--bg);border-radius:8px">
-          <span>3회 이상 구매자</span><strong style="color:var(--pink)">${more.toLocaleString()}명</strong>
-        </div>
-        <div style="display:flex;justify-content:space-between;padding:8px 12px;background:#FEF2F2;border-radius:8px">
-          <span style="color:var(--pink);font-weight:700">재구매율</span><strong style="color:var(--pink);font-size:20px">${repeatRate.toFixed(1)}%</strong>
-        </div>
-      </div>`;
+    const once=Object.values(buyerMap).filter(c=>c===1).length;
+    const twice=Object.values(buyerMap).filter(c=>c===2).length;
+    const more=Object.values(buyerMap).filter(c=>c>=3).length;
+    rd.innerHTML = '<div style="display:flex;flex-direction:column;gap:10px">'
+      +'<div style="display:flex;justify-content:space-between;padding:8px 12px;background:var(--bg);border-radius:8px"><span>1회 구매자</span><strong>'+once.toLocaleString()+'명</strong></div>'
+      +'<div style="display:flex;justify-content:space-between;padding:8px 12px;background:var(--bg);border-radius:8px"><span>2회 구매자</span><strong style="color:var(--cyan)">'+twice.toLocaleString()+'명</strong></div>'
+      +'<div style="display:flex;justify-content:space-between;padding:8px 12px;background:var(--bg);border-radius:8px"><span>3회+ 구매자</span><strong style="color:var(--pink)">'+more.toLocaleString()+'명</strong></div>'
+      +'<div style="display:flex;justify-content:space-between;padding:8px 12px;background:#FEF2F2;border-radius:8px"><span style="color:var(--pink);font-weight:700">재구매율</span><strong style="color:var(--pink);font-size:20px">'+repeatRate.toFixed(1)+'%</strong></div>'
+      +'</div>';
   }
-
   // Charts
-  const labelDays = days.map(d => d.slice(5)); // MM-DD
-  destroyChart('oa-chart-revenue');
-  destroyChart('oa-chart-orders');
-  destroyChart('oa-chart-products');
-
-  mkChart('oa-chart-revenue', 'line', {
-    labels: labelDays,
-    datasets: [{label:'매출($)', data: dailyRevArr, borderColor: '#22C55E', backgroundColor:'rgba(34,197,94,0.1)', fill:true, tension:0.3, pointRadius:2}]
-  }, {plugins:{legend:{display:false}}, scales:{y:{ticks:{callback:v=>'$'+v.toLocaleString()}}}});
-
-  mkChart('oa-chart-orders', 'bar', {
-    labels: labelDays,
-    datasets: [{label:'주문 수', data: dailyOrdArr, backgroundColor:'rgba(59,130,246,0.7)', borderRadius:4}]
-  }, {plugins:{legend:{display:false}}, scales:{y:{ticks:{stepSize:1}}}});
-
-  mkChart('oa-chart-products', 'bar', {
-    labels: prodEntries.map(([k])=>k.length>20?k.slice(0,20)+'…':k),
-    datasets: [{label:'매출($)', data: prodEntries.map(([,v])=>v),
-      backgroundColor:['#FE2C55','#25F4EE','#A855F7','#F59E0B','#22C55E','#F97316','#3B82F6','#14B8A6'],
-      borderRadius:4}]
-  }, {indexAxis:'y', plugins:{legend:{display:false}}, scales:{x:{ticks:{callback:v=>'$'+v.toLocaleString()}}}});
-
+  const lblDays = days.map(d=>d.slice(5));
+  const skuColors = ['#FE2C55','#25F4EE','#A855F7','#F59E0B','#22C55E','#F97316','#3B82F6'];
+  destroyChart('oa-chart-revenue'); destroyChart('oa-chart-orders'); destroyChart('oa-chart-products');
+  mkChart('oa-chart-revenue','line',{labels:lblDays,datasets:[{label:'매출($)',data:days.map(d=>+dayMap[d].rev.toFixed(2)),borderColor:'#22C55E',backgroundColor:'rgba(34,197,94,0.1)',fill:true,tension:0.3,pointRadius:2}]},{plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>'$'+v.toLocaleString()}}}});
+  mkChart('oa-chart-orders','bar',{labels:lblDays,datasets:[{label:'주문',data:days.map(d=>dayMap[d].cnt),backgroundColor:'rgba(59,130,246,0.7)',borderRadius:4}]},{plugins:{legend:{display:false}},scales:{y:{ticks:{stepSize:1}}}});
+  mkChart('oa-chart-products','bar',{labels:OA_SKU_LABELS.map(s=>s.length>16?s.slice(0,16)+'…':s),datasets:[{label:'판매수량',data:OA_SKU_LABELS.map(s=>skuTotals[s]),backgroundColor:skuColors,borderRadius:4}]},{indexAxis:'y',plugins:{legend:{display:false}}});
+  oaRenderDailyTable(days, dayMap);
   oaRenderTable();
+}
+
+function oaRenderDailyTable(days, dayMap) {
+  const DOW = ['일','월','화','수','목','금','토'];
+  const tb = gEl('oa-daily-tbody'); if (!tb) return;
+  tb.innerHTML = [...days].reverse().map(d => {
+    const row = dayMap[d];
+    const dow = DOW[new Date(d+'T00:00:00').getDay()];
+    const skuCells = OA_SKU_LABELS.map(s =>
+      '<td style="text-align:center;font-size:12px">'+(row.skus[s]||'')+'</td>'
+    ).join('');
+    return '<tr>'
+      +'<td style="font-size:12px;white-space:nowrap">'+d+'</td>'
+      +'<td style="text-align:center;font-size:12px;color:var(--muted)">'+dow+'</td>'
+      +'<td style="font-weight:700;color:var(--green)">$'+row.rev.toFixed(2)+'</td>'
+      +'<td style="text-align:center">'+row.qty+'</td>'
+      +skuCells+'</tr>';
+  }).join('');
 }
 
 function oaRenderTable() {
@@ -3170,16 +3143,16 @@ function oaRenderTable() {
   let rows = oaFiltered;
   if (q) rows = rows.filter(o=>(o.orderId+o.buyer+o.product).toLowerCase().includes(q));
   gEl('oa-table-count').textContent = rows.length.toLocaleString();
-  const fmt = n => '$' + (n||0).toFixed(2);
-  gEl('oa-tbody').innerHTML = rows.slice(0,500).map(o=>`<tr>
-    <td style="font-size:12px">${o.date}</td>
-    <td style="font-size:11px;color:var(--muted)">${esc(o.orderId||'-')}</td>
-    <td>${esc(o.buyer||'-')}</td>
-    <td style="font-size:12px">${esc(o.product||'-')}</td>
-    <td style="text-align:center">${o.qty}</td>
-    <td style="font-weight:700;color:var(--green)">${fmt(o.revenue)}</td>
-    <td style="font-size:11px">${esc(o.status||'-')}</td>
-  </tr>`).join('');
+  gEl('oa-tbody').innerHTML = rows.slice(0,500).map(o =>
+    '<tr>'
+    +'<td style="font-size:12px">'+o.date+'</td>'
+    +'<td style="font-size:11px;color:var(--muted)">'+esc(o.orderId.slice(0,18))+'</td>'
+    +'<td>'+esc(o.buyer||'-')+'</td>'
+    +'<td><span style="background:var(--bg);padding:2px 6px;border-radius:8px;font-size:11px">'+esc(o.sku)+'</span></td>'
+    +'<td style="text-align:center">'+o.qty+'</td>'
+    +'<td style="font-weight:700;color:var(--green)">$'+o.amount.toFixed(2)+'</td>'
+    +'<td style="font-size:11px">'+esc(o.status)+'</td></tr>'
+  ).join('');
 }
 
 function oaClearData() {
