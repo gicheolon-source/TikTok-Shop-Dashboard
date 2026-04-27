@@ -2496,7 +2496,7 @@ function tdTodoListHTML(memberId, type, todos){
         ${t.done?'<svg width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg>':''}
       </div>
       <span class="td-todo-text">${esc(t.text)}</span>
-      ${t.priority?`<span class="b" style="font-size:9px;flex-shrink:0">${t.priority==='high'?'🔴':'t.priority==='mid'?'🟡':'🟢'}</span>`:''}
+      ${t.priority?`<span class="b" style="font-size:9px;flex-shrink:0">${t.priority==='high'?'🔴':t.priority==='mid'?'🟡':'🟢'}</span>`:''}
       <button class="td-todo-del" onclick="tdDelete('${memberId}','${type}',${i})">✕</button>
     </div>`).join('');
 }
