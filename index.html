@@ -2987,13 +2987,15 @@ function oaParseCSV(text) {
     return -1;
   };
 
-  const iDate    = colIdx(['created time','paid time','order date','created at','date']);
-  const iBuyer   = colIdx(['buyer username','buyer name','buyer','customer name','customer']);
-  const iRevenue = colIdx(['revenue','customer paid','order amount','total amount','amount']);
-  const iProduct = colIdx(['product name','product','sku name','item name']);
+  const iDate    = colIdx(['created time','paid time','order date','created at','date','time']);
+  const iBuyer   = colIdx(['buyer username','buyer name','buyer','customer name','customer','username']);
+  const iRevenue = colIdx(['revenue','customer paid','order amount','total amount','amount','price','subtotal']);
+  const iProduct = colIdx(['product name','product','sku name','item name','name']);
   const iStatus  = colIdx(['order status','status']);
-  const iQty     = colIdx(['quantity','qty','units']);
+  const iQty     = colIdx(['quantity','qty','units','count']);
   const iOrderId = colIdx(['order id','order no','order number','id']);
+  console.log('[OA] headers:', headers);
+  console.log('[OA] col idx → date:', iDate, 'buyer:', iBuyer, 'rev:', iRevenue, 'product:', iProduct, 'status:', iStatus);
 
   const orders = [];
   for (let i = 1; i < lines.length; i++) {
@@ -3002,19 +3004,28 @@ function oaParseCSV(text) {
     const status = iStatus >= 0 ? (row[iStatus]||'').toLowerCase() : '';
     if (status && (status.includes('cancel') || status.includes('refund'))) continue;
 
-    const rawDate = iDate >= 0 ? row[iDate] : '';
-    const dateObj = rawDate ? new Date(rawDate) : null;
-    const dateStr = dateObj && !isNaN(dateObj) ? dateObj.toISOString().slice(0,10) : rawDate.slice(0,10);
+    const rawDate = (iDate >= 0 ? row[iDate] : '') || '';
+    let dateStr = '';
+    if (rawDate) {
+      const dateObj = new Date(rawDate);
+      if (!isNaN(dateObj)) {
+        dateStr = dateObj.toISOString().slice(0, 10);
+      } else {
+        // fallback: grab first 10 chars that look like a date
+        const m = rawDate.match(/\d{4}[-\/]\d{2}[-\/]\d{2}/);
+        dateStr = m ? m[0].replace(/\//g, '-') : rawDate.slice(0, 10);
+      }
+    }
 
-    const rawRev = iRevenue >= 0 ? row[iRevenue].replace(/[^0-9.]/g,'') : '0';
+    const rawRev = ((iRevenue >= 0 ? row[iRevenue] : '') || '').replace(/[^0-9.]/g, '');
     orders.push({
       date:    dateStr,
-      orderId: iOrderId >= 0 ? row[iOrderId] : '',
-      buyer:   iBuyer >= 0 ? row[iBuyer] : '',
-      product: iProduct >= 0 ? row[iProduct] : '',
+      orderId: (iOrderId >= 0 ? row[iOrderId] : '') || '',
+      buyer:   (iBuyer   >= 0 ? row[iBuyer]   : '') || '',
+      product: (iProduct >= 0 ? row[iProduct] : '') || '',
       qty:     iQty >= 0 ? parseInt(row[iQty])||1 : 1,
-      revenue: parseFloat(rawRev)||0,
-      status:  iStatus >= 0 ? row[iStatus] : ''
+      revenue: parseFloat(rawRev) || 0,
+      status:  (iStatus  >= 0 ? row[iStatus]  : '') || ''
     });
   }
   return orders;
