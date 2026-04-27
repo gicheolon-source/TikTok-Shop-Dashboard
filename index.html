@@ -227,6 +227,18 @@ textarea.form-input{resize:vertical}
 .segment-badge.follower{background:#EDE9FE;color:#5B21B6}
 .segment-badge.lapsed{background:#FEF3C7;color:#92400E}
 
+/* ── Viral AI Analyzer ── */
+.viral-embed-preview{background:#000;border-radius:12px;overflow:hidden;aspect-ratio:9/16;max-width:220px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;flex-shrink:0}
+.viral-embed-preview iframe{width:100%;height:100%;border:none}
+.viral-analysis-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.viral-analysis-block{background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px}
+.viral-analysis-block h4{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.viral-score-bar{height:6px;border-radius:3px;background:#E5E7EB;margin-top:4px;overflow:hidden}
+.viral-score-fill{height:100%;border-radius:3px;transition:width .6s ease}
+.viral-tag{display:inline-block;background:#F3F4F6;color:var(--muted);padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600;margin:2px 2px 2px 0}
+.viral-tag.hot{background:#FFF0F3;color:var(--pink)}
+.viral-tag.good{background:#D1FAE5;color:#065F46}
+
 /* ── AI Generator ── */
 .ai-key-bar{display:flex;align-items:center;gap:8px;background:#F9FAFB;border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin-bottom:14px}
 .ai-key-bar input{flex:1;background:transparent;border:none;outline:none;font-size:12px;color:var(--text)}
@@ -1179,28 +1191,139 @@ textarea.form-input{resize:vertical}
     <!-- ═══ 12. 바이럴 영상 ══════════════════════ -->
     <div id="sec-viral" class="page-section">
       <div class="sec-head">
-        <div><div class="sec-title">바이럴 영상 트래커</div><div class="sec-sub">조회수 급상승 영상 및 GMV 스파이크 기록</div></div>
+        <div><div class="sec-title">바이럴 영상 트래커</div><div class="sec-sub">조회수 급상승 영상 기록 · AI 바이럴 분석</div></div>
         <button class="btn-primary" onclick="openModal('viral-modal')">+ 영상 추가</button>
       </div>
-      <div class="kpi-grid">
-        <div class="kpi"><div class="kpi-bar" style="background:var(--pink)"></div><div class="kpi-lbl">바이럴 영상</div><div class="kpi-val" id="viral-kpi-total">0</div><div class="kpi-sub neu">개</div></div>
-        <div class="kpi"><div class="kpi-bar" style="background:var(--cyan)"></div><div class="kpi-lbl">총 조회수</div><div class="kpi-val" id="viral-kpi-views">0</div><div class="kpi-sub neu">누적</div></div>
-        <div class="kpi"><div class="kpi-bar" style="background:var(--green)"></div><div class="kpi-lbl">바이럴 GMV</div><div class="kpi-val" id="viral-kpi-gmv">$0</div><div class="kpi-sub up">스파이크 기여</div></div>
-        <div class="kpi"><div class="kpi-bar" style="background:var(--purple)"></div><div class="kpi-lbl">1K 조회당 GMV</div><div class="kpi-val" id="viral-kpi-cpm">$0</div><div class="kpi-sub neu">평균</div></div>
+
+      <!-- 탭 -->
+      <div class="crm-tabs" id="viral-mode-tabs">
+        <button class="crm-tab active" onclick="viralModeTab('tracker',this)">📊 트래커</button>
+        <button class="crm-tab" onclick="viralModeTab('ai',this)" style="background:linear-gradient(135deg,#FE2C55,#A855F7);color:#fff;border:none">🤖 AI 바이럴 분석</button>
       </div>
-      <div class="card full">
-        <div class="tbl-toolbar">
-          <div><div class="card-title">바이럴 영상 기록</div></div>
-          <div style="display:flex;gap:8px">
-            <input class="tbl-search" id="viral-search" placeholder="검색..." oninput="viralRender()">
-            <button class="export-btn" onclick="viralExport()">&#11015; CSV</button>
+
+      <!-- 트래커 모드 -->
+      <div id="viral-mode-tracker">
+        <div class="kpi-grid">
+          <div class="kpi"><div class="kpi-bar" style="background:var(--pink)"></div><div class="kpi-lbl">바이럴 영상</div><div class="kpi-val" id="viral-kpi-total">0</div><div class="kpi-sub neu">개</div></div>
+          <div class="kpi"><div class="kpi-bar" style="background:var(--cyan)"></div><div class="kpi-lbl">총 조회수</div><div class="kpi-val" id="viral-kpi-views">0</div><div class="kpi-sub neu">누적</div></div>
+          <div class="kpi"><div class="kpi-bar" style="background:var(--green)"></div><div class="kpi-lbl">바이럴 GMV</div><div class="kpi-val" id="viral-kpi-gmv">$0</div><div class="kpi-sub up">스파이크 기여</div></div>
+          <div class="kpi"><div class="kpi-bar" style="background:var(--purple)"></div><div class="kpi-lbl">1K 조회당 GMV</div><div class="kpi-val" id="viral-kpi-cpm">$0</div><div class="kpi-sub neu">평균</div></div>
+        </div>
+        <div class="card full">
+          <div class="tbl-toolbar">
+            <div><div class="card-title">바이럴 영상 기록</div></div>
+            <div style="display:flex;gap:8px">
+              <input class="tbl-search" id="viral-search" placeholder="검색..." oninput="viralRender()">
+              <button class="export-btn" onclick="viralExport()">&#11015; CSV</button>
+            </div>
+          </div>
+          <div class="tbl-wrap"><table>
+            <thead><tr><th>#</th><th>Creator</th><th>날짜</th><th>조회수</th><th>좋아요</th><th>제품</th><th>GMV 스파이크</th><th>Video ID</th><th>Notes</th><th></th></tr></thead>
+            <tbody id="viral-tbody"></tbody>
+          </table></div>
+          <div id="viral-empty" style="text-align:center;padding:40px;color:var(--muted);font-size:13px">바이럴 영상 기록을 추가하세요</div>
+        </div>
+      </div>
+
+      <!-- AI 분석 모드 -->
+      <div id="viral-mode-ai" style="display:none">
+        <div class="card full" style="margin-bottom:14px">
+          <div style="font-size:14px;font-weight:800;margin-bottom:4px">🤖 AI 바이럴 영상 분석기 <span style="font-size:11px;font-weight:500;color:var(--muted);margin-left:4px">powered by GPT-4o</span></div>
+          <div style="font-size:12px;color:var(--muted);margin-bottom:14px">TikTok URL을 붙여넣으면 영상 미리보기 로드 + AI가 후킹 전략·바이럴 요소·브랜드 적용법을 분석합니다.</div>
+
+          <!-- API Key -->
+          <div class="ai-key-bar">
+            <span style="font-size:11px;font-weight:700;color:var(--muted);white-space:nowrap">🔑 OpenAI API Key</span>
+            <input type="password" id="viral-ai-key-input" placeholder="sk-proj-..." />
+            <span class="ai-key-badge unset" id="viral-ai-key-badge">⚠ 미설정</span>
+            <button class="btn-ghost" style="font-size:11px;white-space:nowrap" onclick="viralAiSaveKey()">저장</button>
+          </div>
+
+          <!-- URL 입력 -->
+          <div style="display:flex;gap:10px;align-items:flex-end;margin-bottom:14px">
+            <div class="ai-form-group" style="flex:1">
+              <label>TikTok 영상 URL</label>
+              <input type="text" id="viral-ai-url" placeholder="https://www.tiktok.com/@username/video/1234567890"
+                style="border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:12px;color:var(--text);outline:none;font-family:inherit;width:100%"
+                oninput="viralAiUrlChange()" />
+            </div>
+            <button class="btn-ghost" style="white-space:nowrap;padding:10px 16px" onclick="viralLoadEmbed()">📺 미리보기</button>
+          </div>
+
+          <!-- 미리보기 + 정보 입력 -->
+          <div style="display:flex;gap:16px;align-items:flex-start;margin-bottom:14px" id="viral-ai-input-row">
+            <!-- 임베드 미리보기 -->
+            <div>
+              <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px">미리보기</div>
+              <div class="viral-embed-preview" id="viral-embed-box">
+                <div style="text-align:center;padding:20px;opacity:.4">
+                  <div style="font-size:24px;margin-bottom:6px">▶</div>
+                  <div style="font-size:10px">URL 입력 후<br>미리보기 로드</div>
+                </div>
+              </div>
+            </div>
+            <!-- 상세 입력 -->
+            <div style="flex:1">
+              <div class="ai-form-grid">
+                <div class="ai-form-group">
+                  <label>Creator (자동추출)</label>
+                  <input type="text" id="viral-ai-creator" placeholder="@username"
+                    style="border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:12px;color:var(--text);outline:none;font-family:inherit" />
+                </div>
+                <div class="ai-form-group">
+                  <label>영상 제목 / 캡션</label>
+                  <input type="text" id="viral-ai-title" placeholder="영상 제목이나 첫 문장"
+                    style="border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:12px;color:var(--text);outline:none;font-family:inherit" />
+                </div>
+                <div class="ai-form-group">
+                  <label>조회수</label>
+                  <input type="text" id="viral-ai-views" placeholder="예: 2.3M / 450K / 12000"
+                    style="border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:12px;color:var(--text);outline:none;font-family:inherit" />
+                </div>
+                <div class="ai-form-group">
+                  <label>좋아요</label>
+                  <input type="text" id="viral-ai-likes" placeholder="예: 84K"
+                    style="border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:12px;color:var(--text);outline:none;font-family:inherit" />
+                </div>
+              </div>
+              <div class="ai-form-group" style="margin-bottom:10px">
+                <label>해시태그 & 설명 (TikTok 캡션 복붙)</label>
+                <textarea id="viral-ai-caption" placeholder="#skincare #PDRN #kbeauty #drrejuall ..." style="min-height:64px;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:12px;color:var(--text);outline:none;font-family:inherit;width:100%;box-sizing:border-box;resize:vertical"></textarea>
+              </div>
+              <div class="ai-form-grid">
+                <div class="ai-form-group">
+                  <label>주력 제품</label>
+                  <select id="viral-ai-product" style="border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:12px;color:var(--text);outline:none;font-family:inherit">
+                    <option value="">자동 감지</option>
+                    <option>PDRN Cream 20ml</option>
+                    <option>PDRN Cream 60ml</option>
+                    <option>PDRN Lip Serum</option>
+                    <option>Ceramide Cream</option>
+                    <option>Retino-mela Serum</option>
+                    <option>PDRN Mask</option>
+                  </select>
+                </div>
+                <div class="ai-form-group">
+                  <label>분석 언어</label>
+                  <select id="viral-ai-lang" style="border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:12px;color:var(--text);outline:none;font-family:inherit">
+                    <option value="한국어">한국어</option>
+                    <option value="영어">English</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div style="display:flex;align-items:center;gap:10px">
+            <button class="ai-gen-btn" id="viral-ai-btn" onclick="viralAiAnalyze()">
+              <span id="viral-ai-btn-inner">🔍 AI 바이럴 분석 시작</span>
+            </button>
+            <span style="font-size:11px;color:var(--muted)" id="viral-ai-status"></span>
           </div>
         </div>
-        <div class="tbl-wrap"><table>
-          <thead><tr><th>#</th><th>Creator</th><th>날짜</th><th>조회수</th><th>좋아요</th><th>제품</th><th>GMV 스파이크</th><th>Video ID</th><th>Notes</th><th></th></tr></thead>
-          <tbody id="viral-tbody"></tbody>
-        </table></div>
-        <div id="viral-empty" style="text-align:center;padding:40px;color:var(--muted);font-size:13px">바이럴 영상 기록을 추가하세요</div>
+
+        <!-- 분석 결과 -->
+        <div id="viral-ai-result" style="display:none"></div>
       </div>
     </div>
     <div class="modal-overlay hidden" id="viral-modal"><div class="modal-box">
@@ -2268,6 +2391,236 @@ function liveDel(id){if(!confirm('삭제?'))return;lsSet('live_records',lsGet('l
 function liveExport(){const d=lsGet('live_records');dlCSV(['Date,Host,Duration(min),Peak Viewers,GMV,Products,Notes',...d.map(x=>[x.date,x.host,x.duration,x.viewers,x.gmv,x.products,x.notes].join(','))].join('\n'),'live_tracker.csv');}
 
 /* ── VIRAL VIDEO TRACKER ───────────────────────────────── */
+function viralModeTab(mode, el){
+  document.querySelectorAll('#viral-mode-tabs .crm-tab').forEach(b=>b.classList.remove('active'));
+  if(el) el.classList.add('active');
+  gEl('viral-mode-tracker').style.display = mode==='tracker'?'block':'none';
+  gEl('viral-mode-ai').style.display = mode==='ai'?'block':'none';
+  if(mode==='ai') viralAiInit();
+}
+
+function viralAiInit(){
+  const key = lsGet('openai_key')||'';
+  const inp = gEl('viral-ai-key-input');
+  const badge = gEl('viral-ai-key-badge');
+  if(inp && !inp.value) inp.value = key;
+  if(badge){
+    if(key){badge.textContent='✅ 설정됨';badge.className='ai-key-badge set';}
+    else{badge.textContent='⚠ 미설정';badge.className='ai-key-badge unset';}
+  }
+}
+
+function viralAiSaveKey(){
+  const v=(gEl('viral-ai-key-input')||{}).value||'';
+  if(!v.startsWith('sk-')){alert('올바른 OpenAI API 키를 입력해주세요.');return;}
+  lsSet('openai_key',v);
+  const badge=gEl('viral-ai-key-badge');
+  if(badge){badge.textContent='✅ 설정됨';badge.className='ai-key-badge set';}
+  const other=gEl('ai-key-input'); if(other) other.value=v;
+  alert('API 키가 저장되었습니다!');
+}
+
+function viralAiUrlChange(){
+  const url=(gEl('viral-ai-url')||{}).value||'';
+  // Auto-extract creator from standard TikTok URL
+  const m=url.match(/tiktok\.com\/@([^\/]+)/);
+  if(m){ const cr=gEl('viral-ai-creator'); if(cr&&!cr.value) cr.value='@'+m[1]; }
+}
+
+function viralLoadEmbed(){
+  const url=(gEl('viral-ai-url')||{}).value||'';
+  if(!url){alert('TikTok URL을 먼저 입력해주세요.');return;}
+
+  const box=gEl('viral-embed-box');
+  if(!box) return;
+
+  // Extract video ID for embed
+  const m=url.match(/video\/(\d+)/);
+  if(m){
+    const vid=m[1];
+    // Also extract creator
+    const cm=url.match(/tiktok\.com\/@([^\/]+)/);
+    if(cm){ const cr=gEl('viral-ai-creator'); if(cr) cr.value='@'+cm[1]; }
+    box.innerHTML=`<iframe src="https://www.tiktok.com/embed/v2/${vid}" allowfullscreen allow="encrypted-media" style="width:220px;height:400px;border:none;border-radius:12px"></iframe>`;
+  } else if(url.includes('vm.tiktok.com')||url.includes('/t/')){
+    box.innerHTML=`<div style="text-align:center;padding:20px;opacity:.7;font-size:11px">단축 URL은 미리보기<br>미지원 (표준 URL 사용)<br><br>분석은 정상 진행됩니다</div>`;
+  } else {
+    box.innerHTML=`<div style="text-align:center;padding:20px;opacity:.5;font-size:11px">유효한 TikTok URL을<br>입력해주세요</div>`;
+  }
+}
+
+async function viralAiAnalyze(){
+  const key=lsGet('openai_key')||(gEl('viral-ai-key-input')||{}).value||'';
+  if(!key||!key.startsWith('sk-')){alert('OpenAI API 키를 먼저 저장해주세요.');return;}
+
+  const url    =(gEl('viral-ai-url')||{}).value||'';
+  const creator=(gEl('viral-ai-creator')||{}).value||'미입력';
+  const title  =(gEl('viral-ai-title')||{}).value||'';
+  const views  =(gEl('viral-ai-views')||{}).value||'미입력';
+  const likes  =(gEl('viral-ai-likes')||{}).value||'미입력';
+  const caption=(gEl('viral-ai-caption')||{}).value||'';
+  const product=(gEl('viral-ai-product')||{}).value||'자동 감지';
+  const lang   =(gEl('viral-ai-lang')||{}).value||'한국어';
+
+  if(!url&&!title&&!caption){alert('URL 또는 캡션/해시태그를 최소 하나 입력해주세요.');return;}
+
+  const btn=gEl('viral-ai-btn'), inner=gEl('viral-ai-btn-inner'), status=gEl('viral-ai-status');
+  if(btn) btn.disabled=true;
+  if(inner) inner.innerHTML='<span class="ai-spinner"></span> 분석 중...';
+  if(status) status.textContent='GPT-4o 분석 중...';
+
+  const prompt=`당신은 TikTok 바이럴 콘텐츠 전문 분석가이자 더마코스메틱 브랜드 "Dr. Reju-All"의 마케팅 전략가입니다.
+
+아래 TikTok 영상 데이터를 분석하고 구체적인 인사이트를 제공해주세요.
+
+[영상 정보]
+- URL: ${url||'없음'}
+- Creator: ${creator}
+- 제목/첫 문장: ${title||'없음'}
+- 조회수: ${views}
+- 좋아요: ${likes}
+- 캡션/해시태그: ${caption||'없음'}
+- 주력 제품: ${product}
+
+[Dr. Reju-All 브랜드 정보]
+- 한국 더마코스메틱 브랜드 (PDRN 1200ppm 특화)
+- 주력 제품: PDRN Cream 20ml($42)/60ml($78), PDRN Lip Serum($28), Ceramide Cream($38), Retino-mela Serum($52)
+- TikTok Shop US/UK 운영 중, 팔로워 23,139명
+
+다음 형식으로 ${lang} 분석을 제공해주세요. 각 섹션은 "##" 헤더로 구분:
+
+## 🎯 후킹 분석
+후킹 점수 (1-10): X/10
+첫 3초 평가와 시청자를 붙잡는 요소 설명
+
+## 📈 바이럴 요소
+이 영상이 확산되는 핵심 이유 3-5가지 (bullet point)
+
+## 👥 타깃 오디언스
+이 영상이 어필하는 타깃층 분석
+
+## 🎨 콘텐츠 전략
+영상 구조, 편집 스타일, 음악/사운드 활용 분석
+
+## 💡 Dr. Reju-All 적용 전략
+이 바이럴 패턴을 Dr. Reju-All 콘텐츠에 적용하는 구체적 방법 3가지
+
+## ⚡ 즉시 액션 아이템
+이번 주 내로 실행할 수 있는 구체적 실행 방안 2-3개
+
+## 📊 바이럴 등급
+전체 종합 평가: S/A/B/C 등급과 한 줄 이유`;
+
+  try {
+    const resp=await fetch('https://api.openai.com/v1/chat/completions',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},
+      body:JSON.stringify({model:'gpt-4o',messages:[{role:'user',content:prompt}],max_tokens:1200,temperature:0.7})
+    });
+    if(!resp.ok){const e=await resp.json();throw new Error(e.error?.message||'API 오류('+resp.status+')');}
+    const data=await resp.json();
+    const raw=data.choices?.[0]?.message?.content?.trim()||'';
+
+    viralAiRenderResult(raw,{url,creator,title,views,likes,product,caption});
+    if(status) status.textContent='✅ 분석 완료';
+    window._viralAiLast={url,creator,title,views,likes,product,raw,ts:Date.now()};
+  }catch(e){
+    if(status) status.textContent='❌ '+e.message;
+    alert('오류: '+e.message);
+  }finally{
+    if(btn) btn.disabled=false;
+    if(inner) inner.textContent='🔍 AI 바이럴 분석 시작';
+  }
+}
+
+function viralAiRenderResult(raw, meta){
+  const wrap=gEl('viral-ai-result'); if(!wrap) return;
+  wrap.style.display='block';
+
+  // Parse sections by ## headers
+  const sections=raw.split(/\n##\s*/).filter(Boolean);
+  const blocksHtml=sections.map(sec=>{
+    const lines=sec.split('\n');
+    const header=lines[0].trim();
+    const body=lines.slice(1).join('\n').trim();
+    // Determine color by emoji/keyword
+    const colorMap={'🎯':'#FE2C55','📈':'#10B981','👥':'#06B6D4','🎨':'#A855F7','💡':'#F59E0B','⚡':'#EF4444','📊':'#3B82F6'};
+    const color=Object.entries(colorMap).find(([k])=>header.includes(k))?.[1]||'#6B7280';
+    // Format body: bullet points
+    const formatted=body.replace(/^[-•]\s*/gm,'').split('\n').filter(Boolean).map(l=>`<div style="font-size:12px;line-height:1.7;color:var(--text);padding:3px 0;border-bottom:1px solid #F3F4F6">${esc(l)}</div>`).join('');
+    return `<div class="viral-analysis-block">
+      <h4 style="color:${color}">${esc(header)}</h4>
+      <div>${formatted}</div>
+    </div>`;
+  }).join('');
+
+  wrap.innerHTML=`
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+    <div>
+      <div style="font-size:14px;font-weight:800">📊 분석 결과</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:2px">${esc(meta.creator)} · ${esc(meta.views)} views · ${esc(meta.product||'제품 자동감지')}</div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="cs-copy-btn" onclick="viralAiCopyResult()">📋 분석 복사</button>
+      <button class="btn-ghost" style="font-size:12px" onclick="viralAiSaveToTracker()">💾 트래커에 저장</button>
+    </div>
+  </div>
+  <div class="viral-analysis-grid">${blocksHtml}</div>
+  <div id="viral-ai-hist-wrap" style="margin-top:6px">${viralAiHistoryHTML()}</div>`;
+}
+
+function viralAiCopyResult(){
+  const r=window._viralAiLast;
+  if(!r) return;
+  navigator.clipboard.writeText(r.raw).then(()=>alert('분석 결과가 복사되었습니다!'));
+}
+
+function viralAiSaveToTracker(){
+  const r=window._viralAiLast; if(!r) return;
+  // Parse views/likes numbers
+  const parseNum=s=>{
+    if(!s) return 0;
+    const n=s.replace(/,/g,'');
+    if(n.includes('M')) return Math.round(parseFloat(n)*1000000);
+    if(n.includes('K')) return Math.round(parseFloat(n)*1000);
+    return parseInt(n)||0;
+  };
+  const entry={
+    id:Date.now().toString(),
+    creator:(r.creator||'').replace('@','').trim(),
+    date:new Date().toISOString().split('T')[0],
+    views:parseNum(r.views),
+    likes:parseNum(r.likes),
+    product:r.product||'',
+    gmv:0,
+    vid:r.url||'',
+    notes:'[AI 분석] '+r.title
+  };
+  if(!entry.creator){alert('Creator 정보를 입력하고 다시 저장해주세요.');return;}
+  lsSet('viral_records',[...lsGet('viral_records'),entry]);
+  alert('트래커에 저장되었습니다! 📊 트래커 탭에서 확인하세요.');
+}
+
+function viralAiHistoryHTML(){
+  const hist=lsGet('viral_ai_history')||[];
+  if(!hist.length) return '';
+  return `<div class="report-section-label" style="margin:16px 0 10px">▌ 이전 분석 히스토리 (${hist.length}개)</div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+  ${hist.slice(0,6).map((h,i)=>`
+    <div class="ai-history-item" style="cursor:default">
+      <div style="font-size:11px;font-weight:700;margin-bottom:4px">${esc(h.creator||'알 수 없음')}</div>
+      <div style="font-size:10px;color:var(--muted);margin-bottom:6px">${esc(h.product||'')} · ${new Date(h.ts).toLocaleDateString('ko-KR')}</div>
+      <button class="cs-copy-btn" style="font-size:10px;padding:4px 10px" onclick="viralAiHistoryCopy(${i})">📋 복사</button>
+    </div>`).join('')}
+  </div>`;
+}
+
+function viralAiHistoryCopy(idx){
+  const hist=lsGet('viral_ai_history')||[];
+  const h=hist[idx]; if(!h) return;
+  navigator.clipboard.writeText(h.raw).then(()=>alert('복사되었습니다!'));
+}
+
 function renderViral(){
   const d=lsGet('viral_records');
   const views=d.reduce((s,x)=>s+(x.views||0),0);
