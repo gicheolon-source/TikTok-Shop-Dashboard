@@ -174,6 +174,12 @@ textarea.form-input{resize:vertical}
 .cp-actions{display:flex;gap:8px;margin-top:14px}
 .cp-actions button{flex:1;font-size:11px;padding:7px 10px}
 
+/* ── Weekly Report ── */
+.report-section-label{font-size:11px;font-weight:800;color:var(--pink);text-transform:uppercase;letter-spacing:.6px;margin:0 0 8px;padding:6px 10px;background:#FFF0F3;border-radius:6px;border-left:3px solid var(--pink)}
+.report-item{padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:6px;line-height:1.5}
+.report-issue{background:#FFF0F3;border-left:3px solid var(--pink)}
+.report-action{background:#F0FFF4;border-left:3px solid #10B981}
+
 /* ── Upload / drop zone ── */
 .drop-zone{border:2px dashed var(--border);border-radius:12px;padding:28px;text-align:center;cursor:pointer;transition:all .2s;background:var(--bg)}
 .drop-zone:hover,.drop-zone.drag-over{border-color:var(--pink);background:#FFF0F3}
@@ -1207,14 +1213,57 @@ textarea.form-input{resize:vertical}
     <!-- ═══ 15. 주간 리포트 ══════════════════════ -->
     <div id="sec-report" class="page-section">
       <div class="sec-head">
-        <div><div class="sec-title">주간 리포트</div><div class="sec-sub">전체 데이터 자동 통합 요약</div></div>
-        <div style="display:flex;gap:8px;align-items:center">
-          <input type="week" class="form-input" id="report-week" style="width:170px" onchange="generateReport()">
+        <div><div class="sec-title">주간 리포트</div><div class="sec-sub">TikTok Shop 주간 매출 보고 대시보드</div></div>
+        <div style="display:flex;gap:8px">
+          <button class="btn-ghost" onclick="openModal('report-input-modal')">&#9998; 데이터 입력</button>
           <button class="btn-primary" onclick="window.print()">&#128424; 인쇄/PDF</button>
         </div>
       </div>
       <div id="report-content"></div>
     </div>
+
+    <!-- Report Input Modal -->
+    <div class="modal-overlay hidden" id="report-input-modal"><div class="modal-box" style="width:560px">
+      <div class="modal-title">&#128203; 주간 데이터 입력 <span style="font-size:11px;font-weight:400;color:var(--muted)">(TikTok Seller Center 기준)</span></div>
+      <div class="form-row2">
+        <div><label>보고 기간 *</label><input class="form-input" id="ri-period" placeholder="예: 4월 19일 ~ 4월 25일 (W4-4)"></div>
+        <div><label>주차 코드</label><input class="form-input" id="ri-week" placeholder="예: W4-4"></div>
+      </div>
+      <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;margin:10px 0 6px;letter-spacing:.5px">&#9654; 이번 주 실적</div>
+      <div class="form-row2">
+        <div><label>판매량 (Units)</label><input class="form-input" id="ri-units" type="number" placeholder="1544"></div>
+        <div><label>총 매출 ($)</label><input class="form-input" id="ri-gmv" type="number" placeholder="34680.25" step="0.01"></div>
+      </div>
+      <div class="form-row2">
+        <div><label>총 매출 (₩)</label><input class="form-input" id="ri-gmv-krw" type="number" placeholder="48552350"></div>
+        <div><label>월 누적 매출 ($)</label><input class="form-input" id="ri-monthly-acc" type="number" placeholder="95585" step="0.01"></div>
+      </div>
+      <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;margin:10px 0 6px;letter-spacing:.5px">&#9654; 전 주 실적 (비교용)</div>
+      <div class="form-row2">
+        <div><label>전주 판매량</label><input class="form-input" id="ri-prev-units" type="number" placeholder="1769"></div>
+        <div><label>전주 총 매출 ($)</label><input class="form-input" id="ri-prev-gmv" type="number" placeholder="41994.99" step="0.01"></div>
+      </div>
+      <div class="form-row2">
+        <div><label>전주 Aff 매출 ($)</label><input class="form-input" id="ri-prev-aff" type="number" placeholder="23063.74" step="0.01"></div>
+        <div><label>전주 영상 업로드 수</label><input class="form-input" id="ri-prev-videos" type="number" placeholder="253"></div>
+      </div>
+      <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;margin:10px 0 6px;letter-spacing:.5px">&#9654; 운영 현황</div>
+      <div class="form-row2">
+        <div><label>샵 랭킹</label><input class="form-input" id="ri-ranking" type="number" placeholder="474"></div>
+        <div><label>팔로워 수</label><input class="form-input" id="ri-followers" type="number" placeholder="23139"></div>
+      </div>
+      <div class="form-row2">
+        <div><label>팔로워 증감</label><input class="form-input" id="ri-follower-chg" type="number" placeholder="627"></div>
+        <div><label>이번 주 영상 업로드</label><input class="form-input" id="ri-videos" type="number" placeholder="463"></div>
+      </div>
+      <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;margin:10px 0 6px;letter-spacing:.5px">&#9654; 이슈 &amp; 액션 아이템</div>
+      <div class="form-row"><label>🚨 이슈</label><textarea class="form-input" id="ri-issues" rows="2" placeholder="예: 재고 - 립세럼, 마스크 잔여 재고 확인 필요"></textarea></div>
+      <div class="form-row"><label>📌 액션 아이템</label><textarea class="form-input" id="ri-actions" rows="2" placeholder="예: Mother's Day 캠페인 4/23~5/3 진행&#10;영국 틱톡샵 런칭 준비"></textarea></div>
+      <div class="modal-actions">
+        <button class="btn-ghost" onclick="closeModal('report-input-modal')">취소</button>
+        <button class="btn-primary" onclick="reportSave()">저장 &amp; 리포트 생성</button>
+      </div>
+    </div></div>
 
   </div><!-- /pages -->
 </div><!-- /content -->
@@ -2128,67 +2177,270 @@ function settleDel(id){if(!confirm('삭제?'))return;lsSet('settlement',lsGet('s
 function settleExport(){const d=lsGet('settlement');dlCSV(['Creator,Period,GMV,Rate%,Amount,Status,PaidDate,Notes',...d.map(x=>[x.creator,x.period,x.gmv,x.rate,x.amount,x.status,x.paiddate,x.notes].join(','))].join('\n'),'settlement.csv');}
 
 /* ── WEEKLY REPORT ─────────────────────────────────────── */
+const WEEKLY_HISTORY_DEFAULT=[
+  {w:'W1-0',period:'1월 1~3일',  units:42,  gmv:928.73,   gmvKRW:1300222,  affGMV:89.81,   affPct:9.7,  wow:null,      wowPct:null},
+  {w:'W1-1',period:'1월 4~10일', units:142, gmv:2849.33,  gmvKRW:3989062,  affGMV:746.66,  affPct:26.2, wow:1920.60,   wowPct:206.8},
+  {w:'W1-2',period:'1월 11~17일',units:425, gmv:7778.11,  gmvKRW:10889354, affGMV:4338.86, affPct:55.8, wow:4928.78,   wowPct:173.0},
+  {w:'W1-3',period:'1월 18~24일',units:215, gmv:5611.01,  gmvKRW:7855414,  affGMV:3775.35, affPct:67.3, wow:-2167.10,  wowPct:-27.9},
+  {w:'W1-4',period:'1월 25~31일',units:168, gmv:3922.33,  gmvKRW:5491262,  affGMV:2658.00, affPct:67.8, wow:-1688.68,  wowPct:-30.1},
+  {w:'W2-1',period:'2월 1~7일',  units:354, gmv:8049.09,  gmvKRW:11268726, affGMV:5952.15, affPct:73.9, wow:4126.76,   wowPct:105.2},
+  {w:'W2-2',period:'2월 8~14일', units:607, gmv:11753.09, gmvKRW:16454326, affGMV:9901.74, affPct:84.2, wow:3704.00,   wowPct:46.0},
+  {w:'W2-3',period:'2월 15~21일',units:1283,gmv:24112.53, gmvKRW:33757542, affGMV:20897.57,affPct:86.7, wow:12359.44,  wowPct:105.2},
+  {w:'W2-4',period:'2월 22~28일',units:1378,gmv:27131.77, gmvKRW:37984478, affGMV:22412.21,affPct:82.6, wow:3019.24,   wowPct:12.5},
+  {w:'W3-1',period:'3월 1~7일',  units:1164,gmv:22439.05, gmvKRW:31414670, affGMV:18747.40,affPct:83.5, wow:-4692.72,  wowPct:-17.3},
+  {w:'W3-2',period:'3월 8~14일', units:936, gmv:20262.42, gmvKRW:28367388, affGMV:13724.81,affPct:81.0, wow:-2176.63,  wowPct:-9.7},
+  {w:'W3-3',period:'3월 15~21일',units:1763,gmv:42121.78, gmvKRW:58970492, affGMV:25782.92,affPct:80.0, wow:21859.36,  wowPct:107.9},
+  {w:'W3-4',period:'3월 22~28일',units:1443,gmv:35152.38, gmvKRW:49213332, affGMV:20638.30,affPct:82.0, wow:-6969.40,  wowPct:-16.5},
+  {w:'W4-1',period:'3월29~4월4일',units:931,gmv:25022.42, gmvKRW:35031388, affGMV:15178.28,affPct:81.0, wow:-10129.96, wowPct:-28.8},
+  {w:'W4-2',period:'4월5~4월11일',units:1769,gmv:41994.99,gmvKRW:58792986, affGMV:23063.74,affPct:80.7, wow:16972.57,  wowPct:67.8},
+  {w:'W4-3',period:'4월12~4월18일',units:1544,gmv:34680.25,gmvKRW:48552350,affGMV:19146.64,affPct:79.7, wow:-7264.74,  wowPct:-17.3},
+];
+function getWeeklyHistory(){
+  const saved=lsGet('weekly_history');
+  return saved.length?saved:WEEKLY_HISTORY_DEFAULT;
+}
+
+const MONTHLY_TARGET_USDKRW=135714.29;
+
+function reportSave(){
+  const d={
+    period:gEl('ri-period').value, week:gEl('ri-week').value,
+    units:parseInt(gEl('ri-units').value)||0, gmv:parseFloat(gEl('ri-gmv').value)||0,
+    gmvKRW:parseInt(gEl('ri-gmv-krw').value)||0, monthlyAcc:parseFloat(gEl('ri-monthly-acc').value)||0,
+    prevUnits:parseInt(gEl('ri-prev-units').value)||0, prevGMV:parseFloat(gEl('ri-prev-gmv').value)||0,
+    prevAffGMV:parseFloat(gEl('ri-prev-aff').value)||0, prevVideos:parseInt(gEl('ri-prev-videos').value)||0,
+    ranking:parseInt(gEl('ri-ranking').value)||0, followers:parseInt(gEl('ri-followers').value)||0,
+    followerChg:parseInt(gEl('ri-follower-chg').value)||0, videos:parseInt(gEl('ri-videos').value)||0,
+    issues:gEl('ri-issues').value, actions:gEl('ri-actions').value,
+    savedAt:new Date().toISOString(),
+  };
+  if(!d.period){alert('보고 기간을 입력하세요');return;}
+  lsSet('report_current',d);
+  // Also add to weekly history if week code provided
+  if(d.week&&d.gmv){
+    const hist=getWeeklyHistory();
+    const alGMV=alData.reduce((s,x)=>s+(x.gmv||0),0);
+    const affPct=d.gmv?+(alGMV/d.gmv*100).toFixed(1):0;
+    const prev=hist[hist.length-1];
+    const wow=prev?+(d.gmv-prev.gmv).toFixed(2):null;
+    const wowPct=prev&&prev.gmv?+(wow/prev.gmv*100).toFixed(1):null;
+    const newRow={w:d.week,period:d.period,units:d.units,gmv:d.gmv,gmvKRW:d.gmvKRW,affGMV:alGMV,affPct,wow,wowPct};
+    const existing=hist.findIndex(h=>h.w===d.week);
+    if(existing>=0)hist[existing]=newRow; else hist.push(newRow);
+    lsSet('weekly_history',hist);
+  }
+  closeModal('report-input-modal');
+  generateReport();
+}
+
 function generateReport(){
-  const w=gEl('report-week');
-  const weekLabel=w&&w.value?w.value:'이번 주';
-  const crm=lsGet('crm_creators'); const seed=lsGet('seeding');
-  const live=lsGet('live_records'); const settle=lsGet('settlement');
-  const viral=lsGet('viral_records');
+  const rc=gEl('report-content'); if(!rc)return;
+  const d=lsGet('report_current');
   const alGMV=alData.reduce((s,x)=>s+(x.gmv||0),0);
   const alActive=alData.filter(x=>x.gmv>0).length;
-  const liveGMV=live.reduce((s,x)=>s+(x.gmv||0),0);
-  const seedCost=seed.reduce((s,x)=>s+(x.cost||0),0);
-  const settleTotal=settle.filter(x=>x.status==='pending').reduce((s,x)=>s+(x.amount||0),0);
-  const viralGMV=viral.reduce((s,x)=>s+(x.gmv||0),0);
-  const top5=alData.slice(0,5).map(c=>`<tr><td class="fw7">@${esc(c.u)}</td><td class="c-pink fw7">${fmtUSD(c.gmv)}</td><td>${c.orders}</td><td>${fmtUSD(c.comm)}</td></tr>`).join('');
-  const rc=document.getElementById('report-content');
-  if(!rc)return;
+  const alComm=alData.reduce((s,x)=>s+(x.comm||0),0);
+  const viral=lsGet('viral_records');
+  const live=lsGet('live_records');
+  const seed=lsGet('seeding');
+
+  // Use saved data or defaults from alData
+  const thisGMV=d.gmv||0, prevGMV=d.prevGMV||0;
+  const thisUnits=d.units||0, prevUnits=d.prevUnits||0;
+  const thisAffGMV=alGMV, prevAffGMV=d.prevAffGMV||0;
+  const affPct=thisGMV?+(thisAffGMV/thisGMV*100).toFixed(1):0;
+  const prevAffPct=prevGMV?+(prevAffGMV/prevGMV*100).toFixed(1):0;
+  const wowGMV=thisGMV&&prevGMV?thisGMV-prevGMV:0;
+  const wowPct=prevGMV?+(wowGMV/prevGMV*100).toFixed(1):0;
+  const monthlyAcc=d.monthlyAcc||0;
+  const monthlyPct=MONTHLY_TARGET_USDKRW?+(monthlyAcc/MONTHLY_TARGET_USDKRW*100).toFixed(1):0;
+  const period=d.period||'(미입력 — 데이터 입력 버튼을 눌러 입력하세요)';
+
+  // Top hooks from viral records
+  const topHooks=viral.slice(0,4).map(v=>`<tr><td>"${esc(v.notes||'—')}"</td><td class="fw7">@${esc(v.creator)}</td><td>${(v.views/1000).toFixed(0)}K</td></tr>`).join('');
+  // Top creators
+  const top5=alData.slice(0,5).map((c,i)=>`<tr>
+    <td class="c-muted">${i+1}</td>
+    <td class="fw7"><span class="creator-link" onclick="openCreatorProfile('${esc(c.u)}')">@${esc(c.u)}</span></td>
+    <td class="fw7 c-pink">${fmtUSD(c.gmv)}</td><td>${c.orders}</td>
+    <td>${fmtUSD(c.comm)}</td><td>${fmtUSD(c.aov)}</td>
+  </tr>`).join('');
+  // Weekly history
+  const hist=getWeeklyHistory();
+  const histRows=hist.slice().reverse().slice(0,10).map(h=>{
+    const wc=h.wow===null?'—':h.wow>=0?`<span class="c-green">+${fmtUSD(h.wow)}</span>`:`<span class="c-pink">${fmtUSD(h.wow)}</span>`;
+    const pc=h.wowPct===null?'—':h.wowPct>=0?`<span class="c-green">+${h.wowPct}%</span>`:`<span class="c-pink">${h.wowPct}%</span>`;
+    const af=h.affPct>=80?'c-green':h.affPct>=60?'c-yellow':'c-muted';
+    return `<tr><td class="fw7">${h.w}</td><td class="c-muted">${h.period}</td><td>${h.units?.toLocaleString()}</td>
+      <td class="fw7">${fmtUSD(h.gmv)}</td><td>${h.gmvKRW?'₩'+h.gmvKRW.toLocaleString():'—'}</td>
+      <td>${fmtUSD(h.affGMV)}</td><td class="${af}">${h.affPct}%</td>
+      <td>${wc}</td><td>${pc}</td></tr>`;
+  }).join('');
+
+  // Issues & actions
+  const issues=(d.issues||'').split('\n').filter(Boolean).map(i=>`<div class="report-item report-issue">🚨 <strong>이슈</strong> &nbsp;${esc(i)}</div>`).join('');
+  const actions=(d.actions||'').split('\n').filter(Boolean).map(a=>`<div class="report-item report-action">📌 <strong>예정</strong> &nbsp;${esc(a)}</div>`).join('');
+
+  const wowColor=wowGMV>=0?'c-green':'c-pink';
+  const wowSign=wowGMV>=0?'+':'';
+  const progressW=Math.min(100,monthlyPct);
+
   rc.innerHTML=`
-    <div style="background:linear-gradient(135deg,var(--pink) 0%,var(--purple) 100%);border-radius:14px;padding:24px;color:#fff;margin-bottom:16px">
-      <div style="font-size:11px;opacity:.8;text-transform:uppercase;letter-spacing:.8px">Dr. Reju-All TikTok Shop</div>
-      <div style="font-size:22px;font-weight:800;margin:4px 0">주간 리포트</div>
-      <div style="font-size:13px;opacity:.85">${weekLabel} · 자동 생성</div>
+  <!-- HEADER -->
+  <div style="background:linear-gradient(120deg,#FE2C55 0%,#7C3AED 100%);border-radius:14px;padding:22px 26px;color:#fff;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+    <div>
+      <div style="font-size:10px;opacity:.75;text-transform:uppercase;letter-spacing:1px">Dr. Reju-All · TikTok Shop US</div>
+      <div style="font-size:21px;font-weight:900;margin:3px 0">주간 매출 보고 대시보드</div>
+      <div style="font-size:13px;opacity:.85">보고 기간 &nbsp;·&nbsp; ${esc(period)}</div>
     </div>
-    <div class="kpi-grid">
-      <div class="kpi"><div class="kpi-bar" style="background:var(--pink)"></div><div class="kpi-lbl">어필리에이트 GMV</div><div class="kpi-val">${fmtUSD(alGMV)}</div><div class="kpi-sub neu">이번 주</div></div>
-      <div class="kpi"><div class="kpi-bar" style="background:var(--cyan)"></div><div class="kpi-lbl">활성 크리에이터</div><div class="kpi-val">${alActive}</div><div class="kpi-sub neu">명</div></div>
-      <div class="kpi"><div class="kpi-bar" style="background:var(--green)"></div><div class="kpi-lbl">LIVE GMV</div><div class="kpi-val">${fmtUSD(liveGMV)}</div><div class="kpi-sub neu">누적</div></div>
-      <div class="kpi"><div class="kpi-bar" style="background:var(--yellow)"></div><div class="kpi-lbl">샘플 비용</div><div class="kpi-val">${fmtUSD(seedCost)}</div><div class="kpi-sub c-yellow">이번 주 투자</div></div>
+    <div style="text-align:right">
+      <div style="font-size:10px;opacity:.7">Generated</div>
+      <div style="font-size:12px;font-weight:700">${new Date().toLocaleDateString('ko-KR')}</div>
     </div>
-    <div class="g2">
-      <div class="card">
-        <div class="card-title">&#128293; Top 5 크리에이터</div>
-        <div class="card-sub">이번 주 GMV 기준</div>
-        <div class="tbl-wrap" style="margin-top:10px"><table>
-          <thead><tr><th>Creator</th><th>GMV</th><th>Orders</th><th>Commission</th></tr></thead>
-          <tbody>${top5||'<tr><td colspan="4" style="text-align:center;color:var(--muted)">데이터 없음</td></tr>'}</tbody>
-        </table></div>
-      </div>
-      <div class="card">
-        <div class="card-title">&#128203; 주요 지표 요약</div>
-        <div class="card-sub">이번 주 Operations</div>
-        <div style="margin-top:12px;display:flex;flex-direction:column;gap:8px">
-          ${[
-            ['CRM 등록 크리에이터',crm.length+'명'],
-            ['활성 크리에이터',crm.filter(c=>c.status==='active').length+'명'],
-            ['시딩 발송 건수',seed.length+'건 / '+fmtUSD(seedCost)],
-            ['LIVE 방송',live.length+'회 / '+fmtUSD(liveGMV)],
-            ['바이럴 영상',viral.length+'개 / '+fmtUSD(viralGMV)],
-            ['미정산 커미션',fmtUSD(settleTotal)],
-          ].map(([k,v])=>`<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px"><span style="color:var(--muted)">${k}</span><span class="fw7">${v}</span></div>`).join('')}
-        </div>
-      </div>
+  </div>
+
+  <!-- SECTION 1: 핵심 성과 요약 -->
+  <div class="report-section-label">▌ SECTION 1 &nbsp; 이번 주 핵심 성과 요약</div>
+  <div class="card full" style="margin-bottom:14px">
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>구분</th><th>판매량 (Units)</th><th>매출 ($)</th><th>매출 (₩)</th><th>Affiliate GMV</th><th>Aff 비율</th></tr></thead>
+      <tbody>
+        <tr style="background:#FFF0F3">
+          <td class="fw7" style="color:var(--pink)">이번 주</td>
+          <td class="fw7">${thisUnits.toLocaleString()}</td>
+          <td class="fw7 c-pink">${thisGMV?fmtUSD(thisGMV):'<span style="color:var(--muted)">미입력</span>'}</td>
+          <td class="fw7">${d.gmvKRW?'₩'+d.gmvKRW.toLocaleString():'—'}</td>
+          <td class="fw7 c-pink">${fmtUSD(thisAffGMV)}</td>
+          <td><span class="b ${affPct>=80?'b-green':affPct>=60?'b-yellow':'b-gray'}">${affPct}%</span></td>
+        </tr>
+        <tr>
+          <td class="fw7 c-muted">전 주</td>
+          <td>${prevUnits.toLocaleString()}</td>
+          <td>${prevGMV?fmtUSD(prevGMV):'—'}</td>
+          <td>—</td>
+          <td>${prevAffGMV?fmtUSD(prevAffGMV):'—'}</td>
+          <td>${prevAffPct?prevAffPct+'%':'—'}</td>
+        </tr>
+        <tr style="background:#F0FFF4">
+          <td class="fw7">전주 대비</td>
+          <td class="${wowColor} fw7">${wowSign}${(thisUnits-prevUnits).toLocaleString()}</td>
+          <td class="${wowColor} fw7">${wowGMV?wowSign+fmtUSD(Math.abs(wowGMV)):'—'}</td>
+          <td>—</td><td>—</td>
+          <td class="${wowColor} fw7">${wowPct?wowSign+wowPct+'%':'—'}</td>
+        </tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <!-- SECTION 2: 월간 목표 -->
+  <div class="report-section-label">▌ SECTION 2 &nbsp; 월간 목표 달성 현황</div>
+  <div class="card full" style="margin-bottom:14px">
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>구분</th><th>월 목표 ($)</th><th>월 목표 (₩)</th><th>현재 누적 ($)</th><th>달성률</th><th>잔여 목표 ($)</th></tr></thead>
+      <tbody><tr>
+        <td class="fw7">4월 목표</td>
+        <td>${fmtUSD(MONTHLY_TARGET_USDKRW)}</td>
+        <td>₩190,000,000</td>
+        <td class="fw7 ${monthlyPct>=100?'c-green':monthlyPct>=70?'c-yellow':'c-pink'}">${monthlyAcc?fmtUSD(monthlyAcc):'미입력'}</td>
+        <td>
+          <div style="display:flex;align-items:center;gap:8px">
+            <div style="flex:1;background:#F0F0F0;border-radius:4px;height:8px;overflow:hidden">
+              <div style="width:${progressW}%;height:100%;background:${monthlyPct>=100?'#10B981':monthlyPct>=70?'#F59E0B':'#FE2C55'};border-radius:4px"></div>
+            </div>
+            <span class="fw7">${monthlyPct}%</span>
+          </div>
+        </td>
+        <td class="fw7 c-pink">${monthlyAcc?fmtUSD(Math.max(0,MONTHLY_TARGET_USDKRW-monthlyAcc)):'—'}</td>
+      </tr></tbody>
+    </table></div>
+    <div style="font-size:10px;color:var(--muted);padding:8px 4px">티어 기준: T1($0~$12.5K) | T2($12.5K~$65K) | T3($65K~$200K) | T4($200K~$600K) | T5($600K~$1.7M) | Beyond($1.7M+) &nbsp;·&nbsp; 현재 Dr.Reju-All: <span class="b b-red">T3</span></div>
+  </div>
+
+  <!-- SECTION 3: Affiliate 현황 -->
+  <div class="report-section-label">▌ SECTION 3 &nbsp; Affiliate 현황</div>
+  <div class="card full" style="margin-bottom:14px">
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>구분</th><th>Affiliates 수</th><th>Aff 매출($)</th><th>Aff 커미션($)</th><th>평균 커미션율</th><th>영상 업로드</th></tr></thead>
+      <tbody>
+        <tr style="background:#FFF0F3">
+          <td class="fw7 c-pink">이번 주</td>
+          <td class="fw7">${alActive}</td>
+          <td class="fw7 c-pink">${fmtUSD(thisAffGMV)}</td>
+          <td>${fmtUSD(alComm)}</td>
+          <td>${thisAffGMV?+(alComm/thisAffGMV*100).toFixed(1)+'%':'—'}</td>
+          <td>${d.videos||'—'}</td>
+        </tr>
+        <tr>
+          <td class="fw7 c-muted">전 주</td>
+          <td>—</td>
+          <td>${prevAffGMV?fmtUSD(prevAffGMV):'—'}</td>
+          <td>—</td><td>—</td>
+          <td>${d.prevVideos||'—'}</td>
+        </tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <!-- SECTION 4: 운영 현황 -->
+  <div class="report-section-label">▌ SECTION 4 &nbsp; 이번 주 운영 현황</div>
+  <div class="g2" style="margin-bottom:14px">
+    <div class="card">
+      <div class="card-title">샵 운영 지표</div>
+      ${[[`샵 랭킹`,d.ranking?'#'+d.ranking:'—'],[`팔로워 수`,d.followers?d.followers.toLocaleString()+'명':'—'],[`팔로워 증감`,d.followerChg?(d.followerChg>0?'+':'')+d.followerChg.toLocaleString():'—']].map(([k,v])=>`
+        <div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border);font-size:13px">
+          <span style="color:var(--muted)">${k}</span><span class="fw7">${v}</span>
+        </div>`).join('')}
     </div>
-    <div class="card full" style="margin-top:0">
-      <div class="card-title">&#128221; 다음 주 Action Items</div>
-      <div style="margin-top:10px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
-        ${[
-          ['&#128100; CRM','미연락 크리에이터 팔로업 & 샘플 시딩 우선순위 확인'],
-          ['&#127873; 시딩','샘플 발송 후 콘텐츠 업로드 여부 확인 및 전환 추적'],
-          ['&#128250; LIVE','이번 주 LIVE 성과 분석 후 최적 시간대 스케줄 조정'],
-        ].map(([icon,txt])=>`<div style="background:var(--bg);border-radius:8px;padding:12px"><div style="font-size:13px;font-weight:700;margin-bottom:4px">${icon}</div><div style="font-size:11px;color:var(--muted);line-height:1.5">${txt}</div></div>`).join('')}
-      </div>
-    </div>`;
+    <div class="card">
+      <div class="card-title">&#128293; Top 5 크리에이터</div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>#</th><th>Handle</th><th>GMV</th><th>Orders</th><th>Comm</th><th>AOV</th></tr></thead>
+        <tbody>${top5||'<tr><td colspan="6" style="text-align:center;color:var(--muted)">Affiliate List 데이터 기준</td></tr>'}</tbody>
+      </table></div>
+    </div>
+  </div>
+
+  <!-- SECTION 5: Top Hooks -->
+  <div class="report-section-label">▌ SECTION 5 &nbsp; Weekly Top Hooks &amp; Selling Points</div>
+  <div class="g2" style="margin-bottom:14px">
+    <div class="card">
+      <div class="card-title">Top Hooks</div>
+      <div class="card-sub">바이럴 영상 트래커 기준</div>
+      ${viral.length?`<div class="tbl-wrap"><table><thead><tr><th>Hook</th><th>Creator</th><th>Views</th></tr></thead><tbody>${topHooks}</tbody></table></div>`:'<div style="padding:20px;text-align:center;color:var(--muted);font-size:12px">바이럴 영상 트래커에 데이터를 입력하세요</div>'}
+    </div>
+    <div class="card">
+      <div class="card-title">이번 주 바이럴 현황</div>
+      <div class="card-sub">바이럴 영상 트래커 기준</div>
+      ${[['바이럴 영상 수',viral.length+'개'],['총 조회수',viral.reduce((s,x)=>s+(x.views||0),0)>=1000?(viral.reduce((s,x)=>s+(x.views||0),0)/1000).toFixed(0)+'K':viral.reduce((s,x)=>s+(x.views||0),0)+''],['바이럴 GMV 기여',fmtUSD(viral.reduce((s,x)=>s+(x.gmv||0),0))],['LIVE 방송 횟수',live.length+'회'],['LIVE GMV',fmtUSD(live.reduce((s,x)=>s+(x.gmv||0),0))],['시딩 발송',seed.length+'건']].map(([k,v])=>`
+        <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px">
+          <span style="color:var(--muted)">${k}</span><span class="fw7">${v}</span>
+        </div>`).join('')}
+    </div>
+  </div>
+
+  <!-- SECTION 6: 이슈 & 액션 아이템 -->
+  <div class="report-section-label">▌ SECTION 6 &nbsp; 주요 이슈 &amp; 다음 주 액션 아이템</div>
+  <div class="card full" style="margin-bottom:14px">
+    ${issues||actions?issues+actions:`<div style="padding:16px;color:var(--muted);font-size:13px">데이터 입력 버튼에서 이슈와 액션 아이템을 입력하세요</div>`}
+  </div>
+
+  <!-- SECTION 7: 주차별 누적 -->
+  <div class="report-section-label">▌ SECTION 7 &nbsp; 주차별 누적 데이터</div>
+  <div class="card full">
+    <div class="tbl-toolbar">
+      <div class="card-title">전체 주차 매출 기록</div>
+      <button class="export-btn" onclick="reportExportHistory()">&#11015; CSV</button>
+    </div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>주차</th><th>기간</th><th>판매량</th><th>매출($)</th><th>매출(₩)</th><th>Aff 매출($)</th><th>Aff 비율</th><th>전주대비($)</th><th>전주대비(%)</th></tr></thead>
+      <tbody>${histRows}</tbody>
+    </table></div>
+    <div style="font-size:11px;color:var(--muted);padding:8px 4px">최근 10주 표시 · 전체 ${hist.length}주 기록됨</div>
+  </div>`;
+}
+
+function reportExportHistory(){
+  const h=getWeeklyHistory();
+  dlCSV(['주차,기간,판매량,매출USD,매출KRW,Aff매출USD,Aff비율,전주대비USD,전주대비PCT',...h.map(r=>[r.w,r.period,r.units,r.gmv,r.gmvKRW,r.affGMV,r.affPct,r.wow??'',r.wowPct??''].join(','))].join('\n'),'weekly_history.csv');
 }
 
 /* ── CREATOR PROFILE ───────────────────────────────────── */
