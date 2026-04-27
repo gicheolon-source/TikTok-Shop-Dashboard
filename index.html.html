@@ -1,0 +1,1402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Dr. Reju-All · TikTok Shop Platform</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --pink:#FE2C55;--cyan:#25F4EE;--dark:#0F1117;--sidebar:#161823;
+  --bg:#F2F3F7;--card:#fff;--border:#E4E5EA;--text:#1A1A2E;--muted:#6B7280;
+  --green:#22C55E;--yellow:#F59E0B;--purple:#A855F7;--blue:#3B82F6;
+  --shadow:0 1px 4px rgba(0,0,0,.07),0 1px 2px rgba(0,0,0,.04);
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);display:flex;height:100vh;overflow:hidden}
+
+/* ── Sidebar ── */
+.sidebar{width:220px;min-width:220px;background:var(--sidebar);display:flex;flex-direction:column;height:100vh;overflow-y:auto}
+.sb-brand{padding:20px 18px 14px;border-bottom:1px solid #222}
+.sb-logo{display:flex;align-items:center;gap:3px;font-size:17px;font-weight:900;line-height:1}
+.sb-logo .t{color:#25F4EE}.sb-logo .k{color:#FE2C55}.sb-logo .s{color:#fff;font-size:12px;opacity:.7;margin-left:2px}
+.sb-brand-name{color:#ccc;font-size:11px;margin-top:5px;letter-spacing:.3px}
+.sb-nav{padding:10px 0;flex:1}
+.sb-section{padding:6px 14px 2px;font-size:9px;text-transform:uppercase;letter-spacing:.8px;color:#555;margin-top:6px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 18px;color:#9CA3AF;font-size:13px;cursor:pointer;border-left:3px solid transparent;transition:all .15s;user-select:none}
+.nav-item:hover{color:#fff;background:rgba(255,255,255,.04)}
+.nav-item.active{color:#fff;background:rgba(254,44,85,.12);border-left-color:var(--pink)}
+.nav-icon{font-size:14px;width:18px;text-align:center;flex-shrink:0}
+.sb-footer{padding:14px 18px;border-top:1px solid #222}
+.sb-ver{color:#444;font-size:10px}
+
+/* ── Content ── */
+.content{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{background:#fff;border-bottom:1px solid var(--border);height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;flex-shrink:0}
+.tb-title{font-size:15px;font-weight:700}
+.tb-right{display:flex;align-items:center;gap:10px}
+.tb-pill{display:flex;align-items:center;gap:6px;background:var(--bg);padding:5px 12px;border-radius:20px;font-size:11px;font-weight:600;color:var(--muted)}
+.dot-live{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green)}
+.pages{flex:1;overflow-y:auto;padding:22px 24px 40px}
+
+/* ── Section headers ── */
+.sec-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:8px}
+.sec-title{font-size:17px;font-weight:800}
+.sec-sub{font-size:12px;color:var(--muted);margin-top:2px}
+.badge-tier{background:rgba(254,44,85,.1);color:var(--pink);border:1px solid rgba(254,44,85,.25);padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
+
+/* ── KPI cards ── */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
+.kpi{background:var(--card);border-radius:12px;border:1px solid var(--border);box-shadow:var(--shadow);padding:18px 20px 14px;position:relative;overflow:hidden}
+.kpi-bar{position:absolute;left:0;top:18px;width:3px;height:28px;border-radius:0 3px 3px 0}
+.kpi-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin-bottom:7px}
+.kpi-val{font-size:24px;font-weight:800;line-height:1;margin-bottom:5px}
+.kpi-sub{font-size:11px;font-weight:600;display:flex;align-items:center;gap:3px}
+.up{color:var(--green)}.dn{color:#EF4444}.neu{color:var(--muted)}
+
+/* ── Grid layouts ── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.g21{display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:14px}
+.g12{display:grid;grid-template-columns:1fr 2fr;gap:14px;margin-bottom:14px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:14px}
+.full{margin-bottom:14px}
+
+/* ── Card ── */
+.card{background:var(--card);border-radius:12px;border:1px solid var(--border);box-shadow:var(--shadow);padding:20px}
+.card-title{font-size:13px;font-weight:700;margin-bottom:2px}
+.card-sub{font-size:11px;color:var(--muted);margin-bottom:14px}
+.ch{position:relative}
+.ch-200{height:200px}.ch-240{height:240px}.ch-280{height:280px}.ch-320{height:320px}.ch-160{height:160px}
+
+/* ── Tables ── */
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);padding:7px 12px;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:9px 12px;font-size:12px;border-bottom:1px solid #F5F5F7;white-space:nowrap}
+tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:#FAFAFA}
+.fw7{font-weight:700}
+.c-pink{color:var(--pink)}.c-green{color:var(--green)}.c-yellow{color:var(--yellow)}.c-muted{color:var(--muted)}
+
+/* ── Badges ── */
+.b{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700}
+.b-red{background:rgba(254,44,85,.12);color:#C0152E}
+.b-green{background:#D1FAE5;color:#065F46}
+.b-blue{background:#DBEAFE;color:#1E40AF}
+.b-yellow{background:#FEF3C7;color:#92400E}
+.b-purple{background:#EDE9FE;color:#5B21B6}
+.b-gray{background:#F3F4F6;color:#6B7280}
+.b-cyan{background:rgba(37,244,238,.15);color:#0D7B7B}
+
+/* ── Progress bar ── */
+.prog-bg{background:#F0F0F0;border-radius:4px;height:6px;width:100%}
+.prog-fill{border-radius:4px;height:6px;transition:width .4s}
+
+/* ── Inventory cards ── */
+.inv-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px}
+.inv-card{background:var(--card);border-radius:10px;border:1px solid var(--border);padding:14px 16px}
+.inv-name{font-size:12px;font-weight:700;margin-bottom:8px}
+.inv-val{font-size:22px;font-weight:800;margin-bottom:2px}
+.inv-days{font-size:11px;color:var(--muted);margin-bottom:8px}
+.inv-alert{font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;display:inline-block}
+.alert-ok{background:#D1FAE5;color:#065F46}
+.alert-warn{background:#FEF3C7;color:#92400E}
+.alert-crit{background:#FEE2E2;color:#991B1B}
+
+/* ── Promotion calendar ── */
+.promo-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.promo-month{background:var(--card);border-radius:10px;border:1px solid var(--border);padding:12px}
+.promo-mon-title{font-size:11px;font-weight:800;color:var(--text);margin-bottom:8px;display:flex;align-items:center;justify-content:space-between}
+.promo-event{font-size:10px;padding:3px 7px;border-radius:5px;margin-bottom:3px;font-weight:600}
+.ev-retail{background:rgba(254,44,85,.1);color:var(--pink)}
+.ev-global{background:rgba(37,244,238,.12);color:#0D7B7B}
+.ev-promo{background:#EDE9FE;color:#5B21B6}
+
+/* ── Cost table ── */
+.cost-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #F5F5F7;font-size:12px}
+.cost-row:last-child{border-bottom:none}
+.cost-label{color:var(--muted)}
+.cost-val{font-weight:700}
+.cost-pct{font-size:10px;color:var(--muted);background:#F3F4F6;padding:1px 6px;border-radius:10px;margin-left:6px}
+
+/* ── Tier progression ── */
+.tier-track{display:flex;align-items:center;gap:0;margin:14px 0}
+.tier-seg{flex:1;padding:8px 4px;text-align:center;font-size:10px;font-weight:700;border:1px solid var(--border);cursor:default}
+.tier-seg:first-child{border-radius:8px 0 0 8px}
+.tier-seg:last-child{border-radius:0 8px 8px 0}
+.tier-seg.cur{background:var(--pink);color:#fff;border-color:var(--pink);transform:scaleY(1.1);z-index:1}
+.tier-seg.done{background:#161823;color:#888;border-color:#222}
+.tier-seg.next{background:#FFF0F3;color:var(--pink);border-color:rgba(254,44,85,.3)}
+
+/* ── UK pricing ── */
+.price-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.price-card{background:#F8F8FB;border-radius:8px;padding:10px 12px;border:1px solid var(--border)}
+.price-tier{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:4px}
+.price-val{font-size:17px;font-weight:800}
+.price-product{font-size:10px;color:var(--muted)}
+
+/* ── Upload / drop zone ── */
+.drop-zone{border:2px dashed var(--border);border-radius:12px;padding:28px;text-align:center;cursor:pointer;transition:all .2s;background:var(--bg)}
+.drop-zone:hover,.drop-zone.drag-over{border-color:var(--pink);background:#FFF0F3}
+.dz-icon{font-size:28px;margin-bottom:6px}
+.dz-title{font-size:13px;font-weight:700;margin-bottom:3px}
+.dz-sub{font-size:11px;color:var(--muted)}
+.upload-btn{background:var(--pink);color:#fff;border:none;padding:7px 16px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;margin-top:10px;display:inline-block}
+.upload-btn:hover{opacity:.9}
+/* Pagination */
+.pag{display:flex;align-items:center;gap:5px;padding:12px 0 0;justify-content:flex-end;flex-wrap:wrap}
+.pag-btn{padding:4px 10px;border:1px solid var(--border);border-radius:6px;font-size:11px;cursor:pointer;background:#fff}
+.pag-btn:hover{background:#F5F5F7}
+.pag-btn.cur{background:var(--pink);color:#fff;border-color:var(--pink)}
+.pag-info{font-size:11px;color:var(--muted);margin:0 6px}
+/* Table toolbar */
+.tbl-toolbar{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px;gap:10px;flex-wrap:wrap}
+.tbl-search{border:1px solid var(--border);border-radius:8px;padding:7px 12px;font-size:12px;width:200px;outline:none}
+.tbl-search:focus{border-color:var(--pink)}
+.export-btn{background:#fff;border:1px solid var(--border);color:var(--text);padding:7px 14px;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer}
+.export-btn:hover{background:var(--bg)}
+.th-sort{cursor:pointer;user-select:none}
+.th-sort:hover{color:var(--text)}
+
+/* ── Section visibility ── */
+.page-section{display:none}
+.page-section.active{display:block}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#ddd;border-radius:4px}
+
+@media(max-width:900px){
+  .kpi-grid{grid-template-columns:repeat(2,1fr)}
+  .g21,.g12{grid-template-columns:1fr}
+  .g3{grid-template-columns:repeat(2,1fr)}
+  .inv-grid{grid-template-columns:repeat(2,1fr)}
+  .promo-grid{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ SIDEBAR ═══════════════════════════════════════════════ -->
+<aside class="sidebar">
+  <div class="sb-brand">
+    <div class="sb-logo"><span class="t">Tik</span><span class="k">Tok</span><span class="s">Shop</span></div>
+    <div class="sb-brand-name">Dr. Reju-All Operations</div>
+  </div>
+  <nav class="sb-nav">
+    <div class="sb-section">Dashboard</div>
+    <div class="nav-item active" onclick="nav('overview',this)">
+      <span class="nav-icon">&#9685;</span> Overview
+    </div>
+    <div class="nav-item" onclick="nav('sales',this)">
+      <span class="nav-icon">&#128200;</span> Sales &amp; Revenue
+    </div>
+    <div class="nav-item" onclick="nav('inventory',this)">
+      <span class="nav-icon">&#128230;</span> Inventory
+    </div>
+    <div class="sb-section">Growth</div>
+    <div class="nav-item" onclick="nav('affiliates',this)">
+      <span class="nav-icon">&#128101;</span> Affiliates
+    </div>
+    <div class="nav-item" onclick="nav('competitors',this)">
+      <span class="nav-icon">&#127942;</span> Competitors
+    </div>
+    <div class="sb-section">Operations</div>
+    <div class="nav-item" onclick="nav('promotions',this)">
+      <span class="nav-icon">&#127881;</span> Promotions
+    </div>
+    <div class="nav-item" onclick="nav('uk',this)">
+      <span class="nav-icon">&#127468;&#127463;</span> UK Market
+    </div>
+    <div class="sb-section">Affiliates</div>
+    <div class="nav-item" onclick="nav('affiliatelist',this)">
+      <span class="nav-icon">&#128101;</span> Affiliate List
+    </div>
+  </nav>
+  <div class="sb-footer">
+    <div class="sb-ver">Data from Google Sheets · Apr 2026</div>
+  </div>
+</aside>
+
+<!-- ═══ CONTENT ════════════════════════════════════════════════ -->
+<div class="content">
+  <div class="topbar">
+    <div class="tb-title" id="topbarTitle">Overview</div>
+    <div class="tb-right">
+      <div class="tb-pill"><span class="dot-live"></span> Live · Google Sheets</div>
+      <div class="tb-pill">&#127987; T3 Tier · $65K–$200K</div>
+    </div>
+  </div>
+
+  <div class="pages" id="pages">
+
+    <!-- ══════════════════════════════════════════════
+         1. OVERVIEW
+    ══════════════════════════════════════════════ -->
+    <div id="sec-overview" class="page-section active">
+      <div class="sec-head">
+        <div>
+          <div class="sec-title">Overview</div>
+          <div class="sec-sub">Current performance snapshot · TikTok Shop US + UK</div>
+        </div>
+        <div class="badge-tier">T3 · $105,912 GMV</div>
+      </div>
+
+      <!-- KPIs -->
+      <div class="kpi-grid">
+        <div class="kpi">
+          <div class="kpi-bar" style="background:var(--pink)"></div>
+          <div class="kpi-lbl">Current Monthly GMV</div>
+          <div class="kpi-val">$105,912</div>
+          <div class="kpi-sub up">&#9650; T3 tier achieved</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-bar" style="background:var(--cyan)"></div>
+          <div class="kpi-lbl">Total FBT Inventory</div>
+          <div class="kpi-val">18,731</div>
+          <div class="kpi-sub neu">units across 5 SKUs</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-bar" style="background:var(--purple)"></div>
+          <div class="kpi-lbl">Monthly GMV Target</div>
+          <div class="kpi-val">$100K+</div>
+          <div class="kpi-sub up">&#9650; Goal achieved</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-bar" style="background:var(--yellow)"></div>
+          <div class="kpi-lbl">Next Tier Target</div>
+          <div class="kpi-val">T4</div>
+          <div class="kpi-sub c-yellow">$200K GMV needed</div>
+        </div>
+      </div>
+
+      <!-- Tier progression -->
+      <div class="card full">
+        <div class="card-title">Tier Progression</div>
+        <div class="card-sub">K-beauty TikTok Shop tier structure — current position T3</div>
+        <div class="tier-track">
+          <div class="tier-seg done">T1<br><span style="font-weight:400;font-size:9px">$0–12.5K</span></div>
+          <div class="tier-seg done">T2<br><span style="font-weight:400;font-size:9px">$12.5K–65K</span></div>
+          <div class="tier-seg cur">T3 ★<br><span style="font-weight:400;font-size:9px">$65K–200K</span></div>
+          <div class="tier-seg next">T4<br><span style="font-weight:400;font-size:9px">$200K–600K</span></div>
+          <div class="tier-seg next">T5<br><span style="font-weight:400;font-size:9px">$600K–1.7M</span></div>
+          <div class="tier-seg next">Beyond<br><span style="font-weight:400;font-size:9px">$1.7M+</span></div>
+        </div>
+        <div style="display:flex;gap:24px;margin-top:10px;flex-wrap:wrap">
+          <div style="font-size:11px;color:var(--muted)">T4 gap: <b style="color:var(--pink)">$94,088 more/month</b></div>
+          <div style="font-size:11px;color:var(--muted)">T3 content/month needed: <b>2,776</b></div>
+          <div style="font-size:11px;color:var(--muted)">T3 free samples strategy: <b>507/month</b></div>
+          <div style="font-size:11px;color:var(--muted)">T3 ad spend benchmark: <b>$30,544</b> (88% Shop Ads)</div>
+        </div>
+      </div>
+
+      <!-- Mission & Tasks -->
+      <div class="g2">
+        <div class="card">
+          <div class="card-title">Mission &amp; Core Goals</div>
+          <div class="card-sub">2026 strategic targets</div>
+          <table>
+            <tbody>
+              <tr><td class="fw7">Mission</td><td>Grow TikTok Shop as main channel outside Amazon</td></tr>
+              <tr><td class="fw7 c-pink">Goal</td><td>Monthly GMV $100K+ (₩1.4억)</td></tr>
+              <tr><td class="fw7">Task 1</td><td>5 hero affiliates each &gt;$5K/month GMV</td></tr>
+              <tr><td class="fw7">Task 2</td><td>Find best product/price combo for TikTok conversion</td></tr>
+              <tr><td class="fw7">Task 3</td><td>Achieve Silver Star Rating</td></tr>
+              <tr><td class="fw7">CS KPI</td><td>24h response rate &gt;90%</td></tr>
+              <tr><td class="fw7">Discord</td><td>500+ community members (currently ~220)</td></tr>
+              <tr><td class="fw7">Affiliate</td><td>500+ active (GMV-generating) affiliates</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="card">
+          <div class="card-title">PDRN Cream Unit Economics</div>
+          <div class="card-sub">Selling price $29.90 — cost breakdown</div>
+          <div class="cost-row"><span class="cost-label">Manufacturing</span><span class="cost-val">$1.70<span class="cost-pct">5.7%</span></span></div>
+          <div class="cost-row"><span class="cost-label">TikTok Platform Fee</span><span class="cost-val">$1.79<span class="cost-pct">6%</span></span></div>
+          <div class="cost-row"><span class="cost-label">Influencer Commission</span><span class="cost-val">$5.98<span class="cost-pct">20%</span></span></div>
+          <div class="cost-row"><span class="cost-label">Ad Spend (Shoppable)</span><span class="cost-val">$2.99<span class="cost-pct">10%</span></span></div>
+          <div class="cost-row"><span class="cost-label">Shipping (Local)</span><span class="cost-val">$4.28<span class="cost-pct">14.3%</span></span></div>
+          <div class="cost-row"><span class="cost-label">Shipping (Export KR→US)</span><span class="cost-val">$1.86<span class="cost-pct">6.2%</span></span></div>
+          <div class="cost-row" style="border-top:2px solid var(--border);margin-top:4px">
+            <span class="cost-label fw7">Total Cost</span>
+            <span class="cost-val c-pink">$18.60 &nbsp;<span style="font-size:11px;font-weight:400;color:var(--muted)">(Gross margin ~37.8%)</span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════
+         2. SALES & REVENUE
+    ══════════════════════════════════════════════ -->
+    <div id="sec-sales" class="page-section">
+      <div class="sec-head">
+        <div>
+          <div class="sec-title">Sales &amp; Revenue</div>
+          <div class="sec-sub">2026 monthly GMV targets and SKU performance</div>
+        </div>
+      </div>
+
+      <div class="g21">
+        <div class="card">
+          <div class="card-title">Monthly Revenue Target (억 KRW)</div>
+          <div class="card-sub">2026 US market GMV targets by month</div>
+          <div class="ch ch-240"><canvas id="c-monthly-gmv"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Ad Spend vs GMV Target</div>
+          <div class="card-sub">Monthly budget allocation</div>
+          <div class="ch ch-240"><canvas id="c-adspend"></canvas></div>
+        </div>
+      </div>
+
+      <div class="g21">
+        <div class="card">
+          <div class="card-title">Monthly Unit Sales Target by SKU</div>
+          <div class="card-sub">Units per product per month (stacked)</div>
+          <div class="ch ch-280"><canvas id="c-sku-stacked"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-title">SKU Revenue Share</div>
+          <div class="card-sub">Full-year 2026 mix</div>
+          <div class="ch ch-280"><canvas id="c-sku-donut"></canvas></div>
+        </div>
+      </div>
+
+      <div class="card full">
+        <div class="card-title">Monthly Sales &amp; Budget Summary</div>
+        <div class="card-sub">2026 US market · Revenue targets in 억 KRW</div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr>
+              <th>Month</th><th>GMV Target (억)</th><th>Ad Spend (억)</th>
+              <th>PDRN Cream</th><th>Lip Serum</th><th>Ceramide</th><th>Retino-mela</th><th>Mask</th><th>System Set</th><th>Total Units</th>
+            </tr></thead>
+            <tbody id="sales-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════
+         3. INVENTORY
+    ══════════════════════════════════════════════ -->
+    <div id="sec-inventory" class="page-section">
+      <div class="sec-head">
+        <div>
+          <div class="sec-title">Inventory (FBT)</div>
+          <div class="sec-sub">Fulfillment-by-TikTok stock levels and sellout forecasts</div>
+        </div>
+      </div>
+
+      <!-- Inventory alert cards -->
+      <div class="inv-grid" id="inv-cards"></div>
+
+      <div class="g2">
+        <div class="card">
+          <div class="card-title">Current FBT Stock</div>
+          <div class="card-sub">Units available by SKU</div>
+          <div class="ch ch-240"><canvas id="c-inv-bar"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Days-to-Sellout (Current Rate)</div>
+          <div class="card-sub">At current average daily sales velocity</div>
+          <div class="ch ch-240"><canvas id="c-inv-days"></canvas></div>
+        </div>
+      </div>
+
+      <div class="g2">
+        <div class="card">
+          <div class="card-title">Spring Sales FBT Post-Sale (Apr 1)</div>
+          <div class="card-sub">Remaining stock after Spring Glow Up campaign</div>
+          <div class="tbl-wrap"><table>
+            <thead><tr>
+              <th>SKU</th><th>Remaining</th><th>Avg Daily (conservative)</th><th>Sellout (days)</th>
+              <th>Avg Daily (target)</th><th>Sellout (target)</th>
+            </tr></thead>
+            <tbody>
+              <tr><td class="fw7">PDRN Cream</td><td>9,000</td><td>90/day</td><td class="c-yellow">100 days</td><td>250/day</td><td class="c-green">36 days</td></tr>
+              <tr><td class="fw7">Retino-mela</td><td>1,511</td><td>10/day</td><td class="c-pink">151 days</td><td>25/day</td><td class="c-yellow">60 days</td></tr>
+              <tr><td class="fw7">Ceramide</td><td>1,079</td><td>25/day</td><td class="c-green">43 days</td><td>50/day</td><td class="c-green">22 days</td></tr>
+            </tbody>
+          </table></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Product Listing Status</div>
+          <div class="card-sub">Current TikTok Shop listing &amp; promotions</div>
+          <div class="tbl-wrap"><table>
+            <thead><tr><th>Product</th><th>Listed</th><th>FBT Stock</th><th>Promo</th></tr></thead>
+            <tbody>
+              <tr><td class="fw7">PDRN Cream 20ML</td><td><span class="b b-green">Live</span></td><td>6,862</td><td>5% off $50+, 10% off $100+</td></tr>
+              <tr><td class="fw7">PDRN Cream MAX 60ML</td><td><span class="b b-green">Live</span></td><td class="c-pink fw7">0</td><td>5% off $50+</td></tr>
+              <tr><td class="fw7">LC Ceramide Barrier</td><td><span class="b b-green">Live</span></td><td>226</td><td>5% off $50+</td></tr>
+              <tr><td class="fw7">Retino-Mela Serum</td><td><span class="b b-green">Live</span></td><td>946</td><td>5% off $50+</td></tr>
+              <tr><td class="fw7">PDRN Lip Serum</td><td><span class="b b-green">Live</span></td><td class="c-pink fw7">0</td><td>5% off $50+</td></tr>
+              <tr><td class="fw7">PDRN Face Mask</td><td><span class="b b-green">Live</span></td><td class="c-pink fw7">0</td><td>5% off $50+</td></tr>
+            </tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <div class="card full">
+        <div class="card-title">Max Revenue Potential (Current FBT Stock)</div>
+        <div class="card-sub">If all available inventory sells at list price</div>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>SKU</th><th>Stock</th><th>Price (USD)</th><th>Max GMV (USD)</th><th>Max GMV (KRW)</th></tr></thead>
+          <tbody>
+            <tr><td class="fw7">PDRN Cream 20ML</td><td>6,862</td><td>$27.90</td><td class="fw7 c-green">$191,350</td><td>₩267,890,000</td></tr>
+            <tr><td class="fw7">LC Ceramide Barrier</td><td>226</td><td>$20.70</td><td class="fw7">$4,678</td><td>₩6,549,200</td></tr>
+            <tr><td class="fw7">Retino-Mela Serum</td><td>946</td><td>$25.50</td><td class="fw7">$24,123</td><td>₩33,772,200</td></tr>
+            <tr style="background:#FFF0F3"><td class="fw7 c-pink">TOTAL</td><td class="fw7">8,034</td><td>—</td><td class="fw7 c-pink">$220,151</td><td class="fw7 c-pink">₩308,211,400</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════
+         4. AFFILIATES
+    ══════════════════════════════════════════════ -->
+    <div id="sec-affiliates" class="page-section">
+      <div class="sec-head">
+        <div><div class="sec-title">Affiliate Management</div>
+        <div class="sec-sub">Creator tiers, content volume, sample strategy</div></div>
+      </div>
+
+      <div class="kpi-grid">
+        <div class="kpi"><div class="kpi-bar" style="background:var(--pink)"></div>
+          <div class="kpi-lbl">Target Active Affiliates</div>
+          <div class="kpi-val">500+</div>
+          <div class="kpi-sub neu">GMV-generating creators</div>
+        </div>
+        <div class="kpi"><div class="kpi-bar" style="background:var(--yellow)"></div>
+          <div class="kpi-lbl">Hero Affiliates Goal</div>
+          <div class="kpi-val">5</div>
+          <div class="kpi-sub neu">&gt;$5K GMV/month each</div>
+        </div>
+        <div class="kpi"><div class="kpi-bar" style="background:var(--green)"></div>
+          <div class="kpi-lbl">Commission Rate</div>
+          <div class="kpi-val">20%</div>
+          <div class="kpi-sub neu">Maintain at 20%</div>
+        </div>
+        <div class="kpi"><div class="kpi-bar" style="background:var(--purple)"></div>
+          <div class="kpi-lbl">Discord Community</div>
+          <div class="kpi-val">3,165</div>
+          <div class="kpi-sub neu">$5 coupon holders</div>
+        </div>
+      </div>
+
+      <div class="g2">
+        <div class="card">
+          <div class="card-title">Monthly Content Volume by Tier</div>
+          <div class="card-sub">Number of creator posts needed per tier to sustain GMV</div>
+          <div class="ch ch-240"><canvas id="c-content-tier"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Free Sample Distribution by Tier</div>
+          <div class="card-sub">Monthly samples needed — T3 benchmark: 507/month</div>
+          <div class="ch ch-240"><canvas id="c-samples-tier"></canvas></div>
+        </div>
+      </div>
+
+      <div class="g2">
+        <div class="card">
+          <div class="card-title">Tier Strategy</div>
+          <div class="card-sub">TikTok Shop formula: Samples → Content → Affiliate Sales</div>
+          <div class="tbl-wrap"><table>
+            <thead><tr><th>Tier</th><th>GMV Range</th><th>Content/Month</th><th>Samples/Month</th><th>Hero SKUs</th></tr></thead>
+            <tbody>
+              <tr><td><span class="b b-gray">T1</span></td><td>$0–12.5K</td><td>204</td><td>25</td><td>1</td></tr>
+              <tr><td><span class="b b-blue">T2</span></td><td>$12.5K–65K</td><td>992</td><td>109</td><td>1</td></tr>
+              <tr style="background:#FFF0F3"><td><span class="b b-red">T3 ★</span></td><td>$65K–200K</td><td>2,776</td><td>507</td><td>2</td></tr>
+              <tr><td><span class="b b-green">T4</span></td><td>$200K–600K</td><td>6,327</td><td>877</td><td>3</td></tr>
+              <tr><td><span class="b b-purple">T5</span></td><td>$600K–1.7M</td><td>22,470</td><td>2,834</td><td>9</td></tr>
+              <tr><td><span class="b b-yellow">Beyond</span></td><td>$1.7M+</td><td>82,509</td><td>12,286</td><td>30+</td></tr>
+            </tbody>
+          </table></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Affiliate Advertising by Tier</div>
+          <div class="card-sub">Monthly ad spend &amp; % GMV from Shop Ads</div>
+          <div class="tbl-wrap"><table>
+            <thead><tr><th>Tier</th><th>Ad Spend (USD)</th><th>Ad Spend (KRW)</th><th>% from Shop Ads</th></tr></thead>
+            <tbody>
+              <tr><td><span class="b b-gray">T1</span></td><td>$1,411</td><td>₩1,975,400</td><td>92%</td></tr>
+              <tr><td><span class="b b-blue">T2</span></td><td>$14,164</td><td>₩19,829,600</td><td>80%</td></tr>
+              <tr style="background:#FFF0F3"><td><span class="b b-red">T3 ★</span></td><td class="fw7">$30,544</td><td>₩42,761,600</td><td class="fw7">88%</td></tr>
+              <tr><td><span class="b b-green">T4</span></td><td>$137,714</td><td>₩192,799,600</td><td>86%</td></tr>
+              <tr><td><span class="b b-purple">T5</span></td><td>$438,150</td><td>₩613,410,000</td><td>94%</td></tr>
+              <tr><td><span class="b b-yellow">Beyond</span></td><td>$4,637,137</td><td>₩6,491,991,800</td><td>91%</td></tr>
+            </tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <div class="card full">
+        <div class="card-title">Bundle Configurations</div>
+        <div class="card-sub">Available product bundles for affiliate campaigns</div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px">
+          <span class="b b-red" style="padding:5px 12px;font-size:11px">PDRN Cream + Barrier Cream + Retino-Mela</span>
+          <span class="b b-blue" style="padding:5px 12px;font-size:11px">PDRN Cream + Retino-Mela Serum</span>
+          <span class="b b-green" style="padding:5px 12px;font-size:11px">PDRN Cream + Barrier Cream</span>
+          <span class="b b-yellow" style="padding:5px 12px;font-size:11px">PDRN Cream + PDRN Lip Serum</span>
+          <span class="b b-purple" style="padding:5px 12px;font-size:11px">PDRN Cream + PDRN Face Mask</span>
+          <span class="b b-cyan" style="padding:5px 12px;font-size:11px">Full Kit: PDRN + Barrier + Retino + Lip + Mask</span>
+        </div>
+        <div style="margin-top:14px;padding:10px;background:#FFF8F9;border-radius:8px;border:1px solid rgba(254,44,85,.15)">
+          <div style="font-size:11px;font-weight:700;color:var(--pink);margin-bottom:4px">Active Discord Coupon</div>
+          <div style="font-size:12px;font-family:monospace;font-weight:700">DRRE5OFFDISC</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px">$5 off · Valid 2026-03-30 ~ 2026-04-29 · Sent to 3,165 members</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════
+         5. COMPETITORS
+    ══════════════════════════════════════════════ -->
+    <div id="sec-competitors" class="page-section">
+      <div class="sec-head">
+        <div><div class="sec-title">Competitor Analysis</div>
+        <div class="sec-sub">K-beauty brand monthly GMV on TikTok Shop</div></div>
+      </div>
+
+      <div class="g21">
+        <div class="card">
+          <div class="card-title">K-Beauty Brand GMV Ranking (Monthly)</div>
+          <div class="card-sub">Dr.Reju-All vs top competitors · USD</div>
+          <div class="ch ch-320"><canvas id="c-comp-bar"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Tier Distribution</div>
+          <div class="card-sub">Market share by tier</div>
+          <div class="ch ch-320"><canvas id="c-comp-tier"></canvas></div>
+        </div>
+      </div>
+
+      <div class="card full">
+        <div class="card-title">Full Competitor Table</div>
+        <div class="card-sub">Monthly TikTok Shop GMV · K-beauty brands</div>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>#</th><th>Brand</th><th>Monthly GMV (USD)</th><th>Monthly GMV (억 KRW)</th><th>Tier</th><th>vs Dr.Reju-All</th></tr></thead>
+          <tbody id="comp-tbody"></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════
+         6. PROMOTIONS
+    ══════════════════════════════════════════════ -->
+    <div id="sec-promotions" class="page-section">
+      <div class="sec-head">
+        <div><div class="sec-title">Promotion Calendar 2026</div>
+        <div class="sec-sub">US Retail Holidays · TikTok Shop Events · Global Shopping</div></div>
+      </div>
+
+      <div class="card full">
+        <div class="card-title">Annual Promotion Grid</div>
+        <div class="card-sub">Key sales events for campaign planning</div>
+        <div class="promo-grid" id="promo-cal"></div>
+      </div>
+
+      <div class="g2">
+        <div class="card">
+          <div class="card-title">US Pricing Structure</div>
+          <div class="card-sub">List → sale → affiliate tier pricing</div>
+          <div class="tbl-wrap"><table>
+            <thead><tr><th>Product</th><th>List Price</th><th>Regular</th><th>Promo</th><th>Follower Coupon</th></tr></thead>
+            <tbody>
+              <tr><td class="fw7">PDRN Cream 20ml</td><td>$39.00</td><td class="fw7">$29.90</td><td>Spring S-tier</td><td>$5 off</td></tr>
+              <tr><td class="fw7">PDRN Cream MAX 60ml</td><td>$117.00</td><td class="fw7">$61.00</td><td>Spring S-tier</td><td>$5 off</td></tr>
+              <tr><td class="fw7">Retino-Mela Serum</td><td>$42.50</td><td class="fw7">$27.90</td><td>Spring S-tier</td><td>$5 off</td></tr>
+              <tr><td class="fw7">LC Ceramide Barrier</td><td>$34.00</td><td class="fw7">$22.90</td><td>Spring S-tier</td><td>$5 off</td></tr>
+              <tr><td class="fw7">PDRN Face Mask</td><td>$22.00</td><td class="fw7">$14.90</td><td>Spring S-tier</td><td>$5 off</td></tr>
+              <tr><td class="fw7">PDRN Lip Serum</td><td>$19.00</td><td class="fw7">$12.90</td><td>Spring S-tier</td><td>$5 off</td></tr>
+            </tbody>
+          </table></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Operations Issues Log</div>
+          <div class="card-sub">Current known issues requiring action</div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="background:#FEF3C7;border-radius:8px;padding:10px 12px;border-left:3px solid var(--yellow)">
+              <div style="font-size:11px;font-weight:700;color:#92400E">Shipping Score Impact</div>
+              <div style="font-size:11px;color:#92400E;margin-top:2px">Previous delayed shipments affected shop score — monitor closely</div>
+            </div>
+            <div style="background:#FEE2E2;border-radius:8px;padding:10px 12px;border-left:3px solid #EF4444">
+              <div style="font-size:11px;font-weight:700;color:#991B1B">TikTok Account Reconnection</div>
+              <div style="font-size:11px;color:#991B1B;margin-top:2px">Old shop + dalba TikTok account disconnected. New shop reconnection in progress</div>
+            </div>
+            <div style="background:#FEF3C7;border-radius:8px;padding:10px 12px;border-left:3px solid var(--yellow)">
+              <div style="font-size:11px;font-weight:700;color:#92400E">GMV Max Credit Issue</div>
+              <div style="font-size:11px;color:#92400E;margin-top:2px">GMV Max paid but credit conversion to ad budget still pending</div>
+            </div>
+            <div style="background:#D1FAE5;border-radius:8px;padding:10px 12px;border-left:3px solid var(--green)">
+              <div style="font-size:11px;font-weight:700;color:#065F46">US Corp Settlement</div>
+              <div style="font-size:11px;color:#065F46;margin-top:2px">US Corp ↔ Korea Corp trading setup complete ✓</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════
+         7. UK MARKET
+    ══════════════════════════════════════════════ -->
+    <div id="sec-uk" class="page-section">
+      <div class="sec-head">
+        <div><div class="sec-title">UK Market</div>
+        <div class="sec-sub">TikTok Shop UK · GBP pricing &amp; revenue projections</div></div>
+      </div>
+
+      <div class="kpi-grid">
+        <div class="kpi"><div class="kpi-bar" style="background:var(--pink)"></div>
+          <div class="kpi-lbl">UK Total Projected GMV</div>
+          <div class="kpi-val">£1.03M</div>
+          <div class="kpi-sub neu">May–Dec 2026 (GBP)</div>
+        </div>
+        <div class="kpi"><div class="kpi-bar" style="background:var(--cyan)"></div>
+          <div class="kpi-lbl">Top UK SKU</div>
+          <div class="kpi-val">PDRN 20ml</div>
+          <div class="kpi-sub neu">£651,512 projected</div>
+        </div>
+        <div class="kpi"><div class="kpi-bar" style="background:var(--green)"></div>
+          <div class="kpi-lbl">GBP Exchange Rate</div>
+          <div class="kpi-val">£1 = ₩1,900</div>
+          <div class="kpi-sub neu">Fixed rate used</div>
+        </div>
+        <div class="kpi"><div class="kpi-bar" style="background:var(--yellow)"></div>
+          <div class="kpi-lbl">New UK SKUs</div>
+          <div class="kpi-val">+2</div>
+          <div class="kpi-sub neu">Copper Peptide · Scalp Serum</div>
+        </div>
+      </div>
+
+      <div class="g21">
+        <div class="card">
+          <div class="card-title">UK Monthly Revenue by SKU</div>
+          <div class="card-sub">GBP revenue projection May–Dec 2026 (stacked)</div>
+          <div class="ch ch-280"><canvas id="c-uk-monthly"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-title">UK Pricing by Tier</div>
+          <div class="card-sub">GBP · Regular → Tier S / A / B affiliate pricing</div>
+          <div class="tbl-wrap" style="margin-top:8px"><table>
+            <thead><tr><th>Product</th><th>List</th><th>Regular</th><th>Tier S</th><th>Tier A</th><th>Tier B</th></tr></thead>
+            <tbody>
+              <tr><td class="fw7">PDRN Cream 20ml</td><td>£39.00</td><td class="fw7">£25.90</td><td class="c-green">£18.90</td><td>£19.90</td><td>£21.90</td></tr>
+              <tr><td class="fw7">PDRN Cream 60ml</td><td>£117.00</td><td class="fw7">£69.90</td><td class="c-green">£53.90</td><td>£58.90</td><td>£58.90</td></tr>
+              <tr><td class="fw7">Retino-Mela Serum</td><td>£42.50</td><td class="fw7">£27.90</td><td class="c-green">£19.90</td><td>£21.90</td><td>£23.49</td></tr>
+              <tr><td class="fw7">Ceramide Cream</td><td>£34.00</td><td class="fw7">£22.90</td><td class="c-green">£16.90</td><td>£17.90</td><td>£18.90</td></tr>
+              <tr><td class="fw7">3-piece Set</td><td>£115.50</td><td class="fw7">£65.90</td><td class="c-green">£49.90</td><td>£52.90</td><td>—</td></tr>
+              <tr><td class="fw7">PDRN Mask</td><td>£22.00</td><td class="fw7">£14.90</td><td class="c-green">£10.90</td><td>£11.49</td><td>£12.49</td></tr>
+              <tr><td class="fw7">PDRN Lip Care</td><td>£19.00</td><td class="fw7">£12.90</td><td class="c-green">£9.90</td><td>£10.49</td><td>£10.90</td></tr>
+              <tr><td class="fw7 c-purple">Copper Peptide</td><td>—</td><td class="fw7">£18.90</td><td>—</td><td>—</td><td>—</td></tr>
+              <tr><td class="fw7 c-purple">Scalp Serum</td><td>—</td><td class="fw7">£16.90</td><td>—</td><td>—</td><td>—</td></tr>
+            </tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <div class="card full">
+        <div class="card-title">UK Revenue Projections (Monthly)</div>
+        <div class="card-sub">GBP · May–Dec 2026 by product</div>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>Month</th><th>PDRN 20ml</th><th>PDRN 60ml</th><th>Retino-Mela</th><th>Ceramide</th><th>PDRN Mask</th><th>Lip Serum</th><th>Copper Peptide</th><th>Scalp Serum</th></tr></thead>
+          <tbody id="uk-tbody"></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════
+         8. AFFILIATE LIST
+    ══════════════════════════════════════════════ -->
+    <div id="sec-affiliatelist" class="page-section">
+      <div class="sec-head">
+        <div>
+          <div class="sec-title">Affiliate List</div>
+          <div class="sec-sub" id="al-week-range">Week: Apr 19–25, 2026 · US TikTok Shop</div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <div class="badge-tier" style="background:rgba(37,244,238,.1);color:#0D7B7B;border-color:rgba(37,244,238,.3)">US Shop</div>
+          <div class="badge-tier" style="opacity:.45">UK Shop</div>
+        </div>
+      </div>
+
+      <div class="kpi-grid">
+        <div class="kpi">
+          <div class="kpi-bar" style="background:var(--pink)"></div>
+          <div class="kpi-lbl">Total Creators</div>
+          <div class="kpi-val" id="al-kpi-total">8,833</div>
+          <div class="kpi-sub neu">in affiliate program</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-bar" style="background:var(--cyan)"></div>
+          <div class="kpi-lbl">Active This Week</div>
+          <div class="kpi-val" id="al-kpi-active">134</div>
+          <div class="kpi-sub up">&#9650; 1.5% activation rate</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-bar" style="background:var(--green)"></div>
+          <div class="kpi-lbl">Weekly Affiliate GMV</div>
+          <div class="kpi-val" id="al-kpi-gmv">$19,578</div>
+          <div class="kpi-sub up">&#9650; 134 creators · 1 week</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-bar" style="background:var(--purple)"></div>
+          <div class="kpi-lbl">Top Creator</div>
+          <div class="kpi-val" id="al-kpi-top" style="font-size:14px;padding-top:3px">kbeautymom75</div>
+          <div class="kpi-sub c-yellow">$2,714 GMV this week</div>
+        </div>
+      </div>
+
+      <div class="g21">
+        <div class="card">
+          <div class="card-title">Top 15 Creators by Affiliate GMV</div>
+          <div class="card-sub" id="al-chart-week">Apr 19–25, 2026</div>
+          <div class="ch ch-280"><canvas id="c-al-top15"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-title">GMV Distribution</div>
+          <div class="card-sub">Creator performance buckets</div>
+          <div class="ch ch-160"><canvas id="c-al-dist"></canvas></div>
+          <div style="margin-top:10px">
+            <div class="cost-row"><span class="cost-label">$1K+ (Power)</span><span class="cost-val" id="al-d1">4 creators</span></div>
+            <div class="cost-row"><span class="cost-label">$500–$1K (Strong)</span><span class="cost-val" id="al-d2">5 creators</span></div>
+            <div class="cost-row"><span class="cost-label">$100–$500 (Active)</span><span class="cost-val" id="al-d3">23 creators</span></div>
+            <div class="cost-row"><span class="cost-label">Under $100 (Long tail)</span><span class="cost-val" id="al-d4">102 creators</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card full">
+        <div class="card-title">Import Affiliate Data</div>
+        <div class="card-sub">Upload TikTok Shop Creator_List XLSX to refresh all charts and data</div>
+        <div class="drop-zone" id="dropZone" onclick="document.getElementById('xlsxInput').click()">
+          <div class="dz-icon">&#128196;</div>
+          <div class="dz-title">Drop XLSX file here, or click to browse</div>
+          <div class="dz-sub">Creator_List_YYYYMMDD-YYYYMMDD_timestamp.xlsx</div>
+          <button class="upload-btn" onclick="event.stopPropagation();document.getElementById('xlsxInput').click()">Choose File</button>
+        </div>
+        <input type="file" id="xlsxInput" accept=".xlsx,.xls" style="display:none" onchange="handleXLSX(this)">
+        <div id="upload-status" style="font-size:12px;color:var(--muted);margin-top:8px;text-align:center;min-height:18px"></div>
+      </div>
+
+      <div class="card full">
+        <div class="tbl-toolbar">
+          <div>
+            <div class="card-title">Creator Performance Table</div>
+            <div class="card-sub" id="al-tbl-info">Pre-loaded top 30 creators · Upload XLSX for full 8,833 rows</div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <input type="text" class="tbl-search" id="al-search" placeholder="Search creator..." oninput="alSearch()">
+            <button class="export-btn" onclick="alExportCSV()">&#11015; CSV</button>
+          </div>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th class="th-sort" onclick="alSort('u')">Creator &#8597;</th>
+                <th class="th-sort" onclick="alSort('gmv')">Affiliate GMV &#8597;</th>
+                <th class="th-sort" onclick="alSort('orders')">Orders &#8597;</th>
+                <th class="th-sort" onclick="alSort('items')">Items Sold &#8597;</th>
+                <th class="th-sort" onclick="alSort('comm')">Est. Commission &#8597;</th>
+                <th class="th-sort" onclick="alSort('aov')">AOV &#8597;</th>
+                <th class="th-sort" onclick="alSort('followers')">Followers &#8597;</th>
+                <th>Open Collab GMV</th>
+              </tr>
+            </thead>
+            <tbody id="al-tbody"></tbody>
+          </table>
+        </div>
+        <div class="pag" id="al-pag"></div>
+      </div>
+    </div>
+
+  </div><!-- /pages -->
+</div><!-- /content -->
+
+<script>
+'use strict';
+
+/* ════════════════════════════════════════════════
+   DATA — extracted from Google Sheets
+════════════════════════════════════════════════ */
+const MONTHLY_TARGETS = [
+  {m:'4월', gmv:4.7, adspend:3.6, pdrn:6300,  lip:6000, cera:600, reti:500, mask:300, sys:60,  total:13760},
+  {m:'5월', gmv:5.1, adspend:3.9, pdrn:6800,  lip:5000, cera:800, reti:600, mask:500, sys:80,  total:13780},
+  {m:'6월', gmv:2.4, adspend:1.8, pdrn:3500,  lip:3000, cera:100, reti:100, mask:50,  sys:30,  total:6780},
+  {m:'7월', gmv:9.8, adspend:7.5, pdrn:13500, lip:1300, cera:1000,reti:500, mask:500, sys:150, total:16950},
+  {m:'8월', gmv:6.8, adspend:5.2, pdrn:9500,  lip:9000, cera:1744,reti:807, mask:517, sys:117, total:21685},
+  {m:'9월', gmv:6.4, adspend:4.9, pdrn:8500,  lip:8000, cera:1641,reti:760, mask:487, sys:110, total:19498},
+  {m:'10월',gmv:8.8, adspend:6.6, pdrn:10000, lip:10000,cera:2000,reti:1000,mask:500, sys:150, total:23650},
+  {m:'11월',gmv:17.3,adspend:13.3,pdrn:23000, lip:22000,cera:4437,reti:2053,mask:1316,sys:297, total:53103},
+  {m:'12월',gmv:12.7,adspend:9.8, pdrn:17000, lip:16500,cera:3000,reti:1500,mask:1500,sys:300, total:39800},
+];
+
+const INVENTORY = [
+  {name:'PDRN Cream',        sku:'PDRN 20ml',  stock:14233, daily:71,  days:200, alert:'ok'},
+  {name:'PDRN Lip Serum',    sku:'Lip Serum',  stock:776,   daily:30,  days:26,  alert:'warn'},
+  {name:'PDRN Max Cream',    sku:'PDRN 60ml',  stock:166,   daily:11,  days:15,  alert:'warn'},
+  {name:'Retino-mela Serum', sku:'Retino',     stock:1737,  daily:3,   days:579, alert:'ok'},
+  {name:'Ceramide Cream',    sku:'Ceramide',   stock:1819,  daily:18,  days:101, alert:'ok'},
+];
+
+const COMPETITORS = [
+  {brand:'Dr.Melaxin',        gmv:14840000, tier:'Beyond'},
+  {brand:'medicube',          gmv:14560000, tier:'Beyond'},
+  {brand:'SUNGBOON EDITOR',   gmv:1740000,  tier:'Beyond'},
+  {brand:'COSRX',             gmv:1470000,  tier:'T5'},
+  {brand:'SKIN1004',          gmv:1370000,  tier:'T5'},
+  {brand:'TIRTIR',            gmv:1090000,  tier:'T5'},
+  {brand:'ANUA',              gmv:1010000,  tier:'T5'},
+  {brand:'mixsoon',           gmv:500370,   tier:'T4'},
+  {brand:'SOME BY MI',        gmv:473390,   tier:'T4'},
+  {brand:'Beauty of Joseon',  gmv:429230,   tier:'T4'},
+  {brand:'Torriden',          gmv:251920,   tier:'T4'},
+  {brand:"d'alba Piedmont",   gmv:244900,   tier:'T4'},
+  {brand:'celimax',           gmv:239600,   tier:'T4'},
+  {brand:'Dr.Althea',         gmv:226240,   tier:'T4'},
+  {brand:'VT COSMETICS',      gmv:156980,   tier:'T3'},
+  {brand:'Dr.Reju-All ★',     gmv:105912,   tier:'T3', self:true},
+  {brand:'MEDITHERAPY',       gmv:140370,   tier:'T3'},
+  {brand:'Mise En Scene',     gmv:139560,   tier:'T3'},
+  {brand:'Illiyoon',          gmv:125230,   tier:'T3'},
+  {brand:'ARENCIA',           gmv:102700,   tier:'T3'},
+  {brand:'KAHI',              gmv:94310,    tier:'T3'},
+  {brand:'ROUND LAB',         gmv:92940,    tier:'T3'},
+  {brand:'BIODANCE',          gmv:68130,    tier:'T3'},
+  {brand:'numbuzin',          gmv:56100,    tier:'T2'},
+  {brand:'AXIS-Y',            gmv:44230,    tier:'T2'},
+  {brand:'TOSOWOONG',         gmv:43060,    tier:'T2'},
+  {brand:'Abib',              gmv:35240,    tier:'T2'},
+  {brand:'PURITO',            gmv:32490,    tier:'T2'},
+];
+
+const PROMO_CALENDAR = [
+  {m:'1월',events:[{type:'retail',text:'Lunar New Year'},{type:'global',text:'Happy New Year'}]},
+  {m:'2월',events:[{type:'retail',text:"Valentine's Day"},{type:'global',text:'Ramadan'}]},
+  {m:'3월',events:[{type:'retail',text:'Spring Glow Up'},{type:'global',text:"Int'l Women's Day"},{type:'global',text:"St. Patrick's Day"}]},
+  {m:'4월',events:[{type:'retail',text:'Easter'},{type:'retail',text:'Earth Day'}]},
+  {m:'5월',events:[{type:'retail',text:"Mother's Day"},{type:'retail',text:'Memorial Day'},{type:'global',text:"Workers' Day"}]},
+  {m:'6월',events:[{type:'retail',text:"Father's Day"},{type:'global',text:"Father's Day"}]},
+  {m:'7월',events:[{type:'retail',text:'Independence Day'},{type:'promo',text:'Deals for You Days'},{type:'promo',text:'Amazon Prime Day'}]},
+  {m:'8월',events:[{type:'retail',text:'Back to School'}]},
+  {m:'9월',events:[{type:'retail',text:'Labor Day'},{type:'global',text:'Fall Break'}]},
+  {m:'10월',events:[{type:'retail',text:'Amazon PBDD'},{type:'retail',text:'Halloween'},{type:'global',text:'Singles Day'}]},
+  {m:'11월',events:[{type:'retail',text:'Thanksgiving'},{type:'retail',text:'Black Friday'},{type:'retail',text:'Cyber Monday'},{type:'global',text:'Black Friday'}]},
+  {m:'12월',events:[{type:'retail',text:'Christmas'},{type:'retail',text:'End of Year'}]},
+];
+
+const UK_MONTHLY = [
+  {m:'5월',  p20:1600,  p60:80,   reti:240, cera:400, mask:0,   lip:0,    cu:0,  sc:0},
+  {m:'6월',  p20:3120,  p60:468,  reti:468, cera:780, mask:468, lip:780,  cu:0,  sc:0},
+  {m:'7월',  p20:1760,  p60:88,   reti:264, cera:440, mask:264, lip:440,  cu:440,sc:264},
+  {m:'8월',  p20:1936,  p60:97,   reti:290, cera:484, mask:290, lip:484,  cu:484,sc:290},
+  {m:'9월',  p20:2130,  p60:106,  reti:319, cera:532, mask:319, lip:532,  cu:532,sc:319},
+  {m:'10월', p20:3194,  p60:160,  reti:479, cera:799, mask:479, lip:799,  cu:799,sc:479},
+  {m:'11월', p20:6389,  p60:240,  reti:719, cera:1198,mask:719, lip:1198, cu:1198,sc:719},
+  {m:'12월', p20:5000,  p60:200,  reti:650, cera:1000,mask:650, lip:1000, cu:1000,sc:650},
+];
+
+/* ════════════════════════════════════════════════
+   NAVIGATION
+════════════════════════════════════════════════ */
+const PAGE_TITLES = {
+  overview:'Overview', sales:'Sales & Revenue', inventory:'Inventory',
+  affiliates:'Affiliates', competitors:'Competitors', promotions:'Promotions',
+  uk:'UK Market', affiliatelist:'Affiliate List'
+};
+let activeCharts = {};
+let currentSection = 'overview';
+
+function nav(id, el) {
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  document.getElementById('topbarTitle').textContent = PAGE_TITLES[id];
+  currentSection = id;
+  // Destroy old charts for that section then render
+  setTimeout(() => renderSection(id), 50);
+}
+
+function destroyChart(id) {
+  if (activeCharts[id]) { activeCharts[id].destroy(); delete activeCharts[id]; }
+}
+
+/* ════════════════════════════════════════════════
+   RENDER SECTIONS
+════════════════════════════════════════════════ */
+function renderSection(id) {
+  if (id === 'sales')         renderSales();
+  if (id === 'inventory')     renderInventory();
+  if (id === 'affiliates')    renderAffiliates();
+  if (id === 'competitors')   renderCompetitors();
+  if (id === 'promotions')    renderPromotions();
+  if (id === 'uk')            renderUK();
+  if (id === 'affiliatelist') renderAffiliateList();
+}
+
+const PINK='#FE2C55', CYAN='#25F4EE', PURPLE='#A855F7', BLUE='#3B82F6',
+      GREEN='#22C55E', YELLOW='#F59E0B', ORANGE='#F97316', TEAL='#14B8A6';
+const SKU_COLORS = [PINK, CYAN, PURPLE, YELLOW, GREEN, ORANGE];
+
+function mkChart(id, type, data, opts) {
+  destroyChart(id);
+  const ctx = document.getElementById(id);
+  if (!ctx) return;
+  activeCharts[id] = new Chart(ctx, {type, data, options:{
+    responsive:true, maintainAspectRatio:false,
+    plugins:{legend:{labels:{font:{size:10},boxWidth:10,padding:6}}},
+    ...opts
+  }});
+  return activeCharts[id];
+}
+
+/* ── SALES ─────────────────────────────────── */
+function renderSales() {
+  const labels = MONTHLY_TARGETS.map(r => r.m);
+
+  mkChart('c-monthly-gmv','bar',{
+    labels,
+    datasets:[
+      {label:'GMV Target (억₩)',data:MONTHLY_TARGETS.map(r=>r.gmv),backgroundColor:PINK+'BB',borderRadius:5},
+      {label:'Ad Spend (억₩)',  data:MONTHLY_TARGETS.map(r=>r.adspend),backgroundColor:CYAN+'99',borderRadius:5}
+    ]
+  },{plugins:{legend:{position:'top',labels:{font:{size:11},boxWidth:12}}},
+     scales:{x:{grid:{display:false},ticks:{font:{size:11}}},y:{grid:{color:'#F0F0F0'},ticks:{font:{size:11},callback:v=>v+'억'}}}});
+
+  mkChart('c-adspend','doughnut',{
+    labels:['GMV Growth','Ad Spend'],
+    datasets:[{data:[23.2,47.8+23.2-(47.8)],backgroundColor:[PINK,CYAN+'AA'],borderWidth:2,borderColor:'#fff',hoverOffset:4}]
+  },{cutout:'60%',plugins:{legend:{position:'bottom'}}});
+
+  // Stacked SKU
+  const skus = ['PDRN Cream','Lip Serum','Ceramide','Retino-mela','Mask','System'];
+  const skuKeys = ['pdrn','lip','cera','reti','mask','sys'];
+  mkChart('c-sku-stacked','bar',{
+    labels,
+    datasets: skuKeys.map((k,i)=>({
+      label:skus[i], data:MONTHLY_TARGETS.map(r=>r[k]),
+      backgroundColor:SKU_COLORS[i]+'CC', borderRadius:3, stack:'a'
+    }))
+  },{plugins:{legend:{position:'top'}},
+     scales:{x:{stacked:true,grid:{display:false},ticks:{font:{size:10}}},
+             y:{stacked:true,grid:{color:'#F0F0F0'},ticks:{font:{size:10},callback:v=>(v/1000).toFixed(0)+'K'}}}});
+
+  // SKU donut (full year totals)
+  const totals = skuKeys.map(k => MONTHLY_TARGETS.reduce((s,r)=>s+r[k],0));
+  mkChart('c-sku-donut','doughnut',{
+    labels:skus,
+    datasets:[{data:totals,backgroundColor:SKU_COLORS.map(c=>c+'CC'),borderWidth:2,borderColor:'#fff',hoverOffset:5}]
+  },{cutout:'58%',plugins:{legend:{position:'bottom'}}});
+
+  // Table
+  const tb = document.getElementById('sales-tbody');
+  if (tb) tb.innerHTML = MONTHLY_TARGETS.map(r=>`
+    <tr>
+      <td class="fw7">${r.m}</td>
+      <td><span class="fw7 c-pink">${r.gmv}억</span></td>
+      <td>${r.adspend}억</td>
+      <td>${r.pdrn.toLocaleString()}</td>
+      <td>${r.lip.toLocaleString()}</td>
+      <td>${r.cera.toLocaleString()}</td>
+      <td>${r.reti.toLocaleString()}</td>
+      <td>${r.mask.toLocaleString()}</td>
+      <td>${r.sys.toLocaleString()}</td>
+      <td class="fw7">${r.total.toLocaleString()}</td>
+    </tr>`).join('');
+}
+
+/* ── INVENTORY ──────────────────────────────── */
+function renderInventory() {
+  const cards = document.getElementById('inv-cards');
+  if (cards) cards.innerHTML = INVENTORY.map(i=>{
+    const cls = i.alert==='ok'?'alert-ok':i.alert==='warn'?'alert-warn':'alert-crit';
+    const msg = i.alert==='ok'?'Stocked':i.alert==='warn'?'Low Stock':'Critical';
+    const pct = Math.min(100, Math.round((i.stock / 15000)*100));
+    return `<div class="inv-card">
+      <div class="inv-name">${i.name}</div>
+      <div class="inv-val">${i.stock.toLocaleString()}</div>
+      <div class="inv-days">${i.days} days at ${i.daily}/day avg</div>
+      <div class="prog-bg" style="margin-bottom:8px"><div class="prog-fill" style="width:${pct}%;background:${i.alert==='ok'?GREEN:i.alert==='warn'?YELLOW:PINK}"></div></div>
+      <span class="inv-alert ${cls}">${msg}</span>
+    </div>`;
+  }).join('');
+
+  mkChart('c-inv-bar','bar',{
+    labels:INVENTORY.map(i=>i.sku),
+    datasets:[{label:'Units in FBT',data:INVENTORY.map(i=>i.stock),
+      backgroundColor:INVENTORY.map(i=>i.alert==='ok'?GREEN+'BB':i.alert==='warn'?YELLOW+'BB':PINK+'BB'),
+      borderRadius:6,borderWidth:0}]
+  },{plugins:{legend:{display:false}},
+     scales:{x:{grid:{display:false}},y:{grid:{color:'#F0F0F0'},ticks:{callback:v=>v.toLocaleString()}}}});
+
+  mkChart('c-inv-days','bar',{
+    labels:INVENTORY.map(i=>i.sku),
+    datasets:[{label:'Days to Sellout',data:INVENTORY.map(i=>i.days),
+      backgroundColor:INVENTORY.map(i=>i.days>100?CYAN+'BB':i.days>30?YELLOW+'BB':PINK+'BB'),
+      borderRadius:6,borderWidth:0}]
+  },{plugins:{legend:{display:false}},
+     scales:{x:{grid:{display:false}},y:{grid:{color:'#F0F0F0'},ticks:{callback:v=>v+'d'}}}});
+}
+
+/* ── AFFILIATES ─────────────────────────────── */
+function renderAffiliates() {
+  const tiers=['T1','T2','T3','T4','T5','Beyond'];
+  const content=[204,992,2776,6327,22470,82509];
+  const samples=[25,109,507,877,2834,12286];
+
+  mkChart('c-content-tier','bar',{
+    labels:tiers,
+    datasets:[{label:'Monthly Content',data:content,
+      backgroundColor:[...Array(3).fill('#666'),PINK+'CC',...Array(2).fill(PINK+'44')],
+      borderRadius:6}]
+  },{plugins:{legend:{display:false}},
+     scales:{x:{grid:{display:false}},y:{grid:{color:'#F0F0F0'},ticks:{callback:v=>v>=1000?(v/1000).toFixed(0)+'K':v}}}});
+
+  mkChart('c-samples-tier','bar',{
+    labels:tiers,
+    datasets:[{label:'Free Samples',data:samples,
+      backgroundColor:[...Array(3).fill(CYAN+'66'),CYAN,...Array(2).fill(CYAN+'CC')],
+      borderRadius:6}]
+  },{plugins:{legend:{display:false}},
+     scales:{x:{grid:{display:false}},y:{grid:{color:'#F0F0F0'},ticks:{callback:v=>v>=1000?(v/1000).toFixed(1)+'K':v}}}});
+}
+
+/* ── COMPETITORS ────────────────────────────── */
+function renderCompetitors() {
+  // Top 16 for chart (skip very low tier)
+  const top = [...COMPETITORS].sort((a,b)=>b.gmv-a.gmv).slice(0,16);
+  mkChart('c-comp-bar','bar',{
+    labels:top.map(c=>c.brand),
+    datasets:[{label:'Monthly GMV (USD)',data:top.map(c=>c.gmv),
+      backgroundColor:top.map(c=>c.self?PINK:PINK+'44'),
+      borderWidth:0,borderRadius:5}]
+  },{indexAxis:'y',
+     plugins:{legend:{display:false}},
+     scales:{x:{grid:{color:'#F0F0F0'},ticks:{callback:v=>v>=1000000?'$'+(v/1000000).toFixed(1)+'M':'$'+(v/1000).toFixed(0)+'K'}},
+             y:{grid:{display:false},ticks:{font:{size:10}}}}});
+
+  // Tier distribution donut
+  const tierCounts = {};
+  COMPETITORS.forEach(c=>{tierCounts[c.tier]=(tierCounts[c.tier]||0)+1});
+  const tOrder=['T1','T2','T3','T4','T5','Beyond'];
+  mkChart('c-comp-tier','doughnut',{
+    labels:tOrder.filter(t=>tierCounts[t]),
+    datasets:[{data:tOrder.filter(t=>tierCounts[t]).map(t=>tierCounts[t]),
+      backgroundColor:[TEAL,BLUE,PINK,GREEN,PURPLE,YELLOW].slice(0,tOrder.filter(t=>tierCounts[t]).length),
+      borderWidth:2,borderColor:'#fff',hoverOffset:5}]
+  },{cutout:'55%',plugins:{legend:{position:'bottom'}}});
+
+  // Table
+  const tb = document.getElementById('comp-tbody');
+  if (tb) tb.innerHTML = COMPETITORS.sort((a,b)=>b.gmv-a.gmv).map((c,i)=>{
+    const tierBadge = {Beyond:'b-yellow',T5:'b-purple',T4:'b-green',T3:'b-blue',T2:'b-gray',T1:'b-gray'}[c.tier]||'b-gray';
+    const ratio = c.self?'—':'×'+((c.gmv/105912).toFixed(1));
+    const rowStyle = c.self?'background:#FFF0F3;':'';
+    return `<tr style="${rowStyle}">
+      <td>${i+1}</td>
+      <td class="${c.self?'fw7 c-pink':'fw7'}">${esc(c.brand)}</td>
+      <td class="fw7">$${c.gmv.toLocaleString()}</td>
+      <td>${(c.gmv*1400/100000000).toFixed(2)}억</td>
+      <td><span class="b ${tierBadge}">${c.tier}</span></td>
+      <td class="${c.self?'c-pink fw7':''}">${ratio}</td>
+    </tr>`;
+  }).join('');
+}
+
+/* ── PROMOTIONS ─────────────────────────────── */
+function renderPromotions() {
+  const cal = document.getElementById('promo-cal');
+  if (!cal || cal.children.length) return;
+  cal.innerHTML = PROMO_CALENDAR.map(m=>`
+    <div class="promo-month">
+      <div class="promo-mon-title">${m.m}</div>
+      ${m.events.map(e=>`<div class="promo-event ev-${e.type}">${esc(e.text)}</div>`).join('')}
+    </div>`).join('');
+}
+
+/* ── UK ──────────────────────────────────────── */
+function renderUK() {
+  const labels = UK_MONTHLY.map(r=>r.m);
+  const ukSkus = ['PDRN 20ml','PDRN 60ml','Retino-Mela','Ceramide','Mask','Lip Serum','Copper Peptide','Scalp Serum'];
+  const ukKeys = ['p20','p60','reti','cera','mask','lip','cu','sc'];
+  mkChart('c-uk-monthly','bar',{
+    labels,
+    datasets:ukKeys.map((k,i)=>({
+      label:ukSkus[i],data:UK_MONTHLY.map(r=>r[k]),
+      backgroundColor:SKU_COLORS[i%SKU_COLORS.length]+'CC',borderRadius:3,stack:'uk'
+    }))
+  },{plugins:{legend:{position:'top'}},
+     scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,grid:{color:'#F0F0F0'},ticks:{callback:v=>'£'+(v/1000).toFixed(0)+'K'}}}});
+
+  // UK Revenue Table
+  const tb = document.getElementById('uk-tbody');
+  if (tb) tb.innerHTML = UK_MONTHLY.map(r=>`
+    <tr>
+      <td class="fw7">${r.m}</td>
+      <td>£${r.p20.toLocaleString()}</td>
+      <td>£${r.p60.toLocaleString()}</td>
+      <td>£${r.reti.toLocaleString()}</td>
+      <td>£${r.cera.toLocaleString()}</td>
+      <td>£${r.mask.toLocaleString()}</td>
+      <td>£${r.lip.toLocaleString()}</td>
+      <td>${r.cu?'£'+r.cu.toLocaleString():'—'}</td>
+      <td>${r.sc?'£'+r.sc.toLocaleString():'—'}</td>
+    </tr>`).join('');
+}
+
+/* ── AFFILIATE LIST ─────────────────────────── */
+const CREATOR_WEEK = 'Apr 19–25, 2026';
+const TOP_CREATORS = [
+  {u:'kbeautymom75',    gmv:2714.62,orders:89,items:127,comm:271.46,aov:30.50,followers:45200,openGMV:2714.62},
+  {u:'dazi990',         gmv:2055.32,orders:67,items:98, comm:205.53,aov:30.68,followers:32100,openGMV:2055.32},
+  {u:'denverskindoc',   gmv:1752.79,orders:54,items:71, comm:175.28,aov:32.46,followers:28700,openGMV:1752.79},
+  {u:'clairesskin',     gmv:1008.95,orders:38,items:52, comm:100.90,aov:26.55,followers:19300,openGMV:1008.95},
+  {u:'xbestestfindsx',  gmv:977.84, orders:35,items:48, comm:97.78, aov:27.94,followers:15600,openGMV:977.84},
+  {u:'cakedfinds',      gmv:653.73, orders:24,items:31, comm:65.37, aov:27.24,followers:12400,openGMV:653.73},
+  {u:'shop_shiesty',    gmv:557.47, orders:21,items:28, comm:55.75, aov:26.54,followers:9800, openGMV:557.47},
+  {u:'selfcaremaxxing', gmv:554.95, orders:20,items:27, comm:55.50, aov:27.75,followers:8900, openGMV:554.95},
+  {u:'sarahpup785',     gmv:505.20, orders:19,items:25, comm:50.52, aov:26.59,followers:7600, openGMV:505.20},
+  {u:'gregshotdeals',   gmv:479.33, orders:18,items:24, comm:47.93, aov:26.63,followers:6700, openGMV:479.33},
+  {u:'beautyobsessedx', gmv:421.50, orders:16,items:22, comm:42.15, aov:26.34,followers:5900, openGMV:421.50},
+  {u:'skincareguru22',  gmv:387.20, orders:15,items:20, comm:38.72, aov:25.81,followers:5200, openGMV:387.20},
+  {u:'glowupwithme',    gmv:345.80, orders:13,items:18, comm:34.58, aov:26.60,followers:4800, openGMV:345.80},
+  {u:'kbeautyfinds',    gmv:312.40, orders:12,items:16, comm:31.24, aov:26.03,followers:4300, openGMV:312.40},
+  {u:'dailyglowclub',   gmv:289.90, orders:11,items:15, comm:28.99, aov:26.35,followers:3900, openGMV:289.90},
+  {u:'shopwithcass',    gmv:267.30, orders:11,items:14, comm:26.73, aov:24.30,followers:3500, openGMV:267.30},
+  {u:'dealsanddots',    gmv:244.60, orders:10,items:13, comm:24.46, aov:24.46,followers:3100, openGMV:244.60},
+  {u:'koreanskinaddict',gmv:221.80, orders:9, items:12, comm:22.18, aov:24.64,followers:2800, openGMV:221.80},
+  {u:'luxebeautydeals', gmv:198.50, orders:8, items:11, comm:19.85, aov:24.81,followers:2500, openGMV:198.50},
+  {u:'findsbyjenny',    gmv:183.70, orders:8, items:10, comm:18.37, aov:22.96,followers:2200, openGMV:183.70},
+  {u:'skincaresvp',     gmv:167.40, orders:7, items:9,  comm:16.74, aov:23.91,followers:1900, openGMV:167.40},
+  {u:'trendingbeauty_', gmv:154.20, orders:7, items:9,  comm:15.42, aov:22.03,followers:1700, openGMV:154.20},
+  {u:'glowandgossip',   gmv:139.80, orders:6, items:8,  comm:13.98, aov:23.30,followers:1500, openGMV:139.80},
+  {u:'shopforless_k',   gmv:128.50, orders:6, items:8,  comm:12.85, aov:21.42,followers:1300, openGMV:128.50},
+  {u:'beautybargains',  gmv:115.30, orders:5, items:7,  comm:11.53, aov:23.06,followers:1100, openGMV:115.30},
+  {u:'kglowpicks',      gmv:98.40,  orders:5, items:6,  comm:9.84,  aov:19.68,followers:950,  openGMV:98.40},
+  {u:'skinroutinepro',  gmv:87.60,  orders:4, items:5,  comm:8.76,  aov:21.90,followers:820,  openGMV:87.60},
+  {u:'haulsandheals',   gmv:76.20,  orders:4, items:5,  comm:7.62,  aov:19.05,followers:730,  openGMV:76.20},
+  {u:'findswith_ash',   gmv:64.80,  orders:3, items:4,  comm:6.48,  aov:21.60,followers:640,  openGMV:64.80},
+  {u:'beautystashh',    gmv:55.90,  orders:3, items:4,  comm:5.59,  aov:18.63,followers:560,  openGMV:55.90},
+];
+
+let alData = [...TOP_CREATORS];
+let alFiltered = [...alData];
+let alPage = 1;
+const AL_PAGE_SIZE = 25;
+let alSortKey = 'gmv';
+let alSortDir = -1;
+
+function renderAffiliateList() {
+  const top15 = alData.slice(0, 15);
+  mkChart('c-al-top15', 'bar', {
+    labels: top15.map(c => c.u),
+    datasets: [{
+      label: 'Affiliate GMV ($)',
+      data: top15.map(c => c.gmv),
+      backgroundColor: top15.map((_,i) => i===0 ? PINK : i<4 ? PINK+'CC' : PINK+'77'),
+      borderRadius: 5, borderWidth: 0
+    }]
+  }, {
+    indexAxis: 'y',
+    plugins: {legend:{display:false}},
+    scales: {
+      x: {grid:{color:'#F0F0F0'}, ticks:{callback:v=>'$'+(v>=1000?(v/1000).toFixed(1)+'K':v)}},
+      y: {grid:{display:false}, ticks:{font:{size:10}}}
+    }
+  });
+
+  const dist = [
+    alData.filter(c=>c.gmv>=1000).length,
+    alData.filter(c=>c.gmv>=500&&c.gmv<1000).length,
+    alData.filter(c=>c.gmv>=100&&c.gmv<500).length,
+    alData.filter(c=>c.gmv>0&&c.gmv<100).length,
+  ];
+  mkChart('c-al-dist', 'doughnut', {
+    labels: ['$1K+ Power','$500-1K Strong','$100-500 Active','Under $100'],
+    datasets: [{
+      data: dist,
+      backgroundColor: [PINK, PURPLE, CYAN, GREEN+'88'],
+      borderWidth: 2, borderColor: '#fff', hoverOffset: 4
+    }]
+  }, {cutout:'55%', plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10,padding:5}}}});
+
+  alRenderTable();
+}
+
+function alRenderTable() {
+  const q = (document.getElementById('al-search')||{}).value || '';
+  alFiltered = alData.filter(c => !q || c.u.toLowerCase().includes(q.toLowerCase()));
+  alFiltered.sort((a,b) => {
+    const av = a[alSortKey], bv = b[alSortKey];
+    return (typeof av === 'string' ? av.localeCompare(bv) : av - bv) * alSortDir;
+  });
+  const total = alFiltered.length;
+  const pages = Math.max(1, Math.ceil(total / AL_PAGE_SIZE));
+  if (alPage > pages) alPage = pages;
+  const slice = alFiltered.slice((alPage-1)*AL_PAGE_SIZE, alPage*AL_PAGE_SIZE);
+
+  const tbody = document.getElementById('al-tbody');
+  if (tbody) tbody.innerHTML = slice.map((c,i) => {
+    const rank = (alPage-1)*AL_PAGE_SIZE + i + 1;
+    const gmvColor = c.gmv >= 1000 ? 'c-pink' : c.gmv >= 500 ? 'c-yellow' : '';
+    return `<tr>
+      <td class="c-muted">${rank}</td>
+      <td class="fw7">@${esc(c.u)}</td>
+      <td class="fw7 ${gmvColor}">$${c.gmv.toFixed(2)}</td>
+      <td>${c.orders}</td>
+      <td>${c.items}</td>
+      <td>$${c.comm.toFixed(2)}</td>
+      <td>$${c.aov.toFixed(2)}</td>
+      <td>${c.followers >= 1000 ? (c.followers/1000).toFixed(1)+'K' : c.followers}</td>
+      <td>$${c.openGMV.toFixed(2)}</td>
+    </tr>`;
+  }).join('');
+
+  const info = document.getElementById('al-tbl-info');
+  if (info) {
+    const from = total ? (alPage-1)*AL_PAGE_SIZE+1 : 0;
+    const to = Math.min(alPage*AL_PAGE_SIZE, total);
+    info.textContent = `Showing ${from}–${to} of ${total} creators`;
+  }
+
+  const pag = document.getElementById('al-pag');
+  if (!pag) return;
+  if (pages <= 1) { pag.innerHTML = ''; return; }
+  let html = `<span class="pag-info">Page ${alPage}/${pages}</span>`;
+  if (alPage > 1) html += `<button class="pag-btn" onclick="alGoPage(${alPage-1})">&#8249; Prev</button>`;
+  const s = Math.max(1, alPage-2), e = Math.min(pages, alPage+2);
+  for (let p=s; p<=e; p++) html += `<button class="pag-btn${p===alPage?' cur':''}" onclick="alGoPage(${p})">${p}</button>`;
+  if (alPage < pages) html += `<button class="pag-btn" onclick="alGoPage(${alPage+1})">Next &#8250;</button>`;
+  pag.innerHTML = html;
+}
+
+function alGoPage(p) { alPage = p; alRenderTable(); }
+function alSearch()  { alPage = 1; alRenderTable(); }
+function alSort(key) {
+  if (alSortKey === key) alSortDir *= -1;
+  else { alSortKey = key; alSortDir = -1; }
+  alRenderTable();
+}
+
+function alExportCSV() {
+  const header = 'Rank,Username,GMV,Orders,Items,Commission,AOV,Followers,OpenCollabGMV';
+  const rows = alFiltered.map((c,i) =>
+    [i+1, c.u, c.gmv, c.orders, c.items, c.comm, c.aov, c.followers, c.openGMV].join(',')
+  );
+  const csv = [header, ...rows].join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = 'affiliates_' + CREATOR_WEEK.replace(/[^a-zA-Z0-9]/g,'_') + '.csv';
+  a.click();
+}
+
+function handleXLSX(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const status = document.getElementById('upload-status');
+  status.textContent = 'Reading file...';
+  status.style.color = 'var(--muted)';
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const wb = XLSX.read(e.target.result, {type:'array'});
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(ws, {header:1});
+      if (rows.length < 2) { status.textContent = 'No data found in file.'; return; }
+      const headers = rows[0].map(h => String(h||'').toLowerCase());
+      const ci = name => headers.findIndex(h => h.includes(name.toLowerCase()));
+      const iU   = ci('username');
+      const iG   = ci('affiliate gmv');
+      const iO   = ci('affiliate orders');
+      const iI   = ci('items sold');
+      const iC   = ci('est. commission');
+      const iAOV = ci('avg. order value');
+      const iF   = ci('affiliate followers');
+      const iOG  = ci('open collaboration gmv');
+
+      const parsed = rows.slice(1)
+        .filter(r => r[iU])
+        .map(r => ({
+          u: String(r[iU]||'').trim(),
+          gmv:      parseFloat(r[iG])   || 0,
+          orders:   parseInt(r[iO])     || 0,
+          items:    parseInt(r[iI])     || 0,
+          comm:     parseFloat(r[iC])   || 0,
+          aov:      parseFloat(r[iAOV]) || 0,
+          followers:parseInt(r[iF])     || 0,
+          openGMV:  parseFloat(r[iOG])  || 0,
+        }))
+        .filter(r => r.u)
+        .sort((a,b) => b.gmv - a.gmv);
+
+      alData = parsed;
+      alFiltered = [...alData];
+      alPage = 1;
+
+      const active = parsed.filter(c => c.gmv > 0).length;
+      const totalGMV = parsed.reduce((s,c) => s+c.gmv, 0);
+      const topC = parsed[0] || {};
+      const setEl = (id, v) => { const el = document.getElementById(id); if(el) el.textContent = v; };
+      setEl('al-kpi-total', parsed.length.toLocaleString());
+      setEl('al-kpi-active', active.toLocaleString());
+      setEl('al-kpi-gmv', '$' + totalGMV.toLocaleString(undefined,{maximumFractionDigits:0}));
+      setEl('al-kpi-top', topC.u || '—');
+
+      const d = [
+        parsed.filter(c=>c.gmv>=1000).length,
+        parsed.filter(c=>c.gmv>=500&&c.gmv<1000).length,
+        parsed.filter(c=>c.gmv>=100&&c.gmv<500).length,
+        parsed.filter(c=>c.gmv>0&&c.gmv<100).length,
+      ];
+      setEl('al-d1', d[0]+' creators'); setEl('al-d2', d[1]+' creators');
+      setEl('al-d3', d[2]+' creators'); setEl('al-d4', d[3]+' creators');
+
+      const fnMatch = file.name.match(/(\d{8})-(\d{8})/);
+      if (fnMatch) {
+        const fmt = s => s.slice(0,4)+'-'+s.slice(4,6)+'-'+s.slice(6,8);
+        const rng = fmt(fnMatch[1])+' – '+fmt(fnMatch[2]);
+        setEl('al-week-range', 'Week: '+rng+' · US TikTok Shop');
+        setEl('al-chart-week', rng);
+      }
+
+      renderAffiliateList();
+      status.textContent = 'Loaded ' + parsed.length.toLocaleString() + ' creators from ' + file.name;
+      status.style.color = 'var(--green)';
+    } catch(err) {
+      status.textContent = 'Error parsing file: ' + err.message;
+      status.style.color = 'var(--pink)';
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+// Drag and drop for upload zone
+document.addEventListener('DOMContentLoaded', () => {
+  const dz = document.getElementById('dropZone');
+  if (!dz) return;
+  dz.addEventListener('dragover',  e => { e.preventDefault(); dz.classList.add('drag-over'); });
+  dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
+  dz.addEventListener('drop', e => {
+    e.preventDefault(); dz.classList.remove('drag-over');
+    const f = e.dataTransfer.files[0];
+    if (f) { const inp = document.getElementById('xlsxInput'); inp.files = e.dataTransfer.files; handleXLSX(inp); }
+  });
+});
+
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+
+/* ════════════════════════════════════════════════
+   INIT
+════════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', () => {
+  renderSection('overview');
+  // Pre-render static tables for overview
+});
+</script>
+</body>
+</html>
