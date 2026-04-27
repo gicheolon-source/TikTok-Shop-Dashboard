@@ -174,6 +174,19 @@ textarea.form-input{resize:vertical}
 .cp-actions{display:flex;gap:8px;margin-top:14px}
 .cp-actions button{flex:1;font-size:11px;padding:7px 10px}
 
+/* ── CS Bot ── */
+.cs-cat-btn{display:block;width:100%;text-align:left;background:none;border:none;padding:7px 10px;border-radius:7px;font-size:12px;cursor:pointer;color:var(--text);transition:all .15s;margin-bottom:2px}
+.cs-cat-btn:hover{background:var(--bg)}
+.cs-cat-btn.active{background:#FFF0F3;color:var(--pink);font-weight:700}
+.cs-card{background:#fff;border-radius:12px;border:1px solid var(--border);padding:16px;margin-bottom:10px;transition:box-shadow .15s}
+.cs-card:hover{box-shadow:0 2px 12px rgba(254,44,85,.1)}
+.cs-card-tag{display:inline-block;background:#F3F4F6;color:var(--muted);padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600;margin-bottom:8px}
+.cs-card-tag.match{background:#FFF0F3;color:var(--pink)}
+.cs-msg{font-size:13px;line-height:1.7;color:var(--text);white-space:pre-wrap;background:var(--bg);border-radius:8px;padding:12px;margin:8px 0}
+.cs-copy-btn{background:var(--pink);color:#fff;border:none;padding:6px 16px;border-radius:7px;font-size:11px;font-weight:700;cursor:pointer;transition:opacity .15s}
+.cs-copy-btn:hover{opacity:.85}
+.cs-copy-btn.copied{background:#10B981}
+
 /* ── Weekly Report ── */
 .report-section-label{font-size:11px;font-weight:800;color:var(--pink);text-transform:uppercase;letter-spacing:.6px;margin:0 0 8px;padding:6px 10px;background:#FFF0F3;border-radius:6px;border-left:3px solid var(--pink)}
 .report-item{padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:6px;line-height:1.5}
@@ -309,6 +322,9 @@ textarea.form-input{resize:vertical}
     <div class="sb-section">Reports</div>
     <div class="nav-item" onclick="nav('report',this)">
       <span class="nav-icon">&#128196;</span> 주간 리포트
+    </div>
+    <div class="nav-item" onclick="nav('cs',this)">
+      <span class="nav-icon">&#128172;</span> CS 봇
     </div>
   </nav>
   <div class="sb-footer">
@@ -1265,6 +1281,43 @@ textarea.form-input{resize:vertical}
       </div>
     </div></div>
 
+    <!-- ═══ CS 봇 ═══════════════════════════════════ -->
+    <div id="sec-cs" class="page-section">
+      <div class="sec-head">
+        <div><div class="sec-title">CS 봇</div><div class="sec-sub">고객 메시지 자동 분석 · 답변 템플릿 추천</div></div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input class="form-input" id="cs-customer-name" placeholder="고객명 (선택)" style="width:160px">
+          <span style="font-size:11px;color:var(--muted)">입력시 답변에 자동 적용</span>
+        </div>
+      </div>
+
+      <!-- 분석 입력창 -->
+      <div class="card full" style="margin-bottom:14px">
+        <div class="card-title">&#128269; 고객 메시지 분석</div>
+        <div class="card-sub">고객이 보낸 메시지를 붙여넣으면 상황을 자동으로 파악해 답변을 추천합니다</div>
+        <div style="display:flex;gap:10px;margin-top:12px;align-items:flex-start">
+          <textarea id="cs-input" class="form-input" rows="4" placeholder="예: Hi, I received my package but the product was damaged. Can I get a replacement?" style="flex:1;resize:none"></textarea>
+          <button class="btn-primary" style="padding:10px 20px;white-space:nowrap" onclick="csAnalyze()">&#129302; 분석하기</button>
+        </div>
+        <div id="cs-detected" style="display:none;margin-top:10px;padding:10px 14px;background:#FFF0F3;border-radius:8px;font-size:12px;border-left:3px solid var(--pink)"></div>
+      </div>
+
+      <!-- 카테고리 + 결과 -->
+      <div style="display:grid;grid-template-columns:200px 1fr;gap:14px">
+        <!-- 카테고리 사이드바 -->
+        <div>
+          <div class="card" style="padding:12px">
+            <div style="font-size:10px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">카테고리</div>
+            <div id="cs-cats"></div>
+          </div>
+        </div>
+        <!-- 답변 목록 -->
+        <div>
+          <div id="cs-results"></div>
+        </div>
+      </div>
+    </div>
+
   </div><!-- /pages -->
 </div><!-- /content -->
 
@@ -1357,7 +1410,7 @@ const UK_MONTHLY = [
 const PAGE_TITLES = {
   overview:'Overview', sales:'Sales & Revenue', inventory:'Inventory',
   affiliates:'Affiliates', competitors:'Competitors', promotions:'Promotions',
-  uk:'UK Market', affiliatelist:'Affiliate List',
+  uk:'UK Market', affiliatelist:'Affiliate List', cs:'CS 봇',
   crm:'Creator CRM', seeding:'샘플 시딩 트래커', live:'LIVE 스트림 트래커',
   viral:'바이럴 영상 트래커', brief:'콘텐츠 브리프 생성기',
   settlement:'정산 트래커', report:'주간 리포트'
@@ -1398,6 +1451,7 @@ function renderSection(id) {
   if (id === 'brief')      generateBrief();
   if (id === 'settlement') renderSettlement();
   if (id === 'report')     generateReport();
+  if (id === 'cs')         initCS();
 }
 
 const PINK='#FE2C55', CYAN='#25F4EE', PURPLE='#A855F7', BLUE='#3B82F6',
@@ -2441,6 +2495,231 @@ function generateReport(){
 function reportExportHistory(){
   const h=getWeeklyHistory();
   dlCSV(['주차,기간,판매량,매출USD,매출KRW,Aff매출USD,Aff비율,전주대비USD,전주대비PCT',...h.map(r=>[r.w,r.period,r.units,r.gmv,r.gmvKRW,r.affGMV,r.affPct,r.wow??'',r.wowPct??''].join(','))].join('\n'),'weekly_history.csv');
+}
+
+/* ── CS BOT ────────────────────────────────────────────── */
+const CS_TEMPLATES = [
+  // ── ORDER / SHIPPING ──
+  {id:'greet',   cat:'order', catLabel:'주문/배송', tag:'인사 & FAQ',
+   msg:`Thank you for reaching out to Dr. Reju-All. We're happy to assist you—how may we help you today?`,
+   keys:['hello','hi','help','question','문의']},
+  {id:'confirm', cat:'order', catLabel:'주문/배송', tag:'주문 확인',
+   msg:`Thank you for your order with Dr. Reju-All. To ensure smooth delivery, please confirm that your shipping address is correct.`,
+   keys:['order','confirm','address','주문','확인']},
+  {id:'shipped', cat:'order', catLabel:'주문/배송', tag:'발송 완료',
+   msg:`Your Dr. Reju-All order has been shipped and is on its way! You can now track your delivery progress at your convenience. If you have any questions, please feel free to reach out—we're always happy to help.`,
+   keys:['shipped','tracking','track','배송','발송']},
+  {id:'delivered',cat:'order',catLabel:'주문/배송', tag:'배송 완료',
+   msg:`According to our records, your Dr. Reju-All order was signed for and successfully delivered. If you did not sign for or receive your order, please notify us immediately so we can assist you promptly.`,
+   keys:['delivered','delivery','received','도착','배달']},
+  {id:'delayed', cat:'order', catLabel:'주문/배송', tag:'배송 지연',
+   msg:`Your Dr. Reju-All order is taking a bit longer than expected, and we sincerely apologize for the delay. Please rest assured that we're doing our best to ensure it reaches you as soon as possible.`,
+   keys:['delay','late','slow','waiting','not arrived','still','지연','늦','아직']},
+  {id:'delayed2',cat:'order', catLabel:'주문/배송', tag:'배송 지연 (TikTok 기준)',
+   msg:`Hello, this is Dr. Reju-All. Your order is currently in transit and on the way to you. We kindly ask for a little more patience while it is being delivered. Thank you so much for your support and understanding🤍`,
+   keys:['delay','in transit','지연']},
+  {id:'logistics',cat:'order',catLabel:'주문/배송', tag:'물류 이슈',
+   msg:`Dear [Customer], Our system has detected an issue with the shipping of your order, and our team is actively working on a solution. If you have any questions or need further assistance, please don't hesitate to contact Dr. Reju-All.`,
+   keys:['logistics','issue','problem','wrong','오류','문제']},
+
+  // ── REFUND / CANCEL ──
+  {id:'cancel_done',cat:'refund',catLabel:'환불/취소', tag:'취소 완료',
+   msg:`Your order has been canceled by Dr. Reju-All, and a full refund will be issued to your original payment method. We sincerely apologize for any inconvenience this may cause. Please don't hesitate to reach out to Dr. Reju-All if you have any questions or need further assistance.`,
+   keys:['cancel','canceled','cancellation','취소','취소 완료']},
+  {id:'cancel_ok', cat:'refund',catLabel:'환불/취소', tag:'배송 전 취소 가능',
+   msg:`Your refund has been successfully completed. If you have the chance in the future, we would love for you to shop with us again. Thanks!🤍`,
+   keys:['cancel','refund','취소','환불']},
+  {id:'cancel_no', cat:'refund',catLabel:'환불/취소', tag:'배송 후 취소 불가',
+   msg:`Unfortunately, the order has already been shipped, so we're unable to cancel it at this time. We're sharing the tracking number with you so you can follow the delivery status. If you still wish to cancel the order after receiving the package, please feel free to submit a refund request, and the platform will review it accordingly. Thanks!🤍`,
+   keys:['cancel','shipped','already','취소 불가','발송 후']},
+  {id:'refund_wait',cat:'refund',catLabel:'환불/취소', tag:'반품/환불 안내 (배송 중)',
+   msg:`At the moment, we're unable to process a refund for the original order because it is still in transit on TikTok Shop's side. Once you receive the package, please submit a return request, and your refund will be processed.`,
+   keys:['refund','return','still','transit','환불','반품']},
+
+  // ── PRODUCT ISSUE ──
+  {id:'damaged',  cat:'product',catLabel:'제품 문제', tag:'제품 파손',
+   msg:`We're very sorry to hear that your product arrived damaged. We truly apologize for the inconvenience. We can offer you either a full refund or send you a replacement product. Please let us know which option you would prefer, and we'll be happy to assist you right away🤍`,
+   keys:['damaged','broken','crack','leak','파손','손상','부러','깨']},
+  {id:'missing_q',cat:'product',catLabel:'제품 문제', tag:'제품 미수령 - 확인',
+   msg:`Hi! Could you please let us know which product you didn't receive specifically? We'll check it for you right away!`,
+   keys:['missing','not received','didn\'t receive','받지 못','분실','못 받']},
+  {id:'missing_r',cat:'product',catLabel:'제품 문제', tag:'제품 미수령 - 재발송',
+   msg:`Hi! We're really sorry to hear that you didn't receive your package. We completely understand how disappointing that must be. Although the shipping process is handled by TikTok, we will take care of this for you and arrange to send the product to you again. Could you please send the address where you'd like to receive the package so we can confirm it once again?`,
+   keys:['not received','missing','lost','분실','재발송']},
+  {id:'missing_rf',cat:'product',catLabel:'제품 문제', tag:'제품 미수령 - 환불+재발송',
+   msg:`Hi! We're really sorry to hear that you didn't receive your package. We completely understand how disappointing that must be. Although the shipping process is handled by TikTok, we will take care of this for you. We will proceed with a refund and arrange to send the product to you again. Could you please send the address where you'd like to receive the package so we can confirm it once again?`,
+   keys:['not received','missing','refund','환불','재발송']},
+  {id:'missing_check',cat:'product',catLabel:'제품 문제', tag:'제품 미수령 - 재확인 요청',
+   msg:`We're really sorry to hear about this. Just to be sure, could you please kindly check once more on your end? If you're still unable to locate the package, please let us know and we'll be more than happy to assist you further. 🤍`,
+   keys:['not received','check','확인','다시']},
+  {id:'reship_done',cat:'product',catLabel:'제품 문제', tag:'재발송 완료',
+   msg:`Hi! The item you didn't receive has been reshipped to the address you provided.`,
+   keys:['reship','resend','재발송','보내드']},
+  {id:'skin_issue',cat:'product',catLabel:'제품 문제', tag:'피부 트러블',
+   msg:`Thank you for your feedback! Results can vary slightly depending on your skin type. But we hope you'll keep an eye on Dr. Reju-All — new products are on the way and we'd love for you to give us another chance.🤍`,
+   keys:['skin','irritation','reaction','broke out','allergy','트러블','맞지','알레르기']},
+
+  // ── ADDRESS ──
+  {id:'address',  cat:'address',catLabel:'주소/기타', tag:'주소 변경 불가',
+   msg:`Unfortunately, we're unable to change the shipping address once the order has been placed. However, we can either issue a refund or resend the product. Please let us know which option you prefer, and if you'd like us to resend it, kindly share the address where you'd like to receive the package.`,
+   keys:['address','wrong address','change address','주소','변경']},
+  {id:'sub_cancel',cat:'address',catLabel:'주소/기타', tag:'구독 해지 방법',
+   msg:`Hi! You can cancel your subscription by following the steps shown in this video: https://www.tiktok.com/@shopnailart/video/7600168456926842143\nWe're sorry to see you go, but we truly appreciate your support. We hope to see you again in the future. If you need any help, please feel free to reach out anytime!🤍`,
+   keys:['subscription','cancel subscription','unsubscribe','구독','해지']},
+  {id:'coupon',   cat:'address',catLabel:'주소/기타', tag:'쿠폰 만료',
+   msg:`That coupon is provided by TikTok Shop, not by us. Unfortunately, once it expires, it can't be used anymore. 😢 We understand it's disappointing, but we recommend using another coupon next time!`,
+   keys:['coupon','discount','expired','code','쿠폰','할인']},
+  {id:'apology',  cat:'address',catLabel:'주소/기타', tag:'사과',
+   msg:`We sincerely apologize for the inconvenience. This is not the experience we want for you and we'll take your feedback to heart to improve. If you reach out to us we would love the chance to make this right for you.`,
+   keys:['sorry','apology','inconvenience','불편','죄송']},
+  {id:'confirm_ok',cat:'address',catLabel:'주소/기타', tag:'확인 완료',
+   msg:`Okay, thank you for your confirmation!`,
+   keys:['confirm','confirmed','okay','확인','알겠']},
+  {id:'thankyou1',cat:'address',catLabel:'주소/기타', tag:'감사 답장 1',
+   msg:`You're very welcome! 🤍 If you need any help, please feel free to reach out anytime.`,
+   keys:['thank','thanks','감사','고마']},
+  {id:'thankyou2',cat:'address',catLabel:'주소/기타', tag:'감사 답장 2',
+   msg:`You're very welcome! 🤍 We're always here if you need any help.`,
+   keys:['thank','thanks','감사','고마']},
+
+  // ── COLLABORATION ──
+  {id:'collab_y', cat:'collab', catLabel:'협업/크리에이터', tag:'협업 제안 - TikTok 크리에이터',
+   msg:`Hi! Thank you for reaching out.🤍 If you're a TikTok creator, please feel free to apply for a free sample, and our team will review your request. ✨`,
+   keys:['collab','collaboration','creator','influencer','affiliate','협업','크리에이터','샘플 신청']},
+  {id:'collab_n', cat:'collab', catLabel:'협업/크리에이터', tag:'협업 제안 - 일반',
+   msg:`Hi! Thank you so much for your interest in Dr. Rejuall. We truly appreciate your support. Would you mind submitting your information through the link below? By filling out this form, you'll be added to our Influencer collaboration pool. We'll reach out when there's a campaign that's a good fit\nhttps://docs.google.com/forms/d/e/1FAIpQLSdP48cJuj26xeoXKFUeH9N77tAezOm0B02kox0s9yEXkt4Vrg/viewform`,
+   keys:['collab','partnership','brand deal','협업','제안','파트너']},
+  {id:'collab_form',cat:'collab',catLabel:'협업/크리에이터', tag:'신청폼 제출 완료',
+   msg:`Hi! Thank you for filling out the form. Our team will review everything carefully and get back to you soon. We really appreciate it—thank you!🤍`,
+   keys:['form','submitted','filled','신청','제출']},
+  {id:'video_up', cat:'collab', catLabel:'협업/크리에이터', tag:'영상 업로드 감사',
+   msg:`We saw the video you posted! Wow, thank you so much — it's amazing. 🤍 We really appreciate your support and hope you continue to stay interested in our products and create more great videos in the future! Thanks!`,
+   keys:['video','post','posted','upload','영상','올렸','게시']},
+  {id:'video_exp',cat:'collab', catLabel:'협업/크리에이터', tag:'영상 예정 응원',
+   msg:`Thank you! 🤍 We're excited for you to try it and look forward to seeing your post!`,
+   keys:['will post','going to','planning','예정','올릴']},
+  {id:'sample_no',cat:'collab', catLabel:'협업/크리에이터', tag:'샘플 링크 삭제 (업로드X)',
+   msg:`No worries at all — this has been resolved.`,
+   keys:['link','remove','delete','샘플','링크','삭제']},
+
+  // ── REVIEWS ──
+  {id:'rev_basic',cat:'review', catLabel:'리뷰 답글', tag:'리뷰 감사 (기본)',
+   msg:`We truly appreciate your purchase of Dr. Reju-All! Can't wait for you to see how it helps your skin feel nourished, healthy, and glowing✨. Thank you for choosing us! 🤍`,
+   keys:['review','rating','star','리뷰','별점','후기']},
+  {id:'rev_1',    cat:'review', catLabel:'리뷰 답글', tag:'리뷰 답글 A',
+   msg:`🌸 Thanks for sharing your glow! We're so happy you love your Dr. Reju-All product ✨`,
+   keys:['review','love','great','amazing','리뷰','좋아']},
+  {id:'rev_2',    cat:'review', catLabel:'리뷰 답글', tag:'리뷰 답글 B',
+   msg:`🌺 Your review made our day! Thanks for trusting Dr. Reju-All with your skincare journey 🌿`,
+   keys:['review','리뷰']},
+  {id:'rev_3',    cat:'review', catLabel:'리뷰 답글', tag:'리뷰 답글 C',
+   msg:`🌸 We appreciate your kind words! Thanks for letting us know you're enjoying Dr. Reju-All ✨`,
+   keys:['review','리뷰']},
+  {id:'rev_neg',  cat:'review', catLabel:'리뷰 답글', tag:'부정 리뷰 대응',
+   msg:`We sincerely apologize for the inconvenience. This is not the experience we want for you and we'll take your feedback to heart to improve. If you reach out to us we would love the chance to make this right for you.`,
+   keys:['bad','poor','worst','disappointed','negative','별로','실망','안좋']},
+
+  // ── RETENTION ──
+  {id:'repurchase',cat:'retention',catLabel:'재구매/리텐션', tag:'재구매 완료',
+   msg:`We're so happy to hear you reordered 🤍 We can't wait to be part of your skincare routine again!`,
+   keys:['reorder','again','repurchase','재구매','또 샀','다시']},
+  {id:'repurchase2',cat:'retention',catLabel:'재구매/리텐션', tag:'재구매 예정',
+   msg:`That makes us so happy to hear 🤍 We'll be here whenever you're ready for your next reorder!`,
+   keys:['will order','planning to','재구매 예정','살 예정']},
+  {id:'product_received',cat:'retention',catLabel:'재구매/리텐션', tag:'수령 후 기대',
+   msg:`Thanks so much for purchasing our product! We'd love for you to try it out and share your honest review 🤍`,
+   keys:['received','just got','arrived','받았','도착']},
+];
+
+const CS_CATS = [
+  {id:'all',    label:'🔍 전체',         count:()=>CS_TEMPLATES.length},
+  {id:'order',  label:'📦 주문/배송',     count:()=>CS_TEMPLATES.filter(t=>t.cat==='order').length},
+  {id:'refund', label:'↩️ 환불/취소',    count:()=>CS_TEMPLATES.filter(t=>t.cat==='refund').length},
+  {id:'product',label:'🧴 제품 문제',     count:()=>CS_TEMPLATES.filter(t=>t.cat==='product').length},
+  {id:'address',label:'📍 주소/기타',     count:()=>CS_TEMPLATES.filter(t=>t.cat==='address').length},
+  {id:'collab', label:'🤝 협업/크리에이터',count:()=>CS_TEMPLATES.filter(t=>t.cat==='collab').length},
+  {id:'review', label:'⭐ 리뷰 답글',     count:()=>CS_TEMPLATES.filter(t=>t.cat==='review').length},
+  {id:'retention',label:'💛 재구매/리텐션',count:()=>CS_TEMPLATES.filter(t=>t.cat==='retention').length},
+];
+
+let csCat = 'all';
+
+function initCS() {
+  // Render category buttons
+  const catEl = gEl('cs-cats');
+  if (catEl) catEl.innerHTML = CS_CATS.map(c =>
+    `<button class="cs-cat-btn${c.id===csCat?' active':''}" onclick="csCatSelect('${c.id}',this)">${c.label} <span style="float:right;background:#F3F4F6;border-radius:8px;padding:1px 6px;font-size:10px">${c.count()}</span></button>`
+  ).join('');
+  csRender();
+}
+
+function csCatSelect(id, el) {
+  csCat = id;
+  document.querySelectorAll('.cs-cat-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  csRender();
+}
+
+function csRender(matches) {
+  const name = (gEl('cs-customer-name')||{}).value || '';
+  let templates = matches || CS_TEMPLATES.filter(t => csCat === 'all' || t.cat === csCat);
+  const el = gEl('cs-results');
+  if (!el) return;
+  if (!templates.length) { el.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted);font-size:13px">해당 카테고리 템플릿 없음</div>'; return; }
+  el.innerHTML = templates.map(t => {
+    const msg = name ? t.msg.replace(/\[Customer\]/gi, name).replace(/\[Customer name\]/gi, name) : t.msg;
+    const isMatch = matches && matches.includes(t);
+    return `<div class="cs-card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div>
+          <span class="cs-card-tag${isMatch?' match':''}">${isMatch?'✦ 추천 · ':''}${t.catLabel}</span>
+          <span style="font-size:11px;font-weight:700;margin-left:6px">${t.tag}</span>
+        </div>
+        <button class="cs-copy-btn" id="copy-${t.id}" onclick="csCopy('${t.id}')">📋 복사</button>
+      </div>
+      <div class="cs-msg" id="msg-${t.id}">${esc(msg)}</div>
+    </div>`;
+  }).join('');
+}
+
+function csAnalyze() {
+  const input = ((gEl('cs-input')||{}).value || '').toLowerCase();
+  if (!input.trim()) { alert('고객 메시지를 입력하세요'); return; }
+  // Score each template
+  const scored = CS_TEMPLATES.map(t => {
+    let score = 0;
+    (t.keys || []).forEach(k => { if (input.includes(k.toLowerCase())) score++; });
+    return { ...t, score };
+  }).filter(t => t.score > 0).sort((a, b) => b.score - a.score);
+
+  const det = gEl('cs-detected');
+  if (det) {
+    det.style.display = 'block';
+    if (scored.length) {
+      const topCat = scored[0].catLabel;
+      det.innerHTML = `<strong>🤖 감지된 상황:</strong> ${topCat} · <strong>추천 답변 ${scored.length}개</strong> 발견됨`;
+      // Switch category to match
+      csCat = 'all';
+      document.querySelectorAll('.cs-cat-btn').forEach(b => b.classList.remove('active'));
+      const allBtn = document.querySelector('.cs-cat-btn');
+      if (allBtn) allBtn.classList.add('active');
+    } else {
+      det.innerHTML = `<strong>🤖 키워드 매칭 실패.</strong> 아래 카테고리에서 직접 선택하세요.`;
+    }
+  }
+  if (scored.length) csRender(scored.slice(0, 6));
+  else csRender();
+}
+
+function csCopy(id) {
+  const name = (gEl('cs-customer-name')||{}).value || '';
+  const t = CS_TEMPLATES.find(x => x.id === id);
+  if (!t) return;
+  const msg = name ? t.msg.replace(/\[Customer\]/gi, name).replace(/\[Customer name\]/gi, name) : t.msg;
+  navigator.clipboard.writeText(msg).then(() => {
+    const btn = gEl('copy-'+id);
+    if (btn) { btn.textContent = '✅ 복사됨'; btn.classList.add('copied'); setTimeout(() => { btn.textContent = '📋 복사'; btn.classList.remove('copied'); }, 2000); }
+  });
 }
 
 /* ── CREATOR PROFILE ───────────────────────────────────── */
