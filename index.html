@@ -2986,8 +2986,7 @@ function rdParseCSV(text) {
 }
 
 function renderRevDash() {
-  const saved = localStorage.getItem('rd_orders');
-  if (saved) { rdRaw = JSON.parse(saved); rdShow(); }
+  if (rdRaw.length) rdShow();
 }
 
 function rdHandleFile(input) {
@@ -3014,7 +3013,6 @@ function rdHandleFile(input) {
         orderId:r[2] || ''
       })).filter(o => o.date && o.rev > 0);
       if (!rdRaw.length) { alert('매출(R열) 값이 모두 0이에요. 시트에 실제 매출 데이터가 있는지 확인해주세요.'); return; }
-      localStorage.setItem('rd_orders', JSON.stringify(rdRaw));
       rdShow();
     } catch(err) { alert('파싱 오류: ' + err.message); console.error(err); }
   };
@@ -3141,7 +3139,6 @@ function rdCompute() {
 
 function rdClear() {
   if (!confirm('매출 데이터를 초기화할까요?')) return;
-  localStorage.removeItem('rd_orders');
   rdRaw = []; rdFiltered = [];
   gEl('rd-guide').style.display = 'flex';
   gEl('rd-results').style.display = 'none';
