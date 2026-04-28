@@ -587,75 +587,129 @@ textarea.form-input{resize:vertical}
     ══════════════════════════════════════════════ -->
     <div id="sec-inventory" class="page-section">
       <div class="sec-head">
-        <div>
-          <div class="sec-title">Inventory (FBT)</div>
-          <div class="sec-sub">Fulfillment-by-TikTok stock levels and sellout forecasts</div>
+        <div><div class="sec-title">재고 예측 대시보드</div>
+          <div class="sec-sub">FBT 재고 · 항공/3PL 운송 중 · 90일 수요 예측</div></div>
+        <div style="display:flex;gap:8px">
+          <button class="btn-sec" style="font-size:12px" onclick="invReset()">↺ 초기화</button>
+          <button class="btn-primary" style="font-size:12px" onclick="invSaveAll()">💾 저장</button>
         </div>
       </div>
 
-      <!-- Inventory alert cards -->
-      <div class="inv-grid" id="inv-cards"></div>
-
-      <div class="g2">
-        <div class="card">
-          <div class="card-title">Current FBT Stock</div>
-          <div class="card-sub">Units available by SKU</div>
-          <div class="ch ch-240"><canvas id="c-inv-bar"></canvas></div>
-        </div>
-        <div class="card">
-          <div class="card-title">Days-to-Sellout (Current Rate)</div>
-          <div class="card-sub">At current average daily sales velocity</div>
-          <div class="ch ch-240"><canvas id="c-inv-days"></canvas></div>
-        </div>
+      <!-- KPI strip -->
+      <div class="kpi-grid" id="inv-kpi-grid">
+        <div class="kpi"><div class="kpi-bar" style="background:var(--cyan)"></div><div class="kpi-lbl">FBT 총 재고</div><div class="kpi-val" id="inv-k-fbt">—</div><div class="kpi-sub neu">전체 SKU 합계</div></div>
+        <div class="kpi"><div class="kpi-bar" style="background:var(--pink)"></div><div class="kpi-lbl">품절 위험 SKU</div><div class="kpi-val" id="inv-k-crit">—</div><div class="kpi-sub neu">30일 내 품절</div></div>
+        <div class="kpi"><div class="kpi-bar" style="background:var(--yellow)"></div><div class="kpi-lbl">항공 운송 중</div><div class="kpi-val" id="inv-k-air">—</div><div class="kpi-sub neu">Air freight units</div></div>
+        <div class="kpi"><div class="kpi-bar" style="background:var(--purple)"></div><div class="kpi-lbl">3PL 재고</div><div class="kpi-val" id="inv-k-3pl">—</div><div class="kpi-sub neu">3PL 대기 units</div></div>
       </div>
 
-      <div class="g2">
-        <div class="card">
-          <div class="card-title">Spring Sales FBT Post-Sale (Apr 1)</div>
-          <div class="card-sub">Remaining stock after Spring Glow Up campaign</div>
-          <div class="tbl-wrap"><table>
+      <!-- 재고 입력 테이블 -->
+      <div class="card full" style="padding:0;overflow:visible">
+        <div style="padding:14px 16px 8px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+          <div><div class="card-title">FBT 재고 · 판매 속도 입력</div>
+            <div class="card-sub">직접 수정 가능 · 저장 버튼으로 반영</div></div>
+          <div style="font-size:11px;color:var(--muted)">📌 변경 후 저장 버튼 클릭</div>
+        </div>
+        <div class="tbl-wrap">
+          <table id="inv-main-table">
             <thead><tr>
-              <th>SKU</th><th>Remaining</th><th>Avg Daily (conservative)</th><th>Sellout (days)</th>
-              <th>Avg Daily (target)</th><th>Sellout (target)</th>
+              <th>SKU</th>
+              <th style="text-align:center">FBT 재고</th>
+              <th style="text-align:center">1일 판매</th>
+              <th style="text-align:center">7일 평균</th>
+              <th style="text-align:center">30일 평균</th>
+              <th style="text-align:center">이벤트 +</th>
+              <th style="text-align:center">가격($)</th>
+              <th style="text-align:center;background:#FE2C5510">FBT만 소진일</th>
+              <th style="text-align:center;background:#25F4EE10">전체 소진일</th>
+              <th style="text-align:center">잔여매출($)</th>
+              <th style="text-align:center">상태</th>
             </tr></thead>
-            <tbody>
-              <tr><td class="fw7">PDRN Cream</td><td>9,000</td><td>90/day</td><td class="c-yellow">100 days</td><td>250/day</td><td class="c-green">36 days</td></tr>
-              <tr><td class="fw7">Retino-mela</td><td>1,511</td><td>10/day</td><td class="c-pink">151 days</td><td>25/day</td><td class="c-yellow">60 days</td></tr>
-              <tr><td class="fw7">Ceramide</td><td>1,079</td><td>25/day</td><td class="c-green">43 days</td><td>50/day</td><td class="c-green">22 days</td></tr>
-            </tbody>
-          </table></div>
-        </div>
-        <div class="card">
-          <div class="card-title">Product Listing Status</div>
-          <div class="card-sub">Current TikTok Shop listing &amp; promotions</div>
-          <div class="tbl-wrap"><table>
-            <thead><tr><th>Product</th><th>Listed</th><th>FBT Stock</th><th>Promo</th></tr></thead>
-            <tbody>
-              <tr><td class="fw7">PDRN Cream 20ML</td><td><span class="b b-green">Live</span></td><td>6,862</td><td>5% off $50+, 10% off $100+</td></tr>
-              <tr><td class="fw7">PDRN Cream MAX 60ML</td><td><span class="b b-green">Live</span></td><td class="c-pink fw7">0</td><td>5% off $50+</td></tr>
-              <tr><td class="fw7">LC Ceramide Barrier</td><td><span class="b b-green">Live</span></td><td>226</td><td>5% off $50+</td></tr>
-              <tr><td class="fw7">Retino-Mela Serum</td><td><span class="b b-green">Live</span></td><td>946</td><td>5% off $50+</td></tr>
-              <tr><td class="fw7">PDRN Lip Serum</td><td><span class="b b-green">Live</span></td><td class="c-pink fw7">0</td><td>5% off $50+</td></tr>
-              <tr><td class="fw7">PDRN Face Mask</td><td><span class="b b-green">Live</span></td><td class="c-pink fw7">0</td><td>5% off $50+</td></tr>
-            </tbody>
-          </table></div>
+            <tbody id="inv-tbody"></tbody>
+          </table>
         </div>
       </div>
 
+      <!-- 차트 -->
+      <div class="g2">
+        <div class="card">
+          <div class="card-title">FBT 현재 재고</div>
+          <div class="card-sub">SKU별 보유 수량</div>
+          <div class="ch ch-240"><canvas id="c-inv-fbt"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-title">소진까지 남은 일수</div>
+          <div class="card-sub" style="display:flex;gap:8px;align-items:center">
+            <span>가중 평균 기준</span>
+            <span style="font-size:10px;padding:2px 6px;background:#FE2C5522;color:#FE2C55;border-radius:4px">■ FBT만</span>
+            <span style="font-size:10px;padding:2px 6px;background:#25F4EE22;color:#0D7B7B;border-radius:4px">■ 전체(운송포함)</span>
+          </div>
+          <div class="ch ch-240"><canvas id="c-inv-days2"></canvas></div>
+        </div>
+      </div>
+
+      <!-- 90일 예측 -->
       <div class="card full">
-        <div class="card-title">Max Revenue Potential (Current FBT Stock)</div>
-        <div class="card-sub">If all available inventory sells at list price</div>
-        <div class="tbl-wrap"><table>
-          <thead><tr><th>SKU</th><th>Stock</th><th>Price (USD)</th><th>Max GMV (USD)</th><th>Max GMV (KRW)</th></tr></thead>
-          <tbody>
-            <tr><td class="fw7">PDRN Cream 20ML</td><td>6,862</td><td>$27.90</td><td class="fw7 c-green">$191,350</td><td>₩267,890,000</td></tr>
-            <tr><td class="fw7">LC Ceramide Barrier</td><td>226</td><td>$20.70</td><td class="fw7">$4,678</td><td>₩6,549,200</td></tr>
-            <tr><td class="fw7">Retino-Mela Serum</td><td>946</td><td>$25.50</td><td class="fw7">$24,123</td><td>₩33,772,200</td></tr>
-            <tr style="background:#FFF0F3"><td class="fw7 c-pink">TOTAL</td><td class="fw7">8,034</td><td>—</td><td class="fw7 c-pink">$220,151</td><td class="fw7 c-pink">₩308,211,400</td></tr>
-          </tbody>
-        </table></div>
+        <div class="card-title">90일 재고 예측</div>
+        <div class="card-sub">현재 판매 속도 기준 · 운송 중 재고 반영</div>
+        <div class="ch ch-240"><canvas id="c-inv-forecast"></canvas></div>
+      </div>
+
+      <!-- 운송 중 재고 -->
+      <div class="g2">
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+            <div><div class="card-title">✈️ 항공 운송 중</div><div class="card-sub">Korea → US FBT</div></div>
+            <button class="btn-primary" style="font-size:11px;padding:5px 12px" onclick="invAddTransit('air')">+ 추가</button>
+          </div>
+          <div class="tbl-wrap"><table>
+            <thead><tr><th>SKU</th><th style="text-align:center">수량</th><th style="text-align:center">ETA (일)</th><th>메모</th><th></th></tr></thead>
+            <tbody id="inv-air-tbody"></tbody>
+          </table></div>
+          <div id="inv-air-empty" style="text-align:center;padding:20px;color:var(--muted);font-size:12px">항공 운송 중인 재고 없음</div>
+        </div>
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+            <div><div class="card-title">🏭 3PL 재고</div><div class="card-sub">3PL → FBT 전송 대기 중</div></div>
+            <button class="btn-primary" style="font-size:11px;padding:5px 12px" onclick="invAddTransit('3pl')">+ 추가</button>
+          </div>
+          <div class="tbl-wrap"><table>
+            <thead><tr><th>SKU</th><th style="text-align:center">수량</th><th style="text-align:center">FBT까지(일)</th><th>메모</th><th></th></tr></thead>
+            <tbody id="inv-3pl-tbody"></tbody>
+          </table></div>
+          <div id="inv-3pl-empty" style="text-align:center;padding:20px;color:var(--muted);font-size:12px">3PL 대기 재고 없음</div>
+        </div>
       </div>
     </div>
+
+    <!-- 운송 추가 모달 -->
+    <div class="modal-overlay hidden" id="inv-transit-modal"><div class="modal-box">
+      <div class="modal-title" id="inv-transit-modal-title">항공 운송 추가</div>
+      <input type="hidden" id="inv-tr-id">
+      <input type="hidden" id="inv-tr-type">
+      <div class="form-row"><label>SKU *</label>
+        <select class="form-input" id="inv-tr-sku">
+          <option value="pdrn_cream">PDRN Cream</option>
+          <option value="pdrn_max">PDRN Max</option>
+          <option value="retino">Retino-Mela</option>
+          <option value="ceramide">Ceramide</option>
+          <option value="barrier_duo">Barrier & Repair Duo</option>
+          <option value="tone_duo">Tone & Repair Duo</option>
+          <option value="routine_set">Skin Routine Set</option>
+          <option value="lip">PDRN Lip Serum</option>
+          <option value="mask">PDRN Mask</option>
+        </select>
+      </div>
+      <div class="g2">
+        <div class="form-row"><label>수량 *</label><input class="form-input" id="inv-tr-qty" type="number" min="0" placeholder="500"></div>
+        <div class="form-row"><label id="inv-tr-days-lbl">ETA (일) *</label><input class="form-input" id="inv-tr-days" type="number" min="0" placeholder="7"></div>
+      </div>
+      <div class="form-row"><label>메모</label><input class="form-input" id="inv-tr-note" placeholder="출발일, 편명, 송장번호 등"></div>
+      <div style="display:flex;gap:8px;margin-top:16px">
+        <button class="btn-primary" style="flex:1" onclick="invSaveTransit()">저장</button>
+        <button class="btn-sec" onclick="closeModal('inv-transit-modal')">취소</button>
+      </div>
+    </div></div>
 
     <!-- ══════════════════════════════════════════════
          4. AFFILIATES
@@ -2058,13 +2112,28 @@ const MONTHLY_TARGETS = [
   {m:'12월',gmv:12.7,adspend:9.8, pdrn:17000, lip:16500,cera:3000,reti:1500,mask:1500,sys:300, total:39800},
 ];
 
-const INVENTORY = [
-  {name:'PDRN Cream',        sku:'PDRN 20ml',  stock:14233, daily:71,  days:200, alert:'ok'},
-  {name:'PDRN Lip Serum',    sku:'Lip Serum',  stock:776,   daily:30,  days:26,  alert:'warn'},
-  {name:'PDRN Max Cream',    sku:'PDRN 60ml',  stock:166,   daily:11,  days:15,  alert:'warn'},
-  {name:'Retino-mela Serum', sku:'Retino',     stock:1737,  daily:3,   days:579, alert:'ok'},
-  {name:'Ceramide Cream',    sku:'Ceramide',   stock:1819,  daily:18,  days:101, alert:'ok'},
+const INV_SKUS = [
+  {id:'pdrn_cream',  name:'PDRN Cream',           price:27.90},
+  {id:'pdrn_max',    name:'PDRN Max (60ml)',       price:42.00},
+  {id:'retino',      name:'Retino-Mela',           price:25.50},
+  {id:'ceramide',    name:'Ceramide',              price:20.70},
+  {id:'barrier_duo', name:'Barrier & Repair Duo',  price:48.00},
+  {id:'tone_duo',    name:'Tone & Repair Duo',     price:48.00},
+  {id:'routine_set', name:'Skin Routine Set',      price:65.00},
+  {id:'lip',         name:'PDRN Lip Serum',        price:18.00},
+  {id:'mask',        name:'PDRN Mask',             price:22.00},
 ];
+const INV_DEFAULT_FBT = {
+  pdrn_cream:{fbt:6862,d1:71,d7:65,d30:71,event:0,price:27.90},
+  pdrn_max:  {fbt:0,   d1:0, d7:0, d30:0, event:0,price:42.00},
+  retino:    {fbt:946, d1:10,d7:12,d30:10,event:0,price:25.50},
+  ceramide:  {fbt:226, d1:25,d7:22,d30:25,event:0,price:20.70},
+  barrier_duo:{fbt:0,  d1:0, d7:0, d30:0, event:0,price:48.00},
+  tone_duo:  {fbt:0,   d1:0, d7:0, d30:0, event:0,price:48.00},
+  routine_set:{fbt:0,  d1:0, d7:0, d30:0, event:0,price:65.00},
+  lip:       {fbt:0,   d1:30,d7:28,d30:30,event:0,price:18.00},
+  mask:      {fbt:0,   d1:0, d7:0, d30:0, event:0,price:22.00},
+};
 
 const COMPETITORS = [
   {brand:'Dr.Melaxin',        gmv:14840000, tier:'Beyond'},
@@ -2252,37 +2321,206 @@ function renderSales() {
     </tr>`).join('');
 }
 
-/* ── INVENTORY ──────────────────────────────── */
+/* ══════════════════════════════════════════════
+   INVENTORY FORECAST DASHBOARD
+══════════════════════════════════════════════ */
+function invGetFbt()     { try { return JSON.parse(localStorage.getItem('inv_fbt')) || JSON.parse(JSON.stringify(INV_DEFAULT_FBT)); } catch(e) { return JSON.parse(JSON.stringify(INV_DEFAULT_FBT)); } }
+function invGetTransit() { try { return JSON.parse(localStorage.getItem('inv_transit')) || []; } catch(e) { return []; } }
+
+function invRate(d) {
+  // 가중 평균: 최근 1일 50%, 7일 30%, 30일 20%
+  return (d.d1||0)*0.5 + (d.d7||0)*0.3 + (d.d30||0)*0.2 + (d.event||0)/30;
+}
+
+function invForecast(fbtData, transit, skuId) {
+  const d = fbtData[skuId] || {};
+  const rate = invRate(d);
+  if (!rate) return {daysFbt: Infinity, daysAll: Infinity};
+
+  // FBT만
+  const daysFbt = Math.floor((d.fbt||0) / rate);
+
+  // 운송 포함: 날짜별 재고 시뮬레이션 (90일)
+  let stock = d.fbt || 0;
+  const incoming = transit.filter(t => t.sku === skuId);
+  let daysAll = daysFbt;
+  if (incoming.length) {
+    stock = d.fbt || 0;
+    for (let day = 1; day <= 365; day++) {
+      incoming.forEach(t => { if (parseInt(t.days) === day) stock += parseInt(t.qty)||0; });
+      stock -= rate;
+      if (stock <= 0) { daysAll = day; break; }
+      if (day === 364) daysAll = Infinity;
+    }
+  }
+  return {daysFbt, daysAll, rate};
+}
+
+function invSelloutDate(days) {
+  if (!isFinite(days) || days > 365) return '365일+';
+  const d = new Date(); d.setDate(d.getDate() + days);
+  return (d.getMonth()+1)+'/'+ d.getDate();
+}
+
 function renderInventory() {
-  const cards = document.getElementById('inv-cards');
-  if (cards) cards.innerHTML = INVENTORY.map(i=>{
-    const cls = i.alert==='ok'?'alert-ok':i.alert==='warn'?'alert-warn':'alert-crit';
-    const msg = i.alert==='ok'?'Stocked':i.alert==='warn'?'Low Stock':'Critical';
-    const pct = Math.min(100, Math.round((i.stock / 15000)*100));
-    return `<div class="inv-card">
-      <div class="inv-name">${i.name}</div>
-      <div class="inv-val">${i.stock.toLocaleString()}</div>
-      <div class="inv-days">${i.days} days at ${i.daily}/day avg</div>
-      <div class="prog-bg" style="margin-bottom:8px"><div class="prog-fill" style="width:${pct}%;background:${i.alert==='ok'?GREEN:i.alert==='warn'?YELLOW:PINK}"></div></div>
-      <span class="inv-alert ${cls}">${msg}</span>
-    </div>`;
+  const fbt = invGetFbt();
+  const transit = invGetTransit();
+
+  // KPIs
+  const totalFbt = INV_SKUS.reduce((s,sk) => s+(fbt[sk.id]?.fbt||0), 0);
+  const critCount = INV_SKUS.filter(sk => { const {daysFbt} = invForecast(fbt,transit,sk.id); return isFinite(daysFbt) && daysFbt<=30 && (fbt[sk.id]?.fbt||0)>0; }).length;
+  const airTotal  = transit.filter(t=>t.type==='air').reduce((s,t)=>s+(parseInt(t.qty)||0),0);
+  const plTotal   = transit.filter(t=>t.type==='3pl').reduce((s,t)=>s+(parseInt(t.qty)||0),0);
+  const setK = (id,v) => { const el=gEl(id); if(el) el.textContent=v; };
+  setK('inv-k-fbt',  totalFbt.toLocaleString());
+  setK('inv-k-crit', critCount + ' SKU');
+  setK('inv-k-air',  airTotal.toLocaleString());
+  setK('inv-k-3pl',  plTotal.toLocaleString());
+
+  // Main table
+  const tbody = gEl('inv-tbody');
+  if (tbody) tbody.innerHTML = INV_SKUS.map(sk => {
+    const d = fbt[sk.id] || {fbt:0,d1:0,d7:0,d30:0,event:0,price:sk.price};
+    const {daysFbt, daysAll, rate} = invForecast(fbt, transit, sk.id);
+    const rev = ((d.fbt||0) * (d.price||sk.price)).toFixed(0);
+    const statusCls = !isFinite(daysFbt) || (d.fbt||0)===0 ? '#6B728066' :
+                      daysFbt<=14  ? PINK+'44' :
+                      daysFbt<=30  ? YELLOW+'44' : GREEN+'44';
+    const statusTxt = !isFinite(daysFbt)||(d.fbt||0)===0 ? (d.fbt===0?'품절':'판매없음') :
+                      daysFbt<=14 ? '⚠️ 긴급' : daysFbt<=30 ? '🔶 주의' : '✅ 정상';
+    const statusColor = daysFbt<=14&&(d.fbt||0)>0?PINK:daysFbt<=30&&(d.fbt||0)>0?YELLOW:GREEN;
+    const inp = (field, val, w) =>
+      `<input type="number" min="0" value="${val||0}" style="width:${w||52}px;text-align:center;padding:3px 4px;font-size:12px;background:var(--bg);border:1px solid var(--border);border-radius:4px;color:var(--fg)" onchange="invFieldChange('${sk.id}','${field}',this.value)">`;
+    return `<tr>
+      <td class="fw7" style="white-space:nowrap">${sk.name}</td>
+      <td style="text-align:center">${inp('fbt',d.fbt,65)}</td>
+      <td style="text-align:center">${inp('d1',d.d1)}</td>
+      <td style="text-align:center">${inp('d7',d.d7)}</td>
+      <td style="text-align:center">${inp('d30',d.d30)}</td>
+      <td style="text-align:center">${inp('event',d.event)}</td>
+      <td style="text-align:center">${inp('price',d.price||sk.price,55)}</td>
+      <td style="text-align:center;font-size:12px;background:#FE2C5508">${isFinite(daysFbt)&&daysFbt<=365?'<b>'+daysFbt+'일</b><br><span style="font-size:10px;color:var(--muted)">'+invSelloutDate(daysFbt)+'</span>':'365일+'}</td>
+      <td style="text-align:center;font-size:12px;background:#25F4EE08">${isFinite(daysAll)&&daysAll<=365?'<b>'+daysAll+'일</b><br><span style="font-size:10px;color:var(--muted)">'+invSelloutDate(daysAll)+'</span>':'365일+'}</td>
+      <td style="text-align:center;font-size:12px">$${parseInt(rev).toLocaleString()}</td>
+      <td style="text-align:center"><span class="b" style="background:${statusCls};color:${statusColor};font-size:11px">${statusTxt}</span></td>
+    </tr>`;
   }).join('');
 
-  mkChart('c-inv-bar','bar',{
-    labels:INVENTORY.map(i=>i.sku),
-    datasets:[{label:'Units in FBT',data:INVENTORY.map(i=>i.stock),
-      backgroundColor:INVENTORY.map(i=>i.alert==='ok'?GREEN+'BB':i.alert==='warn'?YELLOW+'BB':PINK+'BB'),
-      borderRadius:6,borderWidth:0}]
-  },{plugins:{legend:{display:false}},
-     scales:{x:{grid:{display:false}},y:{grid:{color:'#F0F0F0'},ticks:{callback:v=>v.toLocaleString()}}}});
+  // Charts
+  const labels = INV_SKUS.map(sk => sk.name.replace(' & ',' &\n').replace(' Repair',''));
+  const fbtVals = INV_SKUS.map(sk => fbt[sk.id]?.fbt||0);
+  const daysFbtArr = INV_SKUS.map(sk => { const {daysFbt} = invForecast(fbt,transit,sk.id); return isFinite(daysFbt)?daysFbt:0; });
+  const daysAllArr = INV_SKUS.map(sk => { const {daysAll} = invForecast(fbt,transit,sk.id); return isFinite(daysAll)?daysAll:0; });
 
-  mkChart('c-inv-days','bar',{
-    labels:INVENTORY.map(i=>i.sku),
-    datasets:[{label:'Days to Sellout',data:INVENTORY.map(i=>i.days),
-      backgroundColor:INVENTORY.map(i=>i.days>100?CYAN+'BB':i.days>30?YELLOW+'BB':PINK+'BB'),
-      borderRadius:6,borderWidth:0}]
-  },{plugins:{legend:{display:false}},
-     scales:{x:{grid:{display:false}},y:{grid:{color:'#F0F0F0'},ticks:{callback:v=>v+'d'}}}});
+  mkChart('c-inv-fbt','bar',{labels,datasets:[{
+    label:'FBT 재고',data:fbtVals,
+    backgroundColor:fbtVals.map(v=>v===0?'#6B728044':v<200?PINK+'BB':v<1000?YELLOW+'BB':CYAN+'BB'),
+    borderRadius:5,borderWidth:0}]
+  },{plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{font:{size:9}}},y:{grid:{color:'#F0F0F008'},ticks:{callback:v=>v.toLocaleString()}}}});
+
+  mkChart('c-inv-days2','bar',{labels,datasets:[
+    {label:'FBT만',data:daysFbtArr,backgroundColor:daysFbtArr.map(v=>v===0?'#6B728022':v<=14?PINK+'BB':v<=30?YELLOW+'BB':CYAN+'44'),borderRadius:5,borderWidth:0},
+    {label:'전체(운송포함)',data:daysAllArr,backgroundColor:daysAllArr.map(v=>v===0?'#6B728022':v<=14?PINK+'44':v<=30?YELLOW+'44':GREEN+'44'),borderRadius:5,borderWidth:0}
+  ]},{plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{font:{size:9}}},y:{grid:{color:'#F0F0F008'},ticks:{callback:v=>v+'일'}}}});
+
+  // 90일 예측 차트 (재고 있는 SKU만)
+  const activeSKUs = INV_SKUS.filter(sk => (fbt[sk.id]?.fbt||0)>0 || transit.some(t=>t.sku===sk.id));
+  const colors = [PINK,CYAN,YELLOW,GREEN,PURPLE,'#F97316','#06B6D4','#8B5CF6','#EC4899'];
+  const forecastDays = 90;
+  const forecastDatasets = activeSKUs.map((sk,i) => {
+    const d = fbt[sk.id]||{};
+    const rate = invRate(d);
+    const inc = transit.filter(t=>t.sku===sk.id);
+    const data = [];
+    let stock = d.fbt||0;
+    for (let day=0; day<=forecastDays; day++) {
+      inc.forEach(t=>{ if(parseInt(t.days)===day) stock+=parseInt(t.qty)||0; });
+      data.push(Math.max(0, Math.round(stock)));
+      stock -= rate;
+    }
+    return {label:sk.name,data,borderColor:colors[i%colors.length],backgroundColor:'transparent',borderWidth:2,pointRadius:0,tension:0.3};
+  });
+  mkChart('c-inv-forecast','line',{
+    labels: Array.from({length:forecastDays+1},(_,i)=>i===0?'오늘':i%15===0?i+'일':''),
+    datasets: forecastDatasets
+  },{plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10,padding:8}}},
+     scales:{x:{grid:{color:'#F0F0F008'},ticks:{font:{size:9}}},y:{grid:{color:'#F0F0F008'},ticks:{callback:v=>v.toLocaleString()}}}});
+
+  invRenderTransit(transit);
+}
+
+function invFieldChange(skuId, field, val) {
+  const fbt = invGetFbt();
+  if (!fbt[skuId]) fbt[skuId] = {...(INV_DEFAULT_FBT[skuId]||{})};
+  fbt[skuId][field] = parseFloat(val)||0;
+  localStorage.setItem('inv_fbt', JSON.stringify(fbt));
+  // 저장 버튼 없이 즉시 KPI/차트 갱신
+  setTimeout(() => renderInventory(), 10);
+}
+
+function invSaveAll() {
+  renderInventory();
+  const badge = document.createElement('div');
+  badge.textContent = '✅ 저장됨';
+  badge.style.cssText = 'position:fixed;bottom:24px;right:24px;background:#22C55E;color:#fff;padding:8px 18px;border-radius:8px;font-size:13px;font-weight:700;z-index:9999;animation:fadeIn .2s';
+  document.body.appendChild(badge);
+  setTimeout(() => badge.remove(), 2000);
+}
+
+function invReset() {
+  if (!confirm('재고 데이터를 초기값으로 되돌릴까요?')) return;
+  localStorage.removeItem('inv_fbt');
+  localStorage.removeItem('inv_transit');
+  renderInventory();
+}
+
+function invRenderTransit(transit) {
+  const airList = transit.filter(t=>t.type==='air');
+  const plList  = transit.filter(t=>t.type==='3pl');
+  const skuName = id => INV_SKUS.find(s=>s.id===id)?.name || id;
+  const row = (t) => `<tr>
+    <td class="fw7" style="font-size:12px">${skuName(t.sku)}</td>
+    <td style="text-align:center">${(parseInt(t.qty)||0).toLocaleString()}</td>
+    <td style="text-align:center"><span class="b" style="background:${t.days<=7?PINK+'22':YELLOW+'22'};color:${t.days<=7?PINK:YELLOW}">${t.days}일</span></td>
+    <td style="font-size:11px;color:var(--muted)">${t.note||'-'}</td>
+    <td><button class="btn-sec" style="font-size:10px;padding:2px 6px;color:#FE2C55;border-color:#FE2C5530" onclick="invDelTransit('${t.id}')">삭제</button></td>
+  </tr>`;
+  const airTbody = gEl('inv-air-tbody'); if(airTbody) airTbody.innerHTML = airList.map(row).join('');
+  const plTbody  = gEl('inv-3pl-tbody'); if(plTbody)  plTbody.innerHTML  = plList.map(row).join('');
+  const airEmpty = gEl('inv-air-empty'); if(airEmpty) airEmpty.style.display = airList.length?'none':'block';
+  const plEmpty  = gEl('inv-3pl-empty'); if(plEmpty)  plEmpty.style.display  = plList.length?'none':'block';
+}
+
+function invAddTransit(type) {
+  gEl('inv-tr-id').value = '';
+  gEl('inv-tr-type').value = type;
+  gEl('inv-transit-modal-title').textContent = type==='air'?'✈️ 항공 운송 추가':'🏭 3PL 재고 추가';
+  gEl('inv-tr-days-lbl').textContent = type==='air'?'FBT 도착까지 (일)':'FBT 전송까지 (일)';
+  gEl('inv-tr-qty').value = '';
+  gEl('inv-tr-days').value = '';
+  gEl('inv-tr-note').value = '';
+  openModal('inv-transit-modal');
+}
+
+function invSaveTransit() {
+  const qty  = parseInt(gEl('inv-tr-qty').value)||0;
+  const days = parseInt(gEl('inv-tr-days').value)||0;
+  const sku  = gEl('inv-tr-sku').value;
+  if (!qty||!days) { alert('수량과 도착 일수를 입력해주세요.'); return; }
+  const transit = invGetTransit();
+  const id = gEl('inv-tr-id').value || 'tr'+Date.now();
+  const entry = {id, type:gEl('inv-tr-type').value, sku, qty, days, note:gEl('inv-tr-note').value, added:new Date().toISOString().slice(0,10)};
+  const idx = transit.findIndex(t=>t.id===id);
+  if (idx>=0) transit[idx]=entry; else transit.push(entry);
+  localStorage.setItem('inv_transit', JSON.stringify(transit));
+  closeModal('inv-transit-modal');
+  renderInventory();
+}
+
+function invDelTransit(id) {
+  const transit = invGetTransit().filter(t=>t.id!==id);
+  localStorage.setItem('inv_transit', JSON.stringify(transit));
+  renderInventory();
 }
 
 /* ── AFFILIATES ─────────────────────────────── */
