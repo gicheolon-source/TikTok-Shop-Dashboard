@@ -1200,6 +1200,59 @@ textarea.form-input{resize:vertical}
       </div>
     </div>
 
+    <!-- Affiliate Video Detail Modal -->
+    <div class="modal-overlay hidden" id="av-detail-modal" onclick="if(event.target===this)closeModal('av-detail-modal')">
+      <div class="modal-box" style="width:680px;max-width:95vw;max-height:88vh;overflow-y:auto">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;gap:12px">
+          <div>
+            <div class="modal-title" id="avd-creator" style="margin-bottom:4px">—</div>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+              <span id="avd-product" style="font-size:12px;font-weight:600;color:var(--pink)">—</span>
+              <span id="avd-date" style="font-size:12px;color:var(--muted)">—</span>
+              <a id="avd-url" href="#" target="_blank" style="font-size:12px;color:var(--cyan)">&#127760; TikTok 보기</a>
+            </div>
+          </div>
+          <button onclick="closeModal('av-detail-modal')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px;flex-shrink:0">✕</button>
+        </div>
+        <!-- Stats row -->
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px">
+          <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center">
+            <div style="font-size:11px;color:var(--muted)">매출</div>
+            <div id="avd-rev" style="font-size:16px;font-weight:700;color:var(--green)">—</div>
+          </div>
+          <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center">
+            <div style="font-size:11px;color:var(--muted)">판매수량</div>
+            <div id="avd-sold" style="font-size:16px;font-weight:700">—</div>
+          </div>
+          <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center">
+            <div style="font-size:11px;color:var(--muted)">조회수</div>
+            <div id="avd-views" style="font-size:16px;font-weight:700">—</div>
+          </div>
+          <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center">
+            <div style="font-size:11px;color:var(--muted)">좋아요</div>
+            <div id="avd-likes" style="font-size:16px;font-weight:700">—</div>
+          </div>
+        </div>
+        <!-- Content sections -->
+        <div id="avd-hooks-wrap" style="margin-bottom:12px">
+          <div style="font-size:12px;font-weight:700;color:var(--cyan);margin-bottom:6px;display:flex;align-items:center;gap:6px">🪝 Hooks</div>
+          <div id="avd-hooks" style="font-size:13px;color:var(--text);background:var(--card-bg);border:1px solid var(--border);border-radius:8px;padding:12px;line-height:1.6;white-space:pre-wrap"></div>
+        </div>
+        <div id="avd-sp-wrap" style="margin-bottom:12px">
+          <div style="font-size:12px;font-weight:700;color:var(--purple);margin-bottom:6px">💡 Selling Points</div>
+          <div id="avd-sp" style="font-size:13px;color:var(--text);background:var(--card-bg);border:1px solid var(--border);border-radius:8px;padding:12px;line-height:1.6;white-space:pre-wrap"></div>
+        </div>
+        <div id="avd-ki-wrap" style="margin-bottom:12px">
+          <div style="font-size:12px;font-weight:700;color:var(--yellow);margin-bottom:6px">🎯 Key Idea</div>
+          <div id="avd-ki" style="font-size:13px;color:var(--text);background:var(--card-bg);border:1px solid var(--border);border-radius:8px;padding:12px;line-height:1.6;white-space:pre-wrap"></div>
+        </div>
+        <div id="avd-tr-wrap">
+          <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:6px">📝 Transcript</div>
+          <div id="avd-tr" style="font-size:12px;color:var(--muted);background:var(--card-bg);border:1px solid var(--border);border-radius:8px;padding:12px;line-height:1.7;max-height:260px;overflow-y:auto;white-space:pre-wrap"></div>
+        </div>
+      </div>
+    </div>
+
     <!-- ═══ 9. CREATOR CRM ═══════════════════════ -->
     <div id="sec-crm" class="page-section">
       <div class="sec-head">
@@ -6105,7 +6158,8 @@ document.addEventListener('DOMContentLoaded', () => {
 /* ═══════════════════════════════════════════════════════
    AFFILIATE VIDEOS
 ═══════════════════════════════════════════════════════ */
-let avRaw = [];   // [{url,creator,rev,sold,gmv30,date,views,likes,comments,product,pid}]
+let avRaw = [];
+let avDetailData = [];
 let avPage = 1;
 const AV_PER_PAGE = 30;
 
@@ -6168,8 +6222,13 @@ function avHandleCsv(input) {
         views:    parseInt(r[6]) || 0,
         likes:    parseInt(r[7]) || 0,
         comments: parseInt(r[8]) || 0,
+        desc:     (r[9]||'').trim(),
         product:  avShortProduct(r[10]||''),
         pid:      (r[11]||'').trim(),
+        hooks:    (r[14]||'').trim(),
+        sp:       (r[15]||'').trim(),
+        ki:       (r[16]||'').trim(),
+        transcript:(r[17]||'').trim(),
       })).filter(r => r.creator);
       avRaw = data;
       // Save slim version to localStorage
@@ -6360,11 +6419,14 @@ function avRender() {
   };
   const fmtK = v => v>=1e6?(v/1e6).toFixed(1)+'M':v>=1e3?(v/1e3).toFixed(0)+'K':v.toLocaleString();
 
+  // Build index map for detail lookup (filtered+sorted order, offset by page)
+  avDetailData = data; // store sorted filtered data for detail modal
   const tbody = document.getElementById('av-tbody');
-  tbody.innerHTML = slice.map(r => `
-    <tr>
+  const pageOffset = (avPage-1)*AV_PER_PAGE;
+  tbody.innerHTML = slice.map((r, i) => `
+    <tr style="cursor:pointer" onclick="avShowDetail(${pageOffset + i})">
       <td style="text-align:left">
-        ${r.url ? `<a href="${esc(r.url)}" target="_blank" style="color:var(--pink);text-decoration:none;font-weight:600">@${esc(r.creator)}</a>` : `<span style="font-weight:600">@${esc(r.creator)}</span>`}
+        <span style="color:var(--pink);font-weight:600">@${esc(r.creator)}</span>
       </td>
       <td style="text-align:left"><span style="color:${prodColors[r.product]||'#9CA3AF'};font-size:12px;font-weight:600">${esc(r.product)}</span></td>
       <td style="color:var(--green);font-weight:700">$${r.rev.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
@@ -6372,7 +6434,12 @@ function avRender() {
       <td>${fmtK(r.views)}</td>
       <td>${fmtK(r.likes)}</td>
       <td style="color:var(--muted)">${r.date||'—'}</td>
-      <td>${r.url?`<a href="${esc(r.url)}" target="_blank" class="btn-ghost" style="font-size:11px;padding:3px 8px">&#127760;</a>`:''}</td>
+      <td onclick="event.stopPropagation()">
+        <div style="display:flex;gap:4px">
+          <button class="btn-ghost" style="font-size:11px;padding:3px 8px" onclick="avShowDetail(${pageOffset + i})">상세</button>
+          ${r.url?`<a href="${esc(r.url)}" target="_blank" class="btn-ghost" style="font-size:11px;padding:3px 8px">&#127760;</a>`:''}
+        </div>
+      </td>
     </tr>`).join('') || '<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:20px">데이터 없음</td></tr>';
 
   // Pagination
@@ -6390,6 +6457,33 @@ function avRender() {
 }
 
 function avGoPage(p) { avPage=p; avRender(); }
+
+function avShowDetail(idx) {
+  const r = avDetailData[idx];
+  if (!r) return;
+  const fmtK = v => v>=1e6?(v/1e6).toFixed(1)+'M':v>=1e3?(v/1e3).toFixed(0)+'K':v.toLocaleString();
+  const g = id => document.getElementById(id);
+  g('avd-creator').textContent = '@' + r.creator;
+  g('avd-product').textContent = r.product;
+  g('avd-date').textContent = r.date || '—';
+  const urlEl = g('avd-url');
+  if (r.url) { urlEl.href = r.url; urlEl.style.display=''; } else { urlEl.style.display='none'; }
+  g('avd-rev').textContent  = '$' + r.rev.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2});
+  g('avd-sold').textContent = r.sold.toLocaleString();
+  g('avd-views').textContent = fmtK(r.views);
+  g('avd-likes').textContent = fmtK(r.likes);
+  // Hooks
+  const showSection = (wrapId, contentId, val) => {
+    const wrap = g(wrapId);
+    if (val) { g(contentId).textContent = val; wrap.style.display = ''; }
+    else { wrap.style.display = 'none'; }
+  };
+  showSection('avd-hooks-wrap', 'avd-hooks', r.hooks);
+  showSection('avd-sp-wrap',    'avd-sp',    r.sp);
+  showSection('avd-ki-wrap',    'avd-ki',    r.ki);
+  showSection('avd-tr-wrap',    'avd-tr',    r.transcript);
+  openModal('av-detail-modal');
+}
 
 function avExport() {
   if (!avRaw.length) { alert('데이터가 없습니다. CSV를 먼저 업로드하세요.'); return; }
