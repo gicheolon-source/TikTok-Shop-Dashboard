@@ -1402,49 +1402,85 @@ textarea.form-input{resize:vertical}
     <!-- ═══ 12. 바이럴 영상 ══════════════════════ -->
     <div id="sec-viral" class="page-section">
       <div class="sec-head">
-        <div><div class="sec-title">바이럴 영상 트래커</div><div class="sec-sub">조회수 급상승 영상 및 GMV 스파이크 기록</div></div>
-        <button class="btn-primary" onclick="openModal('viral-modal')">+ 영상 추가</button>
+        <div>
+          <div class="sec-title">바이럴 영상 트래커</div>
+          <div class="sec-sub" id="viral-sub">Google Sheets 연동 · 닥터리쥬올 바이럴 + #kbeauty 100만+</div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <span id="viral-fetch-status" style="font-size:11px;color:var(--muted)"></span>
+          <button class="btn-ghost" style="font-size:12px" onclick="viralFetch()" id="viral-fetch-btn">🔄 시트에서 불러오기</button>
+          <button class="btn-ghost" onclick="viralExportCSV()">&#11015; CSV</button>
+        </div>
       </div>
-      <div class="kpi-grid">
-        <div class="kpi"><div class="kpi-bar" style="background:var(--pink)"></div><div class="kpi-lbl">바이럴 영상</div><div class="kpi-val" id="viral-kpi-total">0</div><div class="kpi-sub neu">개</div></div>
-        <div class="kpi"><div class="kpi-bar" style="background:var(--cyan)"></div><div class="kpi-lbl">총 조회수</div><div class="kpi-val" id="viral-kpi-views">0</div><div class="kpi-sub neu">누적</div></div>
-        <div class="kpi"><div class="kpi-bar" style="background:var(--green)"></div><div class="kpi-lbl">바이럴 GMV</div><div class="kpi-val" id="viral-kpi-gmv">$0</div><div class="kpi-sub up">스파이크 기여</div></div>
-        <div class="kpi"><div class="kpi-bar" style="background:var(--purple)"></div><div class="kpi-lbl">1K 조회당 GMV</div><div class="kpi-val" id="viral-kpi-cpm">$0</div><div class="kpi-sub neu">평균</div></div>
+
+      <!-- Source Tabs -->
+      <div class="crm-tabs" id="viral-tabs" style="margin-bottom:16px">
+        <button class="crm-tab active" onclick="viralTab('kbeauty',this)">#kbeauty 100만+ <span id="viral-tab-cnt-kbeauty" style="opacity:.6;font-size:10px"></span></button>
+        <button class="crm-tab" onclick="viralTab('rejuall',this)">닥터리쥬올 바이럴 <span id="viral-tab-cnt-rejuall" style="opacity:.6;font-size:10px"></span></button>
       </div>
+
+      <!-- KPIs -->
+      <div class="kpi-grid" id="viral-kpi-grid">
+        <div class="kpi"><div class="kpi-bar" style="background:var(--pink)"></div><div class="kpi-lbl">총 영상 / 크리에이터</div><div class="kpi-val" id="viral-kpi-total">—</div><div class="kpi-sub neu" id="viral-kpi-total-sub">시트에서 불러오기</div></div>
+        <div class="kpi"><div class="kpi-bar" style="background:var(--cyan)"></div><div class="kpi-lbl">총 조회수</div><div class="kpi-val" id="viral-kpi-views">—</div><div class="kpi-sub neu"></div></div>
+        <div class="kpi"><div class="kpi-bar" style="background:var(--green)"></div><div class="kpi-lbl">평균 참여율</div><div class="kpi-val" id="viral-kpi-eng">—</div><div class="kpi-sub neu">#kbeauty 100만+ 기준</div></div>
+        <div class="kpi"><div class="kpi-bar" style="background:var(--yellow)"></div><div class="kpi-lbl">전환 확인 영상</div><div class="kpi-val" id="viral-kpi-conv">—</div><div class="kpi-sub neu">확실한 전환 O</div></div>
+        <div class="kpi"><div class="kpi-bar" style="background:var(--purple)"></div><div class="kpi-lbl">브랜드 광고</div><div class="kpi-val" id="viral-kpi-ad">—</div><div class="kpi-sub neu">스폰서 영상</div></div>
+      </div>
+
+      <!-- Charts -->
+      <div class="g2" id="viral-charts-kbeauty">
+        <div class="card">
+          <div class="card-title">Top 15 크리에이터 (조회수)</div>
+          <div class="ch ch-280"><canvas id="c-viral-creators"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-title">브랜드 분포</div>
+          <div class="ch ch-200"><canvas id="c-viral-brands"></canvas></div>
+        </div>
+      </div>
+      <div class="card full" id="viral-trend-card">
+        <div class="card-title">월별 바이럴 업로드 추이</div>
+        <div class="ch ch-180"><canvas id="c-viral-trend"></canvas></div>
+      </div>
+
+      <!-- Filters + Table -->
       <div class="card full">
-        <div class="tbl-toolbar">
-          <div><div class="card-title">바이럴 영상 기록</div></div>
-          <div style="display:flex;gap:8px">
-            <input class="tbl-search" id="viral-search" placeholder="검색..." oninput="viralRender()">
-            <button class="export-btn" onclick="viralExport()">&#11015; CSV</button>
+        <div class="tbl-toolbar" style="flex-wrap:wrap;gap:8px">
+          <div><div class="card-title" id="viral-tbl-title">영상 목록</div><div class="card-sub" id="viral-tbl-info">—</div></div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <input class="tbl-search" id="viral-search" placeholder="크리에이터 검색..." oninput="viralPage=1;viralRenderTable()" style="width:160px">
+            <select class="tbl-search" id="viral-filter-conv" onchange="viralPage=1;viralRenderTable()" style="width:120px">
+              <option value="">전환 전체</option>
+              <option value="O">전환 확인 O</option>
+              <option value="X">전환 없음 X</option>
+            </select>
+            <select class="tbl-search" id="viral-filter-ad" onchange="viralPage=1;viralRenderTable()" style="width:130px">
+              <option value="">광고 전체</option>
+              <option value="O">브랜드 광고 O</option>
+              <option value="X">광고 아님 X</option>
+            </select>
+            <select class="tbl-search" id="viral-filter-brand" onchange="viralPage=1;viralRenderTable()" style="width:130px">
+              <option value="">전체 브랜드</option>
+            </select>
+            <select class="tbl-search" id="viral-sort" onchange="viralPage=1;viralRenderTable()" style="width:120px">
+              <option value="views">조회수순</option>
+              <option value="eng">참여율순</option>
+              <option value="date">최신순</option>
+              <option value="likes">좋아요순</option>
+            </select>
           </div>
         </div>
-        <div class="tbl-wrap"><table>
-          <thead><tr><th>#</th><th>Creator</th><th>날짜</th><th>조회수</th><th>좋아요</th><th>제품</th><th>GMV 스파이크</th><th>Video ID</th><th>Notes</th><th></th></tr></thead>
-          <tbody id="viral-tbody"></tbody>
-        </table></div>
-        <div id="viral-empty" style="text-align:center;padding:40px;color:var(--muted);font-size:13px">바이럴 영상 기록을 추가하세요</div>
+        <div class="tbl-wrap" style="margin-top:10px">
+          <table id="viral-table">
+            <thead id="viral-thead"></thead>
+            <tbody id="viral-tbody"></tbody>
+          </table>
+        </div>
+        <div id="viral-pagination" style="display:flex;gap:6px;justify-content:center;margin-top:12px;flex-wrap:wrap"></div>
+        <div id="viral-empty" style="text-align:center;padding:40px;color:var(--muted);font-size:13px;display:none">🔄 시트에서 불러오기를 눌러주세요</div>
       </div>
     </div>
-    <div class="modal-overlay hidden" id="viral-modal"><div class="modal-box">
-      <div class="modal-title">바이럴 영상 추가</div>
-      <input type="hidden" id="viral-edit-id">
-      <div class="form-row2">
-        <div><label>Creator *</label><input class="form-input" id="viral-f-creator" placeholder="@username"></div>
-        <div><label>날짜</label><input class="form-input" id="viral-f-date" type="date"></div>
-      </div>
-      <div class="form-row2">
-        <div><label>조회수</label><input class="form-input" id="viral-f-views" type="number" placeholder="100000"></div>
-        <div><label>좋아요</label><input class="form-input" id="viral-f-likes" type="number" placeholder="5000"></div>
-      </div>
-      <div class="form-row2">
-        <div><label>제품</label><select class="form-input" id="viral-f-product"><option>PDRN Cream 20ml</option><option>PDRN Cream 60ml</option><option>PDRN Lip Serum</option><option>Ceramide Cream</option><option>Retino-mela Serum</option><option>PDRN Mask</option></select></div>
-        <div><label>GMV 스파이크 ($)</label><input class="form-input" id="viral-f-gmv" type="number" placeholder="0.00" step="0.01"></div>
-      </div>
-      <div class="form-row"><label>Video ID / URL</label><input class="form-input" id="viral-f-vid" placeholder="TikTok video ID or URL"></div>
-      <div class="form-row"><label>Notes</label><textarea class="form-input" id="viral-f-notes" rows="2" placeholder="메모..."></textarea></div>
-      <div class="modal-actions"><button class="btn-ghost" onclick="closeModal('viral-modal')">취소</button><button class="btn-primary" onclick="viralSave()">저장</button></div>
-    </div></div>
 
     <!-- ═══ 크리에이터 발굴 ══════════════════════ -->
     <div id="sec-findcreator" class="page-section">
@@ -2053,6 +2089,7 @@ textarea.form-input{resize:vertical}
           <span id="rd-storage-badge" style="font-size:11px;padding:2px 8px;border-radius:10px;background:var(--bg);border:1px solid var(--border)">💾 확인 중...</span>
           <button class="btn-ghost" onclick="rdClear()" id="rd-clear-btn" style="display:none">초기화</button>
           <button class="btn-ghost" style="font-size:12px" onclick="rdToggleApiKey()">⚙️ API Key</button>
+          <button class="btn-ghost" style="font-size:12px" onclick="rdToggleSyncPanel()">📤 시트로 내보내기</button>
           <button class="btn-primary" id="rd-fetch-btn" onclick="rdFetchFromSheet()">🔄 시트에서 불러오기</button>
           <label class="btn-ghost" style="cursor:pointer;margin:0;font-size:13px">
             📂 CSV 업로드
@@ -2067,6 +2104,45 @@ textarea.form-input{resize:vertical}
         <input type="password" id="rd-apikey-input" class="form-input" placeholder="AIzaSy..." style="flex:1;min-width:220px;padding:6px 10px;font-size:12px">
         <button class="btn-primary" style="font-size:12px;padding:6px 14px;white-space:nowrap" onclick="rdSaveApiKey()">저장</button>
         <span style="font-size:11px;color:var(--muted)">console.cloud.google.com → APIs &amp; Services → Credentials → Create API Key</span>
+      </div>
+
+      <!-- Apps Script Sync Panel -->
+      <div id="rd-sync-panel" style="display:none;background:var(--card);border-radius:10px;padding:16px;margin-bottom:16px;border:1px solid var(--border)">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap">
+          <span style="font-size:13px;font-weight:700">📤 Google Sheets 내보내기</span>
+          <span style="font-size:11px;color:var(--muted)">Apps Script Web App URL을 등록하면 대시보드 데이터를 구글 시트로 전송합니다</span>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px">
+          <input type="text" id="rd-sync-url-input" class="form-input" placeholder="https://script.google.com/macros/s/..." style="flex:1;min-width:280px;padding:6px 10px;font-size:12px">
+          <button class="btn-primary" style="font-size:12px;padding:6px 14px;white-space:nowrap" onclick="rdSaveSyncUrl()">URL 저장</button>
+          <button class="btn-ghost" style="font-size:12px;padding:6px 14px;white-space:nowrap" onclick="rdSyncToSheet()">📤 지금 동기화</button>
+          <label style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--muted);cursor:pointer;white-space:nowrap">
+            <input type="checkbox" id="rd-auto-sync-chk" onchange="localStorage.setItem('rd_auto_sync',this.checked?'on':'off')">
+            CSV 업로드 시 자동 동기화
+          </label>
+          <span id="rd-sync-status" style="font-size:12px;color:var(--muted)"></span>
+        </div>
+        <!-- Setup Guide -->
+        <div style="border-top:1px solid var(--border);padding-top:12px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <span style="font-size:12px;font-weight:600;color:var(--muted)">📋 Apps Script 설정 방법</span>
+            <button class="btn-ghost" style="font-size:11px;padding:2px 8px" onclick="rdToggleGuide()">코드 보기 ▾</button>
+          </div>
+          <ol id="rd-sync-guide-steps" style="font-size:12px;color:var(--muted);line-height:2;padding-left:20px">
+            <li>구글 시트 열기 → 상단 메뉴 <strong>확장 프로그램 → Apps Script</strong></li>
+            <li>아래 코드를 붙여넣기 후 <strong>저장(Ctrl+S)</strong></li>
+            <li>상단 <strong>배포 → 새 배포</strong> → 유형: 웹 앱 → 액세스: <strong>"모든 사용자"</strong> → 배포</li>
+            <li>생성된 <strong>웹 앱 URL</strong>을 위 입력창에 붙여넣기 → URL 저장</li>
+            <li><strong>📤 지금 동기화</strong> 버튼 클릭 → 구글 시트 <code>매출집계</code> 탭에 데이터 기록</li>
+          </ol>
+          <div id="rd-sync-code-wrap" style="display:none;margin-top:10px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+              <span style="font-size:11px;color:var(--muted)">아래 코드를 Apps Script 편집기에 전체 붙여넣기</span>
+              <button class="btn-ghost" style="font-size:11px;padding:2px 8px" onclick="rdCopyScript()">📋 복사</button>
+            </div>
+            <pre id="rd-apps-script-code" style="background:#0d1117;border:1px solid var(--border);border-radius:8px;padding:14px;font-size:11px;color:#e6edf3;overflow-x:auto;white-space:pre;line-height:1.6;max-height:320px;overflow-y:auto"></pre>
+          </div>
+        </div>
       </div>
 
       <!-- 업로드 안내 -->
@@ -3704,6 +3780,10 @@ function rdSave() {
     localStorage.setItem('rd_free', JSON.stringify(Object.values(freeAggMap)));
     localStorage.setItem('rd_ids', allIds.join(','));
     rdUpdateBadge();
+    // 자동 구글 시트 동기화 (URL 설정 시)
+    if (localStorage.getItem('rd_sync_url') && localStorage.getItem('rd_auto_sync') === 'on') {
+      rdSyncToSheet();
+    }
   } catch(e) {
     console.warn('자동저장 실패:', e.message);
     const badge = document.getElementById('rd-storage-badge');
@@ -3746,6 +3826,114 @@ function rdSaveApiKey() {
   localStorage.setItem('rd_api_key', key);
   gEl('rd-apikey-panel').style.display = 'none';
   alert('✅ API Key가 저장됐어요! 이제 시트에서 불러오기를 눌러주세요.');
+}
+
+const RD_APPS_SCRIPT_CODE = `function doPost(e) {
+  try {
+    const data = JSON.parse(e.postData.contents);
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    let sheet = ss.getSheetByName('매출집계');
+    if (!sheet) sheet = ss.insertSheet('매출집계');
+
+    if (data.action === 'sync') {
+      sheet.clearContents();
+      sheet.appendRow(['날짜', 'SKU', '매출($)', '수량', '주문수', '업데이트시각']);
+      const now = Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy-MM-dd HH:mm:ss');
+      data.rows.forEach(function(r) {
+        sheet.appendRow([r.date, r.sku, r.rev, r.qty, r.cnt, now]);
+      });
+    }
+
+    return ContentService
+      .createTextOutput(JSON.stringify({ ok: true, count: data.rows ? data.rows.length : 0 }))
+      .setMimeType(ContentService.MimeType.JSON);
+  } catch(err) {
+    return ContentService
+      .createTextOutput(JSON.stringify({ ok: false, error: err.message }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}`;
+
+function rdToggleSyncPanel() {
+  const p = gEl('rd-sync-panel');
+  const isHidden = p.style.display === 'none' || !p.style.display;
+  p.style.display = isHidden ? 'block' : 'none';
+  if (isHidden) {
+    const saved = localStorage.getItem('rd_sync_url');
+    if (saved) gEl('rd-sync-url-input').value = saved;
+    const autoChk = gEl('rd-auto-sync-chk');
+    if (autoChk) autoChk.checked = localStorage.getItem('rd_auto_sync') === 'on';
+    gEl('rd-apps-script-code').textContent = RD_APPS_SCRIPT_CODE;
+  }
+}
+
+function rdToggleGuide() {
+  const wrap = gEl('rd-sync-code-wrap');
+  const isHidden = wrap.style.display === 'none' || !wrap.style.display;
+  wrap.style.display = isHidden ? 'block' : 'none';
+  gEl('rd-apps-script-code').textContent = RD_APPS_SCRIPT_CODE;
+}
+
+function rdCopyScript() {
+  navigator.clipboard.writeText(RD_APPS_SCRIPT_CODE).then(() => {
+    const btn = event.target;
+    btn.textContent = '✅ 복사됨';
+    setTimeout(() => btn.textContent = '📋 복사', 2000);
+  }).catch(() => {
+    // Fallback
+    const ta = document.createElement('textarea');
+    ta.value = RD_APPS_SCRIPT_CODE;
+    document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+  });
+}
+
+function rdSaveSyncUrl() {
+  const url = gEl('rd-sync-url-input').value.trim();
+  if (!url.startsWith('https://script.google.com/')) {
+    alert('올바른 Apps Script URL을 입력해주세요.\nhttps://script.google.com/macros/s/... 형태여야 합니다.');
+    return;
+  }
+  localStorage.setItem('rd_sync_url', url);
+  gEl('rd-sync-status').textContent = '✅ URL 저장됨';
+  setTimeout(() => gEl('rd-sync-status').textContent = '', 2500);
+}
+
+async function rdSyncToSheet() {
+  const url = localStorage.getItem('rd_sync_url') || gEl('rd-sync-url-input').value.trim();
+  if (!url) {
+    alert('Apps Script URL을 먼저 입력하고 저장해주세요.');
+    return;
+  }
+  if (!rdRaw || !rdRaw.length) {
+    alert('동기화할 데이터가 없습니다.\nCSV를 먼저 업로드하거나 시트에서 불러오세요.');
+    return;
+  }
+  const statusEl = gEl('rd-sync-status');
+  statusEl.textContent = '⏳ 전송 중...';
+  try {
+    // Build rows from rdRaw (already aggregated: {date, sku, rev, qty, cnt})
+    const rows = rdRaw.map(r => ({
+      date: r.date || '',
+      sku:  r.sku  || 'Other',
+      rev:  +(r.rev  || 0).toFixed(2),
+      qty:  r.qty  || 0,
+      cnt:  r.cnt  || 1,
+    }));
+    // Use text/plain to avoid CORS preflight
+    const res = await fetch(url, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'sync', rows }),
+      headers: { 'Content-Type': 'text/plain' },
+    });
+    const json = await res.json().catch(() => ({}));
+    if (json.ok === false) throw new Error(json.error || '알 수 없는 오류');
+    statusEl.textContent = `✅ ${(json.count||rows.length).toLocaleString()}행 동기화 완료`;
+    setTimeout(() => statusEl.textContent = '', 4000);
+  } catch(err) {
+    statusEl.textContent = '❌ 실패: ' + err.message;
+    console.error(err);
+  }
 }
 
 async function rdFetchFromSheet() {
@@ -4444,47 +4632,416 @@ function resellerExport(){
 }
 
 /* ── VIRAL VIDEO TRACKER ───────────────────────────────── */
-function renderViral(){
-  const d=lsGet('viral_records');
-  const views=d.reduce((s,x)=>s+(x.views||0),0);
-  const gmv=d.reduce((s,x)=>s+(x.gmv||0),0);
-  const cpm=views?+(gmv/(views/1000)).toFixed(2):0;
-  const vStr=views>=1000000?(views/1000000).toFixed(1)+'M':views>=1000?(views/1000).toFixed(1)+'K':String(views);
-  setTxt('viral-kpi-total',d.length); setTxt('viral-kpi-views',vStr);
-  setTxt('viral-kpi-gmv',fmtUSD(gmv)); setTxt('viral-kpi-cpm',fmtUSD(cpm));
-  viralRender();
+/* ══════════════════════════════════════════
+   바이럴 영상 트래커 — Google Sheets 연동
+══════════════════════════════════════════ */
+const VIRAL_SHEET_ID = '1Vr0AVzCrfKHGmUYlxVESC8Rw2J7rt_5qmPQnm8TMjns';
+const VIRAL_SHEET_KBEAUTY  = 'RawData_#kbeauty_100만이상';
+const VIRAL_SHEET_REJUALL  = 'RawData_바이럴+닥터리쥬올 store';
+
+let viralStore = { kbeauty: [], rejuall: [] };
+let viralActiveTab = 'kbeauty';
+let viralPage = 1;
+const VIRAL_PER_PAGE = 40;
+
+function viralFmtV(v) {
+  v = +v || 0;
+  return v >= 1e9 ? (v/1e9).toFixed(1)+'B'
+       : v >= 1e6 ? (v/1e6).toFixed(1)+'M'
+       : v >= 1e3 ? (v/1e3).toFixed(0)+'K'
+       : String(v);
 }
-function viralRender(){
-  let d=lsGet('viral_records').sort((a,b)=>(b.views||0)-(a.views||0));
-  const q=(gEl('viral-search')||{}).value||'';
-  if(q) d=d.filter(x=>(x.creator+x.product).toLowerCase().includes(q.toLowerCase()));
-  const tb=gEl('viral-tbody'),em=gEl('viral-empty');
-  if(!d.length){if(tb)tb.innerHTML='';if(em)em.style.display='block';return;}
-  if(em)em.style.display='none';
-  const fmtV=v=>v>=1000000?(v/1000000).toFixed(1)+'M':v>=1000?(v/1000).toFixed(1)+'K':String(v||0);
-  if(tb)tb.innerHTML=d.map((x,i)=>`<tr>
-    <td class="c-muted">${i+1}</td><td class="fw7">@${esc(x.creator)}</td>
-    <td class="c-muted">${x.date||'—'}</td><td class="fw7">${fmtV(x.views)}</td>
-    <td>${fmtV(x.likes)}</td><td>${esc(x.product)}</td>
-    <td class="fw7 c-pink">${fmtUSD(x.gmv)}</td>
-    <td><span style="font-size:10px;color:var(--muted)">${esc(x.vid||'—')}</span></td>
-    <td>${esc(x.notes||'—')}</td>
-    <td><button class="export-btn" style="padding:3px 8px;font-size:10px;color:var(--pink)" onclick="viralDel('${x.id}')">삭제</button></td>
-  </tr>`).join('');
+
+function renderViral() {
+  // Load cached data on section open
+  try {
+    const c = localStorage.getItem('viral_store');
+    if (c) viralStore = JSON.parse(c);
+  } catch(e) {}
+  viralRenderDash();
 }
-function viralSave(){
-  const id=gEl('viral-edit-id').value;
-  const e={id:id||Date.now().toString(),creator:(gEl('viral-f-creator').value||'').replace('@','').trim(),
-    date:gEl('viral-f-date').value,views:parseInt(gEl('viral-f-views').value)||0,
-    likes:parseInt(gEl('viral-f-likes').value)||0,product:gEl('viral-f-product').value,
-    gmv:parseFloat(gEl('viral-f-gmv').value)||0,vid:gEl('viral-f-vid').value,notes:gEl('viral-f-notes').value};
-  if(!e.creator){alert('Creator를 입력하세요');return;}
-  let d=lsGet('viral_records');
-  lsSet('viral_records',id?d.map(x=>x.id===id?e:x):[...d,e]);
-  closeModal('viral-modal');renderViral();
+
+async function viralFetch() {
+  const key = localStorage.getItem('rd_api_key');
+  if (!key) {
+    alert('먼저 매출 대시보드에서 API Key를 설정해주세요.\n(⚙️ API Key 버튼)');
+    return;
+  }
+  const btn = gEl('viral-fetch-btn');
+  const status = gEl('viral-fetch-status');
+  btn.disabled = true; btn.textContent = '⏳ 불러오는 중...';
+  status.textContent = '';
+
+  async function fetchSheet(sheetName) {
+    const range = encodeURIComponent(sheetName + '!A:V');
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${VIRAL_SHEET_ID}/values/${range}?key=${key}`;
+    const res = await fetch(url);
+    if (!res.ok) {
+      const e = await res.json().catch(()=>({}));
+      throw new Error((e.error?.message || `HTTP ${res.status}`) + ' [' + sheetName + ']');
+    }
+    return (await res.json()).values || [];
+  }
+
+  try {
+    const [rawKB, rawRJ] = await Promise.all([
+      fetchSheet(VIRAL_SHEET_KBEAUTY),
+      fetchSheet(VIRAL_SHEET_REJUALL),
+    ]);
+
+    // Parse #kbeauty 100만+ (video-level, skip header row)
+    // Cols: 0=Account,1=Follower,2=#videos,3=전환?,4=광고?,5=브랜드,6=훅,7=플로우,8=리뷰,9=views,10=likes,11=comments,12=shares,13=total_eng,14=eng_rate,15=uploaded,16=url,21=hashtags
+    viralStore.kbeauty = (rawKB.slice(1)||[])
+      .filter(r => r[0] && r[9])
+      .map(r => ({
+        account:  (r[0]||'').trim(),
+        follower: parseInt((r[1]||'').replace(/,/g,'')) || 0,
+        conv:     (r[3]||'').trim().toUpperCase(),
+        ad:       (r[4]||'').trim().toUpperCase(),
+        brand:    (r[5]||'-').trim(),
+        hook:     (r[6]||'').trim(),
+        flow:     (r[7]||'').trim(),
+        review:   (r[8]||'').trim(),
+        views:    parseInt((r[9]||'').replace(/,/g,'')) || 0,
+        likes:    parseInt((r[10]||'').replace(/,/g,'')) || 0,
+        comments: parseInt((r[11]||'').replace(/,/g,'')) || 0,
+        shares:   parseInt((r[12]||'').replace(/,/g,'')) || 0,
+        engRate:  parseFloat((r[14]||'').replace('%','')) || 0,
+        uploaded: (r[15]||'').slice(0,10),
+        url:      (r[16]||'').trim(),
+        hashtags: (r[21]||'').trim(),
+      }));
+
+    // Parse 바이럴+닥터리쥬올 store (creator-level, skip header row)
+    // Cols: 0=Account,1=브랜드,2=비디오수,3=SUM of views
+    viralStore.rejuall = (rawRJ.slice(1)||[])
+      .filter(r => r[0] && r[0] !== '-')
+      .map(r => ({
+        account: (r[0]||'').trim(),
+        brand:   (r[1]||'-').trim(),
+        videos:  parseInt((r[2]||'').replace(/,/g,'')) || 0,
+        views:   parseInt((r[3]||'').replace(/,/g,'')) || 0,
+      }));
+
+    // Cache
+    try { localStorage.setItem('viral_store', JSON.stringify(viralStore)); } catch(e) {}
+
+    status.textContent = `✅ kbeauty ${viralStore.kbeauty.length}개 · 닥터리쥬올 ${viralStore.rejuall.length}개 로드`;
+    setTimeout(() => status.textContent = '', 4000);
+    viralRenderDash();
+  } catch(err) {
+    status.textContent = '❌ ' + err.message;
+    console.error(err);
+  } finally {
+    btn.disabled = false; btn.textContent = '🔄 시트에서 불러오기';
+  }
 }
-function viralDel(id){if(!confirm('삭제?'))return;lsSet('viral_records',lsGet('viral_records').filter(x=>x.id!==id));renderViral();}
-function viralExport(){const d=lsGet('viral_records');dlCSV(['Creator,Date,Views,Likes,Product,GMV Spike,Video ID,Notes',...d.map(x=>[x.creator,x.date,x.views,x.likes,x.product,x.gmv,x.vid,x.notes].join(','))].join('\n'),'viral.csv');}
+
+function viralTab(tab, el) {
+  viralActiveTab = tab;
+  document.querySelectorAll('#viral-tabs .crm-tab').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  viralPage = 1;
+  viralRenderDash();
+}
+
+function viralRenderDash() {
+  const kb = viralStore.kbeauty;
+  const rj = viralStore.rejuall;
+
+  // Tab counts
+  setTxt('viral-tab-cnt-kbeauty', kb.length ? `(${kb.length.toLocaleString()})` : '');
+  setTxt('viral-tab-cnt-rejuall', rj.length ? `(${rj.length.toLocaleString()})` : '');
+
+  if (viralActiveTab === 'kbeauty') {
+    viralRenderKPIsKB(kb);
+    viralRenderChartsKB(kb);
+    viralRenderTableKB(kb);
+  } else {
+    viralRenderKPIsRJ(rj);
+    viralRenderChartsRJ(rj);
+    viralRenderTableRJ(rj);
+  }
+}
+
+/* ─── #kbeauty KPIs ─── */
+function viralRenderKPIsKB(d) {
+  const totalViews = d.reduce((s,x) => s + x.views, 0);
+  const creators   = new Set(d.map(x => x.account)).size;
+  const avgEng     = d.length ? (d.reduce((s,x) => s + x.engRate, 0) / d.length) : 0;
+  const convCount  = d.filter(x => x.conv === 'O').length;
+  const adCount    = d.filter(x => x.ad === 'O').length;
+  setTxt('viral-kpi-total', d.length.toLocaleString());
+  setTxt('viral-kpi-total-sub', `영상 · ${creators} 크리에이터`);
+  setTxt('viral-kpi-views', viralFmtV(totalViews));
+  setTxt('viral-kpi-eng', avgEng.toFixed(2) + '%');
+  setTxt('viral-kpi-conv', convCount.toLocaleString());
+  setTxt('viral-kpi-ad', adCount.toLocaleString());
+}
+
+/* ─── 닥터리쥬올 KPIs ─── */
+function viralRenderKPIsRJ(d) {
+  const totalViews  = d.reduce((s,x) => s + x.views, 0);
+  const totalVideos = d.reduce((s,x) => s + x.videos, 0);
+  setTxt('viral-kpi-total', d.length.toLocaleString());
+  setTxt('viral-kpi-total-sub', `크리에이터 · ${totalVideos.toLocaleString()} 영상`);
+  setTxt('viral-kpi-views', viralFmtV(totalViews));
+  setTxt('viral-kpi-eng', '—');
+  setTxt('viral-kpi-conv', '—');
+  setTxt('viral-kpi-ad', '—');
+}
+
+/* ─── #kbeauty Charts ─── */
+function viralRenderChartsKB(d) {
+  // Top 15 creators by views
+  const creatorMap = {};
+  d.forEach(x => { creatorMap[x.account] = (creatorMap[x.account]||0) + x.views; });
+  const top15 = Object.entries(creatorMap).sort((a,b)=>b[1]-a[1]).slice(0,15);
+  destroyChart('c-viral-creators');
+  const ctxC = gEl('c-viral-creators');
+  if (ctxC && top15.length) {
+    activeCharts['c-viral-creators'] = new Chart(ctxC, {
+      type:'bar', data:{
+        labels: top15.map(([a])=>a),
+        datasets:[{ label:'조회수', data: top15.map(([,v])=>v),
+          backgroundColor: top15.map((_,i)=>[PINK,CYAN,PURPLE,YELLOW,GREEN,ORANGE,BLUE,TEAL,'#ec4899','#84cc16','#06b6d4','#8b5cf6','#f97316','#14b8a6','#facc15'][i%15]),
+          borderRadius:4 }]
+      },
+      options:{ responsive:true, maintainAspectRatio:false, indexAxis:'y',
+        plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>viralFmtV(c.raw)+' views'}}},
+        scales:{
+          x:{ticks:{color:'#9CA3AF',callback:v=>viralFmtV(v)},grid:{color:'rgba(255,255,255,.05)'}},
+          y:{ticks:{color:'#9CA3AF',font:{size:10}},grid:{display:false}}
+        }
+      }
+    });
+  }
+
+  // Brand donut
+  const brandMap = {};
+  d.forEach(x => { const b=x.brand||'-'; brandMap[b]=(brandMap[b]||0)+1; });
+  const brandEntries = Object.entries(brandMap).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  destroyChart('c-viral-brands');
+  const ctxB = gEl('c-viral-brands');
+  if (ctxB && brandEntries.length) {
+    activeCharts['c-viral-brands'] = new Chart(ctxB, {
+      type:'doughnut', data:{
+        labels: brandEntries.map(([k])=>k||'-'),
+        datasets:[{ data: brandEntries.map(([,v])=>v),
+          backgroundColor:[PINK,CYAN,PURPLE,YELLOW,GREEN,ORANGE,BLUE,TEAL,'#ec4899','#84cc16'], borderWidth:0 }]
+      },
+      options:{ responsive:true, maintainAspectRatio:false, cutout:'60%',
+        plugins:{legend:{position:'right',labels:{color:'#9CA3AF',font:{size:10},boxWidth:10}},
+          tooltip:{callbacks:{label:c=>`${c.label}: ${c.raw}개`}}}
+      }
+    });
+  }
+
+  // Monthly trend
+  const monthMap = {};
+  d.forEach(x => { if(x.uploaded) { const m=x.uploaded.slice(0,7); monthMap[m]=(monthMap[m]||0)+1; }});
+  const months = Object.entries(monthMap).sort((a,b)=>a[0].localeCompare(b[0]));
+  destroyChart('c-viral-trend');
+  const ctxT = gEl('c-viral-trend');
+  if (ctxT && months.length) {
+    activeCharts['c-viral-trend'] = new Chart(ctxT, {
+      type:'bar', data:{
+        labels: months.map(([m])=>m),
+        datasets:[{ label:'업로드 수', data: months.map(([,v])=>v),
+          backgroundColor: PINK+'99', borderColor:PINK, borderWidth:1, borderRadius:3 }]
+      },
+      options:{ responsive:true, maintainAspectRatio:false,
+        plugins:{legend:{display:false}},
+        scales:{
+          x:{ticks:{color:'#9CA3AF',maxTicksLimit:14},grid:{color:'rgba(255,255,255,.05)'}},
+          y:{ticks:{color:'#9CA3AF'},grid:{color:'rgba(255,255,255,.05)'}}
+        }
+      }
+    });
+  }
+}
+
+/* ─── 닥터리쥬올 Charts ─── */
+function viralRenderChartsRJ(d) {
+  const top15 = [...d].sort((a,b)=>b.views-a.views).slice(0,15);
+  destroyChart('c-viral-creators');
+  const ctxC = gEl('c-viral-creators');
+  if (ctxC && top15.length) {
+    activeCharts['c-viral-creators'] = new Chart(ctxC, {
+      type:'bar', data:{
+        labels: top15.map(x=>x.account),
+        datasets:[{ label:'총 조회수', data: top15.map(x=>x.views),
+          backgroundColor: top15.map((_,i)=>[PINK,CYAN,PURPLE,YELLOW,GREEN,ORANGE,BLUE,TEAL,'#ec4899','#84cc16','#06b6d4','#8b5cf6','#f97316','#14b8a6','#facc15'][i%15]),
+          borderRadius:4 }]
+      },
+      options:{ responsive:true, maintainAspectRatio:false, indexAxis:'y',
+        plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>viralFmtV(c.raw)+' views'}}},
+        scales:{
+          x:{ticks:{color:'#9CA3AF',callback:v=>viralFmtV(v)},grid:{color:'rgba(255,255,255,.05)'}},
+          y:{ticks:{color:'#9CA3AF',font:{size:10}},grid:{display:false}}
+        }
+      }
+    });
+  }
+
+  // Brand donut
+  const bMap = {};
+  d.forEach(x => { const b=x.brand||'-'; bMap[b]=(bMap[b]||0)+x.views; });
+  const bEntries = Object.entries(bMap).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  destroyChart('c-viral-brands');
+  const ctxB = gEl('c-viral-brands');
+  if (ctxB && bEntries.length) {
+    activeCharts['c-viral-brands'] = new Chart(ctxB, {
+      type:'doughnut', data:{
+        labels: bEntries.map(([k])=>k),
+        datasets:[{ data: bEntries.map(([,v])=>v),
+          backgroundColor:[PINK,CYAN,PURPLE,YELLOW,GREEN,ORANGE,BLUE,TEAL,'#ec4899','#84cc16'], borderWidth:0 }]
+      },
+      options:{ responsive:true, maintainAspectRatio:false, cutout:'60%',
+        plugins:{legend:{position:'right',labels:{color:'#9CA3AF',font:{size:10},boxWidth:10}},
+          tooltip:{callbacks:{label:c=>`${c.label}: ${viralFmtV(c.raw)} views`}}}
+      }
+    });
+  }
+
+  destroyChart('c-viral-trend');
+}
+
+/* ─── #kbeauty Table ─── */
+function viralRenderTableKB(raw) {
+  const q     = (gEl('viral-search')||{}).value?.toLowerCase() || '';
+  const conv  = (gEl('viral-filter-conv')||{}).value || '';
+  const ad    = (gEl('viral-filter-ad')||{}).value || '';
+  const brand = (gEl('viral-filter-brand')||{}).value || '';
+  const sort  = (gEl('viral-sort')||{}).value || 'views';
+
+  // Build brand filter
+  const brands = [...new Set(raw.map(x=>x.brand||'-'))].filter(Boolean).sort();
+  const bSel = gEl('viral-filter-brand');
+  if (bSel) {
+    const cur = bSel.value;
+    bSel.innerHTML = '<option value="">전체 브랜드</option>' +
+      brands.map(b=>`<option value="${b}"${b===cur?' selected':''}>${b}</option>`).join('');
+  }
+
+  let d = raw.filter(x =>
+    (!q    || x.account.toLowerCase().includes(q)) &&
+    (!conv || x.conv === conv) &&
+    (!ad   || x.ad === ad) &&
+    (!brand|| x.brand === brand)
+  );
+  d.sort((a,b) => sort==='views' ? b.views-a.views
+                : sort==='eng'   ? b.engRate-a.engRate
+                : sort==='date'  ? b.uploaded.localeCompare(a.uploaded)
+                : b.likes-a.likes);
+
+  const total = d.length, pages = Math.ceil(total/VIRAL_PER_PAGE)||1;
+  viralPage = Math.min(viralPage, pages);
+  const slice = d.slice((viralPage-1)*VIRAL_PER_PAGE, viralPage*VIRAL_PER_PAGE);
+
+  setTxt('viral-tbl-info', `${total.toLocaleString()}개 영상 · 페이지 ${viralPage}/${pages}`);
+
+  const thead = gEl('viral-thead');
+  if (thead) thead.innerHTML = `<tr>
+    <th style="text-align:left">크리에이터</th>
+    <th style="text-align:left">브랜드</th>
+    <th>조회수</th><th>좋아요</th><th>댓글</th><th>공유</th>
+    <th>참여율</th>
+    <th style="text-align:left">Hook</th>
+    <th style="text-align:left">플로우</th>
+    <th>전환</th><th>광고</th>
+    <th>날짜</th><th></th>
+  </tr>`;
+
+  const tbody = gEl('viral-tbody');
+  if (tbody) tbody.innerHTML = slice.map(x => `<tr>
+    <td style="text-align:left;font-weight:600;color:var(--pink)">${esc(x.account)}</td>
+    <td style="text-align:left;font-size:11px">${esc(x.brand||'-')}</td>
+    <td style="font-weight:700">${viralFmtV(x.views)}</td>
+    <td>${viralFmtV(x.likes)}</td>
+    <td>${viralFmtV(x.comments)}</td>
+    <td>${viralFmtV(x.shares)}</td>
+    <td style="font-weight:700;color:${x.engRate>=10?'#22C55E':x.engRate>=5?'#F59E0B':'#9CA3AF'}">${x.engRate.toFixed(2)}%</td>
+    <td style="text-align:left;font-size:11px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(x.hook)}">${esc(x.hook||'—')}</td>
+    <td style="text-align:left;font-size:11px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(x.flow)}">${esc(x.flow||'—')}</td>
+    <td style="font-weight:700;color:${x.conv==='O'?'#22C55E':'#9CA3AF'}">${x.conv||'—'}</td>
+    <td style="color:${x.ad==='O'?'#F59E0B':'#9CA3AF'}">${x.ad||'—'}</td>
+    <td style="color:var(--muted);font-size:11px">${x.uploaded||'—'}</td>
+    <td>${x.url?`<a href="${esc(x.url)}" target="_blank" class="btn-ghost" style="font-size:11px;padding:2px 7px">▶</a>`:''}</td>
+  </tr>`).join('') || '<tr><td colspan="13" style="text-align:center;color:var(--muted);padding:20px">필터 조건에 맞는 영상 없음</td></tr>';
+
+  viralRenderPagination(pages);
+}
+
+/* ─── 닥터리쥬올 Table ─── */
+function viralRenderTableRJ(raw) {
+  const q = (gEl('viral-search')||{}).value?.toLowerCase() || '';
+  let d = raw.filter(x => !q || x.account.toLowerCase().includes(q));
+  d.sort((a,b) => b.views - a.views);
+
+  const total = d.length, pages = Math.ceil(total/VIRAL_PER_PAGE)||1;
+  viralPage = Math.min(viralPage, pages);
+  const slice = d.slice((viralPage-1)*VIRAL_PER_PAGE, viralPage*VIRAL_PER_PAGE);
+
+  setTxt('viral-tbl-info', `${total.toLocaleString()}개 크리에이터 · 페이지 ${viralPage}/${pages}`);
+
+  const thead = gEl('viral-thead');
+  if (thead) thead.innerHTML = `<tr>
+    <th style="text-align:left">크리에이터</th>
+    <th style="text-align:left">브랜드</th>
+    <th>비디오 수</th>
+    <th>총 조회수</th>
+  </tr>`;
+
+  const tbody = gEl('viral-tbody');
+  if (tbody) tbody.innerHTML = slice.map(x => `<tr>
+    <td style="text-align:left;font-weight:600;color:var(--pink)">${esc(x.account)}</td>
+    <td style="text-align:left;font-size:11px">${esc(x.brand||'-')}</td>
+    <td style="font-weight:700">${x.videos.toLocaleString()}</td>
+    <td style="font-weight:700;color:var(--cyan)">${viralFmtV(x.views)}</td>
+  </tr>`).join('') || '<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:20px">데이터 없음</td></tr>';
+
+  viralRenderPagination(pages);
+}
+
+function viralRenderTable() {
+  if (viralActiveTab === 'kbeauty') viralRenderTableKB(viralStore.kbeauty);
+  else viralRenderTableRJ(viralStore.rejuall);
+}
+
+function viralRenderPagination(pages) {
+  const pg = gEl('viral-pagination');
+  if (!pg || pages <= 1) { if(pg) pg.innerHTML=''; return; }
+  const from = Math.max(1, viralPage-3), to = Math.min(pages, viralPage+3);
+  let h = '';
+  if (from>1) h+=`<button class="filter-btn" onclick="viralGoPage(1)">1</button>`;
+  if (from>2) h+=`<span style="color:var(--muted)">…</span>`;
+  for(let i=from;i<=to;i++) h+=`<button class="filter-btn${i===viralPage?' active':''}" onclick="viralGoPage(${i})">${i}</button>`;
+  if (to<pages-1) h+=`<span style="color:var(--muted)">…</span>`;
+  if (to<pages) h+=`<button class="filter-btn" onclick="viralGoPage(${pages})">${pages}</button>`;
+  pg.innerHTML = h;
+}
+
+function viralGoPage(p) { viralPage=p; viralRenderTable(); }
+
+function viralExportCSV() {
+  const d = viralActiveTab === 'kbeauty' ? viralStore.kbeauty : viralStore.rejuall;
+  if (!d.length) { alert('데이터가 없습니다.'); return; }
+  let csv;
+  if (viralActiveTab === 'kbeauty') {
+    csv = 'Account,Brand,Views,Likes,Comments,Shares,EngRate%,Conv,Ad,Uploaded,URL\n' +
+      d.map(x=>`"${x.account}","${x.brand}",${x.views},${x.likes},${x.comments},${x.shares},${x.engRate},"${x.conv}","${x.ad}","${x.uploaded}","${x.url}"`).join('\n');
+  } else {
+    csv = 'Account,Brand,Videos,TotalViews\n' +
+      d.map(x=>`"${x.account}","${x.brand}",${x.videos},${x.views}`).join('\n');
+  }
+  dlCSV(csv, `viral-${viralActiveTab}-${new Date().toISOString().slice(0,10)}.csv`);
+}
+
+// legacy stubs (keep for safety)
+function viralRender(){}
+function viralSave(){}
+function viralDel(){}
 
 /* ── CONTENT BRIEF GENERATOR ───────────────────────────── */
 const BRIEF_PRODUCTS={
