@@ -1769,11 +1769,6 @@ textarea.form-input{resize:vertical}
           <button class="btn-ghost" style="font-size:11px;padding:3px 10px" onclick="rdResetFilter()">전체 기간</button>
           <div class="filter-bar" id="rd-sku-filter" style="margin-bottom:0;margin-left:auto">
             <button class="filter-btn active" onclick="rdSkuFilter('all',this)">전체</button>
-            <button class="filter-btn" onclick="rdSkuFilter('PDRN Cream',this)">PDRN Cream</button>
-            <button class="filter-btn" onclick="rdSkuFilter('Lip Serum',this)">Lip Serum</button>
-            <button class="filter-btn" onclick="rdSkuFilter('Ceramide',this)">Ceramide</button>
-            <button class="filter-btn" onclick="rdSkuFilter('Retino-Mela',this)">Retino-Mela</button>
-            <button class="filter-btn" onclick="rdSkuFilter('PDRN Mask',this)">PDRN Mask</button>
           </div>
         </div>
 
@@ -1785,6 +1780,30 @@ textarea.form-input{resize:vertical}
           <div class="kpi-card"><div class="kpi-label">평균 주문금액</div><div class="kpi-value" id="rd-k-aov">-</div></div>
           <div class="kpi-card"><div class="kpi-label">총 판매수량</div><div class="kpi-value" id="rd-k-qty">-</div></div>
           <div class="kpi-card"><div class="kpi-label" style="color:var(--pink)">Top SKU</div><div class="kpi-value" id="rd-k-top" style="font-size:13px;color:var(--pink)">-</div></div>
+        </div>
+
+        <!-- Free Sample 발송 현황 -->
+        <div id="rd-free-sample-section" style="display:none;background:var(--card);border-radius:12px;padding:14px 18px;margin-bottom:16px;border:1px solid var(--border)">
+          <div style="font-size:13px;font-weight:700;margin-bottom:10px">🎁 Free Sample 발송 현황</div>
+          <div id="rd-free-sample-content"></div>
+        </div>
+
+        <!-- 제품별 판매 현황 -->
+        <div class="kpi-card" style="padding:16px;margin-bottom:16px">
+          <div style="font-size:13px;font-weight:700;margin-bottom:10px">📦 제품별 판매 현황</div>
+          <div style="overflow-x:auto">
+            <table class="data-table">
+              <thead><tr>
+                <th>제품명</th>
+                <th style="text-align:right">매출($)</th>
+                <th style="text-align:right">비중</th>
+                <th style="text-align:center">주문수</th>
+                <th style="text-align:center">판매수량</th>
+                <th style="text-align:center">Free Sample</th>
+              </tr></thead>
+              <tbody id="rd-product-tbody"></tbody>
+            </table>
+          </div>
         </div>
 
         <!-- 차트 2개 -->
@@ -1810,16 +1829,11 @@ textarea.form-input{resize:vertical}
           <div style="font-size:13px;font-weight:700;margin-bottom:10px">📋 일별 매출 요약</div>
           <div style="overflow-x:auto;max-height:380px;overflow-y:auto">
             <table class="data-table" style="min-width:700px">
-              <thead><tr>
+              <thead><tr id="rd-daily-head">
                 <th>날짜</th><th style="text-align:center">요일</th>
                 <th style="text-align:right">매출($)</th>
                 <th style="text-align:center">주문수</th>
                 <th style="text-align:center">수량</th>
-                <th style="text-align:center">PDRN Cream</th>
-                <th style="text-align:center">Lip Serum</th>
-                <th style="text-align:center">Ceramide</th>
-                <th style="text-align:center">Retino-Mela</th>
-                <th style="text-align:center">PDRN Mask</th>
               </tr></thead>
               <tbody id="rd-daily-tbody"></tbody>
             </table>
@@ -2953,18 +2967,35 @@ function launchSetNote(tab, no, note){
 ══════════════════════════════════════════════════════════ */
 let rdRaw = [], rdFiltered = [], rdSkuSel = 'all';
 
-const RD_SKUS = ['PDRN Cream','Lip Serum','Ceramide','Retino-Mela','PDRN Mask'];
-const RD_SKU_COLORS = ['#FE2C55','#25F4EE','#A855F7','#F59E0B','#22C55E'];
+const RD_SKU_MAP = {
+  '1731808581105783102': 'PDRN Cream',
+  '1731808581105848638': 'PDRN Max',
+  '1731997625590780222': 'Retino-Mela',
+  '1732003701982466366': 'Ceramide',
+  '1732083160261824830': 'Barrier & Repair Duo',
+  '1732082399263625534': 'Tone & Repair Duo',
+  '1732083228536901950': 'Skin Routine Set',
+  '1732271685275849022': 'PDRN Lip Serum',
+  '1732271691262431550': 'PDRN Rejuvenating Mask'
+};
+const RD_SKUS = ['PDRN Cream','PDRN Max','Retino-Mela','Ceramide','Barrier & Repair Duo','Tone & Repair Duo','Skin Routine Set','PDRN Lip Serum','PDRN Rejuvenating Mask'];
+const RD_SKU_COLORS = ['#FE2C55','#25F4EE','#A855F7','#F59E0B','#22C55E','#F97316','#3B82F6','#EC4899','#14B8A6'];
 
 function rdDetectSku(name) {
   const n = (name||'').toLowerCase();
-  if (n.includes('mask'))      return 'PDRN Mask';
-  if (n.includes('lip'))       return 'Lip Serum';
-  if (n.includes('ceramide'))  return 'Ceramide';
-  if (n.includes('retino'))    return 'Retino-Mela';
+  if (n.includes('rejuvenating') || (n.includes('mask') && !n.includes('pdrn max'))) return 'PDRN Rejuvenating Mask';
+  if (n.includes('lip'))                       return 'PDRN Lip Serum';
+  if (n.includes('ceramide'))                  return 'Ceramide';
+  if (n.includes('retino'))                    return 'Retino-Mela';
+  if (n.includes('barrier'))                   return 'Barrier & Repair Duo';
+  if (n.includes('tone'))                      return 'Tone & Repair Duo';
+  if (n.includes('routine') || n.includes('skin set')) return 'Skin Routine Set';
+  if (n.includes('max'))                       return 'PDRN Max';
   if (n.includes('pdrn') || n.includes('cream')) return 'PDRN Cream';
   return 'Other';
 }
+
+let rdFreeSamples = [];
 
 function rdParseDate(raw) {
   if (!raw) return '';
@@ -3065,41 +3096,47 @@ function rdProcessRows(rows) {
   const header = rows[0] || [];
   const isOriginal = (header[0]||'').trim() === 'Order ID';
 
-  const dataRows = rows.filter(r => {
-    if (isOriginal) {
+  if (isOriginal) {
+    const allData = rows.filter(r => {
       const st = (r[1]||'').toLowerCase();
-      return r[0] !== 'Order ID' && !st.includes('cancel') && parseFloat(r[13]) > 0;
-    } else {
+      return r[0] !== 'Order ID' && !st.includes('cancel');
+    });
+    // Free sample: M열(idx 12) = SKU Unit Original Price == 0
+    rdFreeSamples = allData
+      .filter(r => parseFloat(r[12]) === 0 && parseInt(r[10]) > 0)
+      .map(r => ({
+        sku:    RD_SKU_MAP[(r[5]||'').trim()] || rdDetectSku(r[6]||'') || rdDetectSku(r[7]||''),
+        qty:    parseInt(r[10]) || 1,
+        date:   rdParseDate(r[27]||''),
+        orderId:r[0] || ''
+      }));
+    const dataRows = allData.filter(r => parseFloat(r[13]) > 0);
+    if (!dataRows.length) { alert('유효한 매출 데이터가 없어요.'); return; }
+    rdRaw = dataRows.map(r => ({
+      date:   rdParseDate(r[27]||''),
+      rev:    Math.max(0, (parseFloat(r[13])||0) - (parseFloat(r[15])||0)),
+      qty:    parseInt(r[10]) || 1,
+      sku:    RD_SKU_MAP[(r[5]||'').trim()] || rdDetectSku(r[6]||'') || rdDetectSku(r[7]||''),
+      skuId:  (r[5]||'').trim(),
+      status: r[1] || '',
+      orderId:r[0] || ''
+    })).filter(o => o.date && o.rev > 0);
+  } else {
+    rdFreeSamples = [];
+    const dataRows = rows.filter(r => {
       const st = (r[3]||'').toLowerCase();
       return r[0] !== 'MONTH' && !isNaN(parseFloat(r[17])) && !st.includes('cancel');
-    }
-  });
-
-  if (!dataRows.length) { alert('유효한 매출 데이터가 없어요.'); return; }
-
-  rdRaw = dataRows.map(r => {
-    if (isOriginal) {
-      const n = parseFloat(r[13]) || 0;
-      const p = parseFloat(r[15]) || 0;
-      return {
-        date:   rdParseDate(r[27]||''),
-        rev:    Math.max(0, n - p),
-        qty:    parseInt(r[10]) || 1,
-        sku:    rdDetectSku(r[6]||'') || rdDetectSku(r[7]||''),
-        status: r[1] || '',
-        orderId:r[0] || ''
-      };
-    } else {
-      return {
-        date:   rdParseDate(r[29]||'') || rdParseDate(r[1]||''),
-        rev:    parseFloat(r[17]) || 0,
-        qty:    parseInt(r[11]) || 1,
-        sku:    rdDetectSku(r[9]||''),
-        status: r[3] || '',
-        orderId:r[2] || ''
-      };
-    }
-  }).filter(o => o.date && o.rev > 0);
+    });
+    if (!dataRows.length) { alert('유효한 매출 데이터가 없어요.'); return; }
+    rdRaw = dataRows.map(r => ({
+      date:   rdParseDate(r[29]||'') || rdParseDate(r[1]||''),
+      rev:    parseFloat(r[17]) || 0,
+      qty:    parseInt(r[11]) || 1,
+      sku:    rdDetectSku(r[9]||''),
+      status: r[3] || '',
+      orderId:r[2] || ''
+    })).filter(o => o.date && o.rev > 0);
+  }
 
   if (!rdRaw.length) { alert('매출 데이터가 없어요. 날짜/매출 컬럼을 확인해주세요.'); return; }
   rdShow();
@@ -3128,6 +3165,13 @@ function rdShow() {
   gEl('rd-to').value   = dates[dates.length-1];
   const fi = gEl('rd-file-info');
   if (fi) fi.textContent = rdRaw.length + '건 · ' + dates[0] + ' ~ ' + dates[dates.length-1];
+  // 동적 SKU 필터 버튼 생성
+  const presentSkus = RD_SKUS.filter(s => rdRaw.some(o => o.sku === s));
+  const skuFilter = gEl('rd-sku-filter');
+  if (skuFilter) {
+    skuFilter.innerHTML = '<button class="filter-btn active" onclick="rdSkuFilter(\'all\',this)">전체</button>'
+      + presentSkus.map(s => `<button class="filter-btn" onclick="rdSkuFilter('${s.replace(/'/g,"\\'").replace(/&/g,'&amp;')}',this)">${s}</button>`).join('');
+  }
   rdApplyFilter();
 }
 
@@ -3180,10 +3224,19 @@ function rdCompute() {
     monMap[mon] = (monMap[mon]||0) + o.rev;
   });
 
-  // SKU totals
-  const skuMap = {};
-  orders.forEach(o => skuMap[o.sku] = (skuMap[o.sku]||0) + o.rev);
-  const topSku = Object.entries(skuMap).sort((a,b)=>b[1]-a[1])[0];
+  // SKU totals (revenue + orders + qty)
+  const skuRev = {}, skuOrd = {}, skuQty = {};
+  orders.forEach(o => {
+    skuRev[o.sku] = (skuRev[o.sku]||0) + o.rev;
+    skuOrd[o.sku] = (skuOrd[o.sku]||0) + 1;
+    skuQty[o.sku] = (skuQty[o.sku]||0) + o.qty;
+  });
+  const topSku = Object.entries(skuRev).sort((a,b)=>b[1]-a[1])[0];
+
+  // Free sample map
+  const freeMap = {};
+  rdFreeSamples.forEach(f => freeMap[f.sku] = (freeMap[f.sku]||0) + f.qty);
+  const freeTotalQty = Object.values(freeMap).reduce((s,v)=>s+v, 0);
 
   // KPIs
   const fmt = n => '$' + n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -3194,6 +3247,51 @@ function rdCompute() {
   gEl('rd-k-qty').textContent    = totalQty.toLocaleString();
   gEl('rd-k-top').textContent    = topSku ? topSku[0] : '-';
 
+  // Free Sample 섹션
+  const fsSection = gEl('rd-free-sample-section');
+  if (fsSection) {
+    fsSection.style.display = freeTotalQty > 0 ? 'block' : 'none';
+    if (freeTotalQty > 0) {
+      const fsContent = gEl('rd-free-sample-content');
+      if (fsContent) {
+        const tags = Object.entries(freeMap).map(([s,q]) => {
+          const color = RD_SKU_COLORS[RD_SKUS.indexOf(s)] || '#9CA3AF';
+          return `<span style="background:var(--bg);border:1px solid ${color};border-radius:20px;padding:3px 12px;font-size:12px;white-space:nowrap">
+            <span style="color:${color};font-weight:700">${s}</span> ${q}개
+          </span>`;
+        }).join('');
+        fsContent.innerHTML = `<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <div style="font-size:24px;font-weight:800;color:var(--cyan);white-space:nowrap">총 ${freeTotalQty}개</div>
+          ${tags}
+        </div>`;
+      }
+    }
+  }
+
+  // 제품별 판매 현황 테이블
+  const ptbody = gEl('rd-product-tbody');
+  if (ptbody) {
+    const allSkus = RD_SKUS.filter(s => skuRev[s] || freeMap[s]);
+    ptbody.innerHTML = allSkus.map(s => {
+      const rev  = skuRev[s] || 0;
+      const pct  = totalRev > 0 ? (rev/totalRev*100).toFixed(1) : '0.0';
+      const ord  = skuOrd[s] || 0;
+      const qty  = skuQty[s] || 0;
+      const free = freeMap[s] || 0;
+      const color = RD_SKU_COLORS[RD_SKUS.indexOf(s)] || '#9CA3AF';
+      return `<tr>
+        <td style="font-weight:600;white-space:nowrap">
+          <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${color};margin-right:6px;vertical-align:middle"></span>${s}
+        </td>
+        <td style="text-align:right;font-weight:700;color:var(--green)">${fmt(rev)}</td>
+        <td style="text-align:right;color:var(--muted)">${pct}%</td>
+        <td style="text-align:center">${ord}</td>
+        <td style="text-align:center">${qty}</td>
+        <td style="text-align:center;color:var(--cyan);font-weight:600">${free || '-'}</td>
+      </tr>`;
+    }).join('');
+  }
+
   // Charts
   destroyChart('rd-chart-daily'); destroyChart('rd-chart-sku'); destroyChart('rd-chart-monthly');
   mkChart('rd-chart-daily','line',{
@@ -3202,10 +3300,10 @@ function rdCompute() {
       borderColor:'#22C55E',backgroundColor:'rgba(34,197,94,0.12)',fill:true,tension:0.3,pointRadius:2}]
   },{plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>'$'+v.toLocaleString()}}}});
 
-  const skuLabels = RD_SKUS.filter(s=>skuMap[s]);
+  const skuLabels = RD_SKUS.filter(s=>skuRev[s]);
   mkChart('rd-chart-sku','doughnut',{
     labels: skuLabels,
-    datasets:[{data:skuLabels.map(s=>+(skuMap[s]||0).toFixed(2)),
+    datasets:[{data:skuLabels.map(s=>+(skuRev[s]||0).toFixed(2)),
       backgroundColor:skuLabels.map(s=>RD_SKU_COLORS[RD_SKUS.indexOf(s)]||'#9CA3AF'),
       borderWidth:2,borderColor:'var(--card)'}]
   },{plugins:{legend:{position:'right',labels:{font:{size:11}}}}});
@@ -3217,13 +3315,20 @@ function rdCompute() {
       backgroundColor:'rgba(59,130,246,0.75)',borderRadius:5}]
   },{plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>'$'+v.toLocaleString()}}}});
 
-  // Daily table
+  // Daily table — 동적 헤더 (데이터에 있는 SKU만)
+  const activeDaySkus = RD_SKUS.filter(s => days.some(d => dayMap[d].skus[s]));
+  const thead = gEl('rd-daily-head');
+  if (thead) {
+    thead.innerHTML = '<th>날짜</th><th style="text-align:center">요일</th>'
+      + '<th style="text-align:right">매출($)</th><th style="text-align:center">주문수</th><th style="text-align:center">수량</th>'
+      + activeDaySkus.map(s=>`<th style="text-align:center;font-size:11px">${s}</th>`).join('');
+  }
   const DOW = ['일','월','화','수','목','금','토'];
   const tb = gEl('rd-daily-tbody'); if (!tb) return;
   tb.innerHTML = [...days].reverse().map(d => {
     const row = dayMap[d];
     const dow = DOW[new Date(d+'T00:00:00').getDay()];
-    const skuCells = RD_SKUS.map(s =>
+    const skuCells = activeDaySkus.map(s =>
       '<td style="text-align:center;font-size:12px">'+(row.skus[s]||'')+'</td>'
     ).join('');
     return '<tr>'
@@ -3238,7 +3343,7 @@ function rdCompute() {
 
 function rdClear() {
   if (!confirm('매출 데이터를 초기화할까요?')) return;
-  rdRaw = []; rdFiltered = [];
+  rdRaw = []; rdFiltered = []; rdFreeSamples = [];
   gEl('rd-guide').style.display = 'flex';
   gEl('rd-results').style.display = 'none';
   const cb = gEl('rd-clear-btn'); if (cb) cb.style.display = 'none';
