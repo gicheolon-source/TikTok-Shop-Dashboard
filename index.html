@@ -341,11 +341,11 @@ textarea.form-input{resize:vertical}
     <div class="nav-item active" onclick="nav('overview',this)">
       <span class="nav-icon">&#9685;</span> Overview
     </div>
+    <div class="nav-item" onclick="nav('revdash',this)">
+      <span class="nav-icon">&#128201;</span> 매출 대시보드
+    </div>
     <div class="nav-item" onclick="nav('partnerdb',this)">
       <span class="nav-icon">&#128200;</span> Partner Dashboard
-    </div>
-    <div class="nav-item" onclick="nav('salesmetrics',this)">
-      <span class="nav-icon">&#128200;</span> 매출지표
     </div>
     <div class="nav-item" onclick="nav('sales',this)">
       <span class="nav-icon">&#128200;</span> Sales &amp; Revenue
@@ -1711,107 +1711,103 @@ textarea.form-input{resize:vertical}
       </div>
     </div>
 
-    <!-- ═══ 매출지표 ═══════════════════════ -->
-    <div id="sec-salesmetrics" class="page-section">
+
+    <!-- ═══ 매출 대시보드 ═══════════════════════ -->
+    <div id="sec-revdash" class="page-section">
       <div class="sec-head">
         <div>
-          <div class="sec-title">📊 매출지표</div>
-          <div class="sec-sub">월별 GMV 목표 · SKU별 판매량 · FBT 재고 현황 · 경쟁사 포지셔닝</div>
+          <div class="sec-title">📊 매출 대시보드</div>
+          <div class="sec-sub">매출 RAW 시트 CSV 업로드 → 일별·월별 매출 자동 집계</div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <span id="rd-file-info" style="font-size:12px;color:var(--muted)"></span>
+          <button class="btn-ghost" onclick="rdClear()" id="rd-clear-btn" style="display:none">초기화</button>
+          <label class="btn-primary" style="cursor:pointer;margin:0">
+            📂 CSV 업로드
+            <input type="file" accept=".csv" style="display:none" onchange="rdHandleFile(this)">
+          </label>
         </div>
       </div>
 
-      <!-- KPI 상단 -->
-      <div class="kpi-grid" style="grid-template-columns:repeat(5,1fr);margin-bottom:20px">
-        <div class="kpi-card" style="border:2px solid var(--pink)">
-          <div class="kpi-label">현재 티어</div>
-          <div class="kpi-value" style="color:var(--pink)">T3</div>
-          <div style="font-size:11px;color:var(--muted);margin-top:4px">$65K ~ $200K/월</div>
+      <!-- 업로드 안내 -->
+      <div id="rd-guide" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:60px 20px;background:var(--card);border-radius:16px;border:2px dashed var(--border)">
+        <div style="font-size:44px">📥</div>
+        <div style="font-size:16px;font-weight:700">매출 RAW 시트를 CSV로 내보내서 업로드하세요</div>
+        <div style="font-size:13px;color:var(--muted);text-align:center;line-height:1.9">
+          Google Sheets → <strong>파일 → 다운로드 → CSV</strong><br>
+          컬럼 R (Total Revenue) · 컬럼 AD (Created Time) 자동 인식
         </div>
-        <div class="kpi-card">
-          <div class="kpi-label">최근 월 GMV</div>
-          <div class="kpi-value" style="color:var(--green)">$105,912</div>
-          <div style="font-size:11px;color:var(--muted);margin-top:4px">T3 기준 달성</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-label">다음 티어 목표</div>
-          <div class="kpi-value">$200K</div>
-          <div style="font-size:11px;color:var(--cyan);margin-top:4px">T4 진입 기준</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-label">총 FBT 재고</div>
-          <div class="kpi-value" id="sm-total-stock">18,731</div>
-          <div style="font-size:11px;color:var(--muted);margin-top:4px">개</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-label">Hero SKU</div>
-          <div class="kpi-value" style="color:var(--purple);font-size:16px">PDRN Cream</div>
-          <div style="font-size:11px;color:var(--muted);margin-top:4px">전체 매출 1위</div>
-        </div>
+        <label class="btn-primary" style="cursor:pointer;font-size:14px;padding:10px 28px">
+          📂 CSV 파일 선택
+          <input type="file" accept=".csv" style="display:none" onchange="rdHandleFile(this)">
+        </label>
       </div>
 
-      <!-- 월별 목표 차트 + 재고 현황 -->
-      <div style="display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:20px">
-        <div class="kpi-card" style="padding:16px">
-          <div style="font-size:13px;font-weight:700;margin-bottom:12px">📈 월별 GMV 목표 (억KRW)</div>
-          <canvas id="sm-chart-monthly" height="180"></canvas>
-        </div>
-        <div class="kpi-card" style="padding:16px">
-          <div style="font-size:13px;font-weight:700;margin-bottom:12px">📦 FBT 재고 현황</div>
-          <div id="sm-inventory-list" style="display:flex;flex-direction:column;gap:8px"></div>
-        </div>
-      </div>
+      <!-- 결과 영역 -->
+      <div id="rd-results" style="display:none">
 
-      <!-- SKU별 월 판매량 목표 + 경쟁사 -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
-        <div class="kpi-card" style="padding:16px">
-          <div style="font-size:13px;font-weight:700;margin-bottom:12px">🎯 SKU별 월 판매량 목표</div>
-          <canvas id="sm-chart-sku" height="220"></canvas>
-        </div>
-        <div class="kpi-card" style="padding:16px">
-          <div style="font-size:13px;font-weight:700;margin-bottom:12px">🏆 경쟁사 K-beauty 포지셔닝 (TikTok Shop)</div>
-          <div class="table-wrap" style="max-height:260px;overflow-y:auto">
-            <table class="data-table">
-              <thead><tr><th>브랜드</th><th>월 GMV</th><th>티어</th></tr></thead>
-              <tbody id="sm-comp-tbody"></tbody>
-            </table>
+        <!-- 날짜 필터 -->
+        <div style="background:var(--card);border-radius:10px;padding:10px 16px;margin-bottom:16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;border:1px solid var(--border)">
+          <span style="font-size:12px;color:var(--muted);font-weight:600">기간 필터</span>
+          <input type="date" class="form-input" id="rd-from" style="padding:4px 8px;font-size:12px;width:130px" onchange="rdApplyFilter()">
+          <span style="color:var(--muted)">~</span>
+          <input type="date" class="form-input" id="rd-to" style="padding:4px 8px;font-size:12px;width:130px" onchange="rdApplyFilter()">
+          <button class="btn-ghost" style="font-size:11px;padding:3px 10px" onclick="rdResetFilter()">전체 기간</button>
+          <div class="filter-bar" id="rd-sku-filter" style="margin-bottom:0;margin-left:auto">
+            <button class="filter-btn active" onclick="rdSkuFilter('all',this)">전체</button>
+            <button class="filter-btn" onclick="rdSkuFilter('PDRN Cream',this)">PDRN Cream</button>
+            <button class="filter-btn" onclick="rdSkuFilter('Lip Serum',this)">Lip Serum</button>
+            <button class="filter-btn" onclick="rdSkuFilter('Ceramide',this)">Ceramide</button>
+            <button class="filter-btn" onclick="rdSkuFilter('Retino-Mela',this)">Retino-Mela</button>
+            <button class="filter-btn" onclick="rdSkuFilter('PDRN Mask',this)">PDRN Mask</button>
           </div>
         </div>
-      </div>
 
-      <!-- 월별 목표 상세 테이블 -->
-      <div class="kpi-card" style="padding:16px;margin-bottom:20px">
-        <div style="font-size:13px;font-weight:700;margin-bottom:12px">📅 월별 매출 & SKU 판매량 목표</div>
-        <div class="table-wrap">
-          <table class="data-table">
-            <thead><tr>
-              <th>월</th>
-              <th>매출목표(억)</th>
-              <th>광고비(억)</th>
-              <th style="text-align:center">PDRN Cream</th>
-              <th style="text-align:center">Lip Serum</th>
-              <th style="text-align:center">Ceramide</th>
-              <th style="text-align:center">Retino-Mela</th>
-              <th style="text-align:center">PDRN Mask</th>
-              <th style="text-align:center">Skincare Set</th>
-              <th style="text-align:right">총 판매량</th>
-            </tr></thead>
-            <tbody id="sm-monthly-tbody"></tbody>
-          </table>
+        <!-- KPI 6개 -->
+        <div class="kpi-grid" style="grid-template-columns:repeat(6,1fr);margin-bottom:18px">
+          <div class="kpi-card"><div class="kpi-label">총 매출</div><div class="kpi-value" id="rd-k-rev" style="color:var(--green)">-</div></div>
+          <div class="kpi-card"><div class="kpi-label">총 주문</div><div class="kpi-value" id="rd-k-orders">-</div></div>
+          <div class="kpi-card"><div class="kpi-label">일평균 매출</div><div class="kpi-value" id="rd-k-daily">-</div></div>
+          <div class="kpi-card"><div class="kpi-label">평균 주문금액</div><div class="kpi-value" id="rd-k-aov">-</div></div>
+          <div class="kpi-card"><div class="kpi-label">총 판매수량</div><div class="kpi-value" id="rd-k-qty">-</div></div>
+          <div class="kpi-card"><div class="kpi-label" style="color:var(--pink)">Top SKU</div><div class="kpi-value" id="rd-k-top" style="font-size:13px;color:var(--pink)">-</div></div>
         </div>
-      </div>
 
-      <!-- 단위 수익성 + 제품 가격 -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
-        <div class="kpi-card" style="padding:16px">
-          <div style="font-size:13px;font-weight:700;margin-bottom:12px">💰 단위 수익성 분석 (PDRN Cream 기준)</div>
-          <div id="sm-unit-econ" style="display:flex;flex-direction:column;gap:6px"></div>
+        <!-- 차트 2개 -->
+        <div style="display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:16px">
+          <div class="kpi-card" style="padding:16px;min-width:0">
+            <div style="font-size:13px;font-weight:700;margin-bottom:10px">📈 일별 매출 ($)</div>
+            <canvas id="rd-chart-daily" height="180"></canvas>
+          </div>
+          <div class="kpi-card" style="padding:16px;min-width:0">
+            <div style="font-size:13px;font-weight:700;margin-bottom:10px">🏆 SKU별 매출 비중</div>
+            <canvas id="rd-chart-sku" height="180"></canvas>
+          </div>
         </div>
-        <div class="kpi-card" style="padding:16px">
-          <div style="font-size:13px;font-weight:700;margin-bottom:12px">🏷️ 제품 가격표 (영국 GBP)</div>
-          <div class="table-wrap">
-            <table class="data-table">
-              <thead><tr><th>제품</th><th>상시가</th><th>Tier S</th><th>Tier A</th><th>Tier B</th></tr></thead>
-              <tbody id="sm-price-tbody"></tbody>
+
+        <!-- 월별 차트 -->
+        <div class="kpi-card" style="padding:16px;margin-bottom:16px;min-width:0">
+          <div style="font-size:13px;font-weight:700;margin-bottom:10px">📅 월별 매출 ($)</div>
+          <canvas id="rd-chart-monthly" height="120"></canvas>
+        </div>
+
+        <!-- 일별 요약 테이블 -->
+        <div class="kpi-card" style="padding:16px;margin-bottom:16px">
+          <div style="font-size:13px;font-weight:700;margin-bottom:10px">📋 일별 매출 요약</div>
+          <div style="overflow-x:auto;max-height:380px;overflow-y:auto">
+            <table class="data-table" style="min-width:700px">
+              <thead><tr>
+                <th>날짜</th><th style="text-align:center">요일</th>
+                <th style="text-align:right">매출($)</th>
+                <th style="text-align:center">주문수</th>
+                <th style="text-align:center">수량</th>
+                <th style="text-align:center">PDRN Cream</th>
+                <th style="text-align:center">Lip Serum</th>
+                <th style="text-align:center">Ceramide</th>
+                <th style="text-align:center">Retino-Mela</th>
+                <th style="text-align:center">PDRN Mask</th>
+              </tr></thead>
+              <tbody id="rd-daily-tbody"></tbody>
             </table>
           </div>
         </div>
@@ -1963,7 +1959,7 @@ const UK_MONTHLY = [
 const PAGE_TITLES = {
   overview:'Overview', sales:'Sales & Revenue', inventory:'Inventory',
   affiliates:'Affiliates', competitors:'Competitors', promotions:'Promotions',
-  uk:'UK Market', affiliatelist:'Affiliate List', cs:'CS 봇', customercrm:'Customer CRM 전략', team:'Team Dashboard', spark:'Spark Ads Codes', launch:'런칭 체크리스트', reseller:'리셀러 검토', partnerdb:'Partner Dashboard', salesmetrics:'매출지표',
+  uk:'UK Market', affiliatelist:'Affiliate List', cs:'CS 봇', customercrm:'Customer CRM 전략', team:'Team Dashboard', spark:'Spark Ads Codes', launch:'런칭 체크리스트', reseller:'리셀러 검토', revdash:'매출 대시보드', partnerdb:'Partner Dashboard',
   crm:'Creator CRM', seeding:'샘플 시딩 트래커', live:'LIVE 스트림 트래커',
   viral:'바이럴 영상 트래커', brief:'콘텐츠 브리프 생성기',
   settlement:'정산 트래커', report:'주간 리포트'
@@ -2010,8 +2006,8 @@ function renderSection(id) {
   if (id === 'spark')       renderSpark();
   if (id === 'launch')      renderLaunch();
   if (id === 'reseller')    renderReseller();
+  if (id === 'revdash')     renderRevDash();
   if (id === 'partnerdb')   renderPartnerDB();
-  if (id === 'salesmetrics')   renderSalesMetrics();
 }
 
 const PINK='#FE2C55', CYAN='#25F4EE', PURPLE='#A855F7', BLUE='#3B82F6',
@@ -2938,172 +2934,221 @@ function launchSetNote(tab, no, note){
 }
 
 /* ══════════════════════════════════════════════════════════
-   매출지표 DASHBOARD
+   매출 대시보드 (매출 RAW 시트 CSV 기반)
+   Col R (idx 17) = Total Revenue  |  Col AD (idx 29) = Created Time
 ══════════════════════════════════════════════════════════ */
+let rdRaw = [], rdFiltered = [], rdSkuSel = 'all';
 
-const SM_MONTHLY = [
-  {m:'4월', gmv:4.7, ad:3.6, pdrn:6300,  lip:6000,  cer:600,  ret:500,  msk:300,  set:60,  total:13760},
-  {m:'5월', gmv:5.1, ad:3.9, pdrn:6800,  lip:5000,  cer:800,  ret:600,  msk:500,  set:80,  total:13780},
-  {m:'6월', gmv:2.4, ad:1.8, pdrn:3500,  lip:3000,  cer:100,  ret:100,  msk:50,   set:30,  total:6780},
-  {m:'7월', gmv:9.8, ad:7.5, pdrn:13500, lip:1300,  cer:1000, ret:500,  msk:500,  set:150, total:16950},
-  {m:'8월', gmv:6.8, ad:5.2, pdrn:9500,  lip:9000,  cer:1744, ret:807,  msk:517,  set:117, total:21685},
-  {m:'9월', gmv:6.4, ad:4.9, pdrn:8500,  lip:8000,  cer:1641, ret:760,  msk:487,  set:110, total:19498},
-  {m:'10월',gmv:8.8, ad:6.6, pdrn:10000, lip:10000, cer:2000, ret:1000, msk:500,  set:150, total:23650},
-  {m:'11월',gmv:17.3,ad:13.3,pdrn:23000, lip:22000, cer:4437, ret:2053, msk:1316, set:297, total:53103},
-  {m:'12월',gmv:12.7,ad:9.8, pdrn:17000, lip:16500, cer:3000, ret:1500, msk:1500, set:300, total:39800},
-];
-const SM_INVENTORY = [
-  {sku:'PDRN Cream',     qty:13707, dailySales:71,  color:'#FE2C55'},
-  {sku:'PDRN Lip Serum', qty:593,   dailySales:30,  color:'#25F4EE'},
-  {sku:'Ceramide Cream', qty:1729,  dailySales:18,  color:'#A855F7'},
-  {sku:'Retino-Mela',    qty:1706,  dailySales:3,   color:'#F59E0B'},
-  {sku:'PDRN Max Cream', qty:133,   dailySales:11,  color:'#22C55E'},
-];
-const SM_COMPETITORS = [
-  {brand:'Dr.Melaxin',       gmv:14840000, tier:'Beyond'},
-  {brand:'medicube',          gmv:14560000, tier:'Beyond'},
-  {brand:'SUNGBOON EDITOR',   gmv:1740000,  tier:'Beyond'},
-  {brand:'COSRX',             gmv:1470000,  tier:'T5'},
-  {brand:'SKIN1004',          gmv:1370000,  tier:'T5'},
-  {brand:'TIRTIR',            gmv:1090000,  tier:'T5'},
-  {brand:'ANUA',              gmv:1010000,  tier:'T5'},
-  {brand:'mixsoon',           gmv:500370,   tier:'T4'},
-  {brand:'Beauty of Joseon',  gmv:429230,   tier:'T4'},
-  {brand:'Torriden',          gmv:251920,   tier:'T4'},
-  {brand:'VT COSMETICS',      gmv:156980,   tier:'T3'},
-  {brand:'Dr.Reju-All ⭐',    gmv:105912,   tier:'T3', highlight:true},
-  {brand:'MEDITHERAPY',       gmv:140370,   tier:'T3'},
-  {brand:'ARENCIA',           gmv:102700,   tier:'T3'},
-  {brand:'KAHI',              gmv:94310,    tier:'T3'},
-  {brand:'BIODANCE',          gmv:68130,    tier:'T3'},
-  {brand:'numbuzin',          gmv:56100,    tier:'T2'},
-  {brand:'AXIS-Y',            gmv:44230,    tier:'T2'},
-  {brand:'Abib',              gmv:35240,    tier:'T2'},
-];
-const SM_PRICES = [
-  {sku:'PDRN Cream',     list:'£39.00', regular:'£25.9', s:'£18.9', a:'£19.9', b:'£21.9'},
-  {sku:'PDRN Cream Max', list:'£117.00',regular:'£69.9', s:'£53.9', a:'£58.9', b:'£58.9'},
-  {sku:'Retino-Mela',    list:'£42.50', regular:'£27.9', s:'£19.9', a:'£21.9', b:'£23.49'},
-  {sku:'Ceramide Cream', list:'£34.00', regular:'£22.9', s:'£16.9', a:'£17.9', b:'£18.9'},
-  {sku:'PDRN Mask',      list:'£22.00', regular:'£14.9', s:'£10.9', a:'£11.49',b:'£12.49'},
-  {sku:'Lip Serum',      list:'£19.00', regular:'£12.9', s:'£9.9',  a:'£10.49',b:'£10.9'},
-];
-const SM_UNIT_ECON = [
-  {label:'판매가',             val:'$29.9',  pct:'',      color:'var(--green)'},
-  {label:'제조원가',           val:'-$1.70', pct:'5.7%',  color:'var(--muted)'},
-  {label:'틱톡 수수료 (6%)',   val:'-$1.79', pct:'6%',    color:''},
-  {label:'인플루언서 수수료',  val:'-$5.98', pct:'20%',   color:''},
-  {label:'광고비 (ShopAds)',   val:'-$2.99', pct:'10%',   color:''},
-  {label:'배송비 (Local)',     val:'-$4.28', pct:'',      color:''},
-  {label:'배송비 (Export)',    val:'-$1.86', pct:'',      color:''},
-  {label:'예상 마진',          val:'≈$13.30',pct:'~44.5%',color:'var(--pink)', bold:true},
-];
+const RD_SKUS = ['PDRN Cream','Lip Serum','Ceramide','Retino-Mela','PDRN Mask'];
+const RD_SKU_COLORS = ['#FE2C55','#25F4EE','#A855F7','#F59E0B','#22C55E'];
 
-function renderSalesMetrics() {
-  smRenderInventory();
-  smRenderMonthlyTable();
-  smRenderCompetitors();
-  smRenderUnitEcon();
-  smRenderPrices();
-  setTimeout(() => { smRenderCharts(); }, 60);
+function rdDetectSku(name) {
+  const n = (name||'').toLowerCase();
+  if (n.includes('mask'))      return 'PDRN Mask';
+  if (n.includes('lip'))       return 'Lip Serum';
+  if (n.includes('ceramide'))  return 'Ceramide';
+  if (n.includes('retino'))    return 'Retino-Mela';
+  if (n.includes('pdrn') || n.includes('cream')) return 'PDRN Cream';
+  return 'Other';
 }
 
-function smRenderInventory() {
-  const el = gEl('sm-inventory-list'); if (!el) return;
-  el.innerHTML = SM_INVENTORY.map(x => {
-    const days = x.dailySales > 0 ? Math.round(x.qty / x.dailySales) : 999;
-    const pct = Math.min(100, Math.round(x.qty / Math.max(...SM_INVENTORY.map(i=>i.qty)) * 100));
-    const warn = days < 30 ? 'color:#EF4444' : days < 60 ? 'color:#F59E0B' : 'color:var(--green)';
-    return '<div style="margin-bottom:6px">'
-      +'<div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px">'
-      +'<span style="font-weight:600">'+x.sku+'</span>'
-      +'<span style="'+warn+'">'+x.qty.toLocaleString()+'개 · <strong>~'+days+'일</strong></span>'
-      +'</div>'
-      +'<div style="background:var(--bg);border-radius:4px;height:6px"><div style="background:'+x.color+';width:'+pct+'%;height:100%;border-radius:4px"></div></div>'
-      +'</div>';
+function rdParseDate(raw) {
+  if (!raw) return '';
+  const s = raw.trim().replace(/\t/g,'');
+  // MM/DD/YYYY (handles 오전/오후 Korean AM/PM — just need date part)
+  const m = s.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+  if (m) return m[3] + '-' + m[1].padStart(2,'0') + '-' + m[2].padStart(2,'0');
+  // YYYY-MM-DD fallback
+  const m2 = s.match(/(\d{4}-\d{2}-\d{2})/);
+  return m2 ? m2[1] : '';
+}
+
+function rdParseCSV(text) {
+  if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
+  const rows = []; let row = []; let cur = ''; let inQ = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i], nx = text[i+1];
+    if (c === '"') {
+      if (!inQ) inQ = true;
+      else if (nx === '"') { cur += '"'; i++; }
+      else inQ = false;
+    } else if (c === ',' && !inQ) {
+      row.push(cur.trim()); cur = '';
+    } else if ((c === '\n' || (c === '\r' && nx === '\n')) && !inQ) {
+      if (c === '\r') i++;
+      row.push(cur.trim()); cur = '';
+      if (row.some(x=>x)) rows.push(row);
+      row = [];
+    } else cur += c;
+  }
+  if (cur || row.length) { row.push(cur.trim()); if (row.some(x=>x)) rows.push(row); }
+  return rows;
+}
+
+function renderRevDash() {
+  const saved = localStorage.getItem('rd_orders');
+  if (saved) { rdRaw = JSON.parse(saved); rdShow(); }
+}
+
+function rdHandleFile(input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const rows = rdParseCSV(e.target.result);
+      if (rows.length < 2) { alert('데이터가 없어요.'); return; }
+      // Skip header rows (look for first row where col[18] R = numeric revenue)
+      // 매출 RAW format: A=MONTH, B=date, C=OrderID ... R(idx17)=Revenue, AD(idx29)=CreatedTime
+      // + 1 for 1-indexed pipe table, so 0-indexed CSV: R=col17, AD=col29
+      const dataRows = rows.filter(r => {
+        const st = (r[3]||'').toLowerCase(); // col D = Order Status
+        return r[0] !== 'MONTH' && !isNaN(parseFloat(r[17])) && !st.includes('cancel');
+      });
+      if (!dataRows.length) { alert('유효한 매출 데이터가 없어요.\n컬럼 R(17번)=Revenue, AD(29번)=날짜 확인해주세요.'); return; }
+      rdRaw = dataRows.map(r => ({
+        date:   rdParseDate(r[29]) || rdParseDate(r[1]),  // AD 먼저, B 날짜 fallback
+        rev:    parseFloat(r[17]) || 0,
+        qty:    parseInt(r[11]) || 1,
+        sku:    rdDetectSku(r[9]),
+        status: r[3] || '',
+        orderId:r[2] || ''
+      })).filter(o => o.date && o.rev > 0);
+      if (!rdRaw.length) { alert('매출(R열) 값이 모두 0이에요. 시트에 실제 매출 데이터가 있는지 확인해주세요.'); return; }
+      localStorage.setItem('rd_orders', JSON.stringify(rdRaw));
+      rdShow();
+    } catch(err) { alert('파싱 오류: ' + err.message); console.error(err); }
+  };
+  reader.readAsText(file, 'UTF-8');
+  input.value = '';
+}
+
+function rdShow() {
+  gEl('rd-guide').style.display = 'none';
+  gEl('rd-results').style.display = 'block';
+  const cb = gEl('rd-clear-btn'); if (cb) cb.style.display = '';
+  const dates = rdRaw.map(o=>o.date).sort();
+  gEl('rd-from').value = dates[0];
+  gEl('rd-to').value   = dates[dates.length-1];
+  const fi = gEl('rd-file-info');
+  if (fi) fi.textContent = rdRaw.length + '건 · ' + dates[0] + ' ~ ' + dates[dates.length-1];
+  rdApplyFilter();
+}
+
+function rdApplyFilter() {
+  const from = gEl('rd-from').value, to = gEl('rd-to').value;
+  rdFiltered = rdRaw.filter(o => (!from||o.date>=from) && (!to||o.date<=to));
+  if (rdSkuSel !== 'all') rdFiltered = rdFiltered.filter(o => o.sku === rdSkuSel);
+  rdCompute();
+}
+
+function rdResetFilter() {
+  rdSkuSel = 'all';
+  document.querySelectorAll('#rd-sku-filter .filter-btn').forEach(b=>b.classList.remove('active'));
+  const first = document.querySelector('#rd-sku-filter .filter-btn');
+  if (first) first.classList.add('active');
+  const dates = rdRaw.map(o=>o.date).sort();
+  gEl('rd-from').value = dates[0];
+  gEl('rd-to').value   = dates[dates.length-1];
+  rdApplyFilter();
+}
+
+function rdSkuFilter(v, el) {
+  rdSkuSel = v;
+  document.querySelectorAll('#rd-sku-filter .filter-btn').forEach(b=>b.classList.remove('active'));
+  if (el) el.classList.add('active');
+  rdApplyFilter();
+}
+
+function rdCompute() {
+  const orders = rdFiltered; if (!orders.length) return;
+  const totalRev = orders.reduce((s,o)=>s+o.rev, 0);
+  const totalQty = orders.reduce((s,o)=>s+o.qty, 0);
+
+  // Daily map
+  const dayMap = {};
+  orders.forEach(o => {
+    if (!dayMap[o.date]) dayMap[o.date] = {rev:0, cnt:0, qty:0, skus:{}};
+    dayMap[o.date].rev += o.rev;
+    dayMap[o.date].cnt += 1;
+    dayMap[o.date].qty += o.qty;
+    dayMap[o.date].skus[o.sku] = (dayMap[o.date].skus[o.sku]||0) + o.qty;
+  });
+  const days = Object.keys(dayMap).sort();
+  const avgDaily = days.length ? totalRev/days.length : 0;
+
+  // Monthly map
+  const monMap = {};
+  orders.forEach(o => {
+    const mon = o.date.slice(0,7);
+    monMap[mon] = (monMap[mon]||0) + o.rev;
+  });
+
+  // SKU totals
+  const skuMap = {};
+  orders.forEach(o => skuMap[o.sku] = (skuMap[o.sku]||0) + o.rev);
+  const topSku = Object.entries(skuMap).sort((a,b)=>b[1]-a[1])[0];
+
+  // KPIs
+  const fmt = n => '$' + n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+  gEl('rd-k-rev').textContent    = fmt(totalRev);
+  gEl('rd-k-orders').textContent = orders.length.toLocaleString();
+  gEl('rd-k-daily').textContent  = fmt(avgDaily);
+  gEl('rd-k-aov').textContent    = fmt(totalRev/orders.length);
+  gEl('rd-k-qty').textContent    = totalQty.toLocaleString();
+  gEl('rd-k-top').textContent    = topSku ? topSku[0] : '-';
+
+  // Charts
+  destroyChart('rd-chart-daily'); destroyChart('rd-chart-sku'); destroyChart('rd-chart-monthly');
+  mkChart('rd-chart-daily','line',{
+    labels: days.map(d=>d.slice(5)),
+    datasets:[{label:'매출($)',data:days.map(d=>+dayMap[d].rev.toFixed(2)),
+      borderColor:'#22C55E',backgroundColor:'rgba(34,197,94,0.12)',fill:true,tension:0.3,pointRadius:2}]
+  },{plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>'$'+v.toLocaleString()}}}});
+
+  const skuLabels = RD_SKUS.filter(s=>skuMap[s]);
+  mkChart('rd-chart-sku','doughnut',{
+    labels: skuLabels,
+    datasets:[{data:skuLabels.map(s=>+(skuMap[s]||0).toFixed(2)),
+      backgroundColor:skuLabels.map(s=>RD_SKU_COLORS[RD_SKUS.indexOf(s)]||'#9CA3AF'),
+      borderWidth:2,borderColor:'var(--card)'}]
+  },{plugins:{legend:{position:'right',labels:{font:{size:11}}}}});
+
+  const mons = Object.keys(monMap).sort();
+  mkChart('rd-chart-monthly','bar',{
+    labels: mons,
+    datasets:[{label:'월 매출($)',data:mons.map(m=>+monMap[m].toFixed(2)),
+      backgroundColor:'rgba(59,130,246,0.75)',borderRadius:5}]
+  },{plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>'$'+v.toLocaleString()}}}});
+
+  // Daily table
+  const DOW = ['일','월','화','수','목','금','토'];
+  const tb = gEl('rd-daily-tbody'); if (!tb) return;
+  tb.innerHTML = [...days].reverse().map(d => {
+    const row = dayMap[d];
+    const dow = DOW[new Date(d+'T00:00:00').getDay()];
+    const skuCells = RD_SKUS.map(s =>
+      '<td style="text-align:center;font-size:12px">'+(row.skus[s]||'')+'</td>'
+    ).join('');
+    return '<tr>'
+      +'<td style="font-size:12px;white-space:nowrap;font-weight:600">'+d+'</td>'
+      +'<td style="text-align:center;font-size:12px;color:var(--muted)">'+dow+'</td>'
+      +'<td style="text-align:right;font-weight:700;color:var(--green)">$'+row.rev.toFixed(2)+'</td>'
+      +'<td style="text-align:center">'+row.cnt+'</td>'
+      +'<td style="text-align:center">'+row.qty+'</td>'
+      +skuCells+'</tr>';
   }).join('');
 }
 
-function smRenderMonthlyTable() {
-  const tb = gEl('sm-monthly-tbody'); if (!tb) return;
-  tb.innerHTML = SM_MONTHLY.map(r => {
-    const isHigh = r.gmv >= 10;
-    return '<tr style="'+(isHigh?'background:rgba(254,44,85,0.04)':'')+'">'
-      +'<td style="font-weight:700">'+(isHigh?'🔥':'')+r.m+'</td>'
-      +'<td style="font-weight:700;color:var(--green)">'+r.gmv+'억</td>'
-      +'<td style="color:var(--muted)">'+r.ad+'억</td>'
-      +'<td style="text-align:center">'+r.pdrn.toLocaleString()+'</td>'
-      +'<td style="text-align:center">'+r.lip.toLocaleString()+'</td>'
-      +'<td style="text-align:center">'+r.cer.toLocaleString()+'</td>'
-      +'<td style="text-align:center">'+r.ret.toLocaleString()+'</td>'
-      +'<td style="text-align:center">'+r.msk.toLocaleString()+'</td>'
-      +'<td style="text-align:center">'+r.set.toLocaleString()+'</td>'
-      +'<td style="text-align:right;font-weight:700">'+r.total.toLocaleString()+'</td>'
-      +'</tr>';
-  }).join('');
+function rdClear() {
+  if (!confirm('매출 데이터를 초기화할까요?')) return;
+  localStorage.removeItem('rd_orders');
+  rdRaw = []; rdFiltered = [];
+  gEl('rd-guide').style.display = 'flex';
+  gEl('rd-results').style.display = 'none';
+  const cb = gEl('rd-clear-btn'); if (cb) cb.style.display = 'none';
+  const fi = gEl('rd-file-info'); if (fi) fi.textContent = '';
 }
 
-function smRenderCompetitors() {
-  const tb = gEl('sm-comp-tbody'); if (!tb) return;
-  const tierColor = t => t==='Beyond'?'#FE2C55':t==='T5'?'#F97316':t==='T4'?'#F59E0B':t==='T3'?'#22C55E':t==='T2'?'#3B82F6':'#9CA3AF';
-  tb.innerHTML = SM_COMPETITORS.map(c => {
-    const hi = c.highlight ? 'background:rgba(34,197,94,0.08);font-weight:700' : '';
-    const gmvStr = c.gmv >= 1000000 ? '$'+(c.gmv/1000000).toFixed(1)+'M' : '$'+(c.gmv/1000).toFixed(0)+'K';
-    return '<tr style="'+hi+'">'
-      +'<td style="font-size:12px'+(c.highlight?';color:var(--green)':'')+'">'+c.brand+'</td>'
-      +'<td style="font-weight:600">'+gmvStr+'</td>'
-      +'<td><span style="background:'+tierColor(c.tier)+';color:#fff;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700">'+c.tier+'</span></td>'
-      +'</tr>';
-  }).join('');
-}
-
-function smRenderUnitEcon() {
-  const el = gEl('sm-unit-econ'); if (!el) return;
-  el.innerHTML = SM_UNIT_ECON.map(x =>
-    '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;border-radius:8px;background:var(--bg);'+(x.bold?'margin-top:8px;border:1px solid var(--pink)':'')+'">'
-    +'<span style="font-size:12px'+(x.bold?';font-weight:700':'')+'">'+x.label+(x.pct?' <span style="color:var(--muted);font-size:10px">('+x.pct+')</span>':'')+'</span>'
-    +'<strong style="font-size:13px;'+(x.color?'color:'+x.color:'')+'">'+x.val+'</strong>'
-    +'</div>'
-  ).join('');
-}
-
-function smRenderPrices() {
-  const tb = gEl('sm-price-tbody'); if (!tb) return;
-  tb.innerHTML = SM_PRICES.map(p =>
-    '<tr><td style="font-size:12px">'+p.sku+'</td>'
-    +'<td style="font-weight:700">'+p.regular+'</td>'
-    +'<td style="color:var(--pink);font-weight:700">'+p.s+'</td>'
-    +'<td>'+p.a+'</td><td style="color:var(--muted)">'+p.b+'</td></tr>'
-  ).join('');
-}
-
-function smRenderCharts() {
-  const months = SM_MONTHLY.map(r=>r.m);
-  const skuColors = ['#FE2C55','#25F4EE','#A855F7','#F59E0B','#22C55E','#F97316'];
-  destroyChart('sm-chart-monthly');
-  destroyChart('sm-chart-sku');
-  mkChart('sm-chart-monthly','bar',{
-    labels: months,
-    datasets:[
-      {label:'매출목표(억)', data:SM_MONTHLY.map(r=>r.gmv), backgroundColor:'rgba(34,197,94,0.8)', borderRadius:4, yAxisID:'y'},
-      {label:'광고비(억)',   data:SM_MONTHLY.map(r=>r.ad),  backgroundColor:'rgba(254,44,85,0.5)',  borderRadius:4, yAxisID:'y'},
-    ]
-  },{plugins:{legend:{labels:{font:{size:11}}}},scales:{y:{ticks:{callback:v=>v+'억'}}}});
-  mkChart('sm-chart-sku','bar',{
-    labels: months,
-    datasets:[
-      {label:'PDRN Cream',  data:SM_MONTHLY.map(r=>r.pdrn), backgroundColor:skuColors[0], borderRadius:3},
-      {label:'Lip Serum',   data:SM_MONTHLY.map(r=>r.lip),  backgroundColor:skuColors[1], borderRadius:3},
-      {label:'Ceramide',    data:SM_MONTHLY.map(r=>r.cer),  backgroundColor:skuColors[2], borderRadius:3},
-      {label:'Retino-Mela', data:SM_MONTHLY.map(r=>r.ret),  backgroundColor:skuColors[3], borderRadius:3},
-      {label:'Mask',        data:SM_MONTHLY.map(r=>r.msk),  backgroundColor:skuColors[4], borderRadius:3},
-    ]
-  },{plugins:{legend:{labels:{font:{size:10}}}},scales:{x:{stacked:true},y:{stacked:true,ticks:{callback:v=>v.toLocaleString()}}}});
-}
-
-/* ══════════════════════════════════════════════════════════
-   PARTNER DASHBOARD
-══════════════════════════════════════════════════════════ */
 const PARTNER_DB_URL = 'https://www.tiktokshoppartner.us/dashboard/0c72da7bd6a48c87';
 
 function renderPartnerDB() {
