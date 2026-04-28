@@ -371,6 +371,9 @@ textarea.form-input{resize:vertical}
     <div class="nav-item" onclick="nav('affiliatelist',this)">
       <span class="nav-icon">&#128101;</span> Affiliate List
     </div>
+    <div class="nav-item" onclick="nav('affiliatevideos',this)">
+      <span class="nav-icon">&#127909;</span> Affiliate Videos
+    </div>
     <div class="sb-section">Creator Tools</div>
     <div class="nav-item" onclick="nav('findcreator',this)">
       <span class="nav-icon">&#128269;</span> 크리에이터 발굴
@@ -1102,6 +1105,98 @@ textarea.form-input{resize:vertical}
           <button class="btn-ghost" onclick="cpAddSeed()">&#127873; 샘플 발송</button>
           <button class="btn-ghost" onclick="closeModal('creator-profile-modal')">닫기</button>
         </div>
+      </div>
+    </div>
+
+    <!-- ═══ 8b. AFFILIATE VIDEOS ═══════════════════ -->
+    <div id="sec-affiliatevideos" class="page-section">
+      <div class="sec-head">
+        <div>
+          <div class="sec-title">Affiliate Videos</div>
+          <div class="sec-sub" id="av-sub">CSV 업로드 후 데이터 표시 · TikTok Shop Creator Video</div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button class="btn-ghost" onclick="document.getElementById('avCsvInput').click()">&#128196; CSV 업로드</button>
+          <button class="btn-ghost" onclick="avExport()">&#11015; Export</button>
+          <input type="file" id="avCsvInput" accept=".csv" style="display:none" onchange="avHandleCsv(this)">
+        </div>
+      </div>
+
+      <!-- KPIs -->
+      <div class="kpi-grid" id="av-kpi-grid">
+        <div class="kpi"><div class="kpi-bar" style="background:var(--pink)"></div><div class="kpi-lbl">Total Videos</div><div class="kpi-val" id="av-k-videos">—</div><div class="kpi-sub neu">업로드 후 표시</div></div>
+        <div class="kpi"><div class="kpi-bar" style="background:var(--cyan)"></div><div class="kpi-lbl">Total Revenue</div><div class="kpi-val" id="av-k-rev">—</div><div class="kpi-sub neu"></div></div>
+        <div class="kpi"><div class="kpi-bar" style="background:var(--green)"></div><div class="kpi-lbl">Items Sold</div><div class="kpi-val" id="av-k-sold">—</div><div class="kpi-sub neu"></div></div>
+        <div class="kpi"><div class="kpi-bar" style="background:var(--purple)"></div><div class="kpi-lbl">Total Views</div><div class="kpi-val" id="av-k-views">—</div><div class="kpi-sub neu"></div></div>
+        <div class="kpi"><div class="kpi-bar" style="background:var(--yellow)"></div><div class="kpi-lbl">Unique Creators</div><div class="kpi-val" id="av-k-creators">—</div><div class="kpi-sub neu"></div></div>
+        <div class="kpi"><div class="kpi-bar" style="background:var(--orange)"></div><div class="kpi-lbl">Avg Rev / Video</div><div class="kpi-val" id="av-k-avg">—</div><div class="kpi-sub neu"></div></div>
+      </div>
+
+      <!-- Charts -->
+      <div class="g21">
+        <div class="card">
+          <div class="card-title">Top 15 크리에이터 매출</div>
+          <div class="ch ch-280"><canvas id="c-av-creator"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-title">제품별 매출 비중</div>
+          <div class="ch ch-200"><canvas id="c-av-product"></canvas></div>
+        </div>
+      </div>
+      <div class="card full">
+        <div class="card-title">일별 매출 추이</div>
+        <div class="ch ch-200"><canvas id="c-av-trend"></canvas></div>
+      </div>
+
+      <!-- Drop zone (shown before upload) -->
+      <div class="card full" id="av-dropzone-card">
+        <div class="drop-zone" id="av-dropzone" onclick="document.getElementById('avCsvInput').click()">
+          <div class="dz-icon">&#127909;</div>
+          <div class="dz-title">creator-video CSV 파일을 드래그하거나 클릭</div>
+          <div class="dz-sub">TikTok Shop creator-video-YYYYMMDD.csv</div>
+          <button class="upload-btn" onclick="event.stopPropagation();document.getElementById('avCsvInput').click()">파일 선택</button>
+        </div>
+        <div id="av-upload-status" style="font-size:12px;color:var(--muted);margin-top:8px;text-align:center;min-height:18px"></div>
+      </div>
+
+      <!-- Filters + Table -->
+      <div class="card full" id="av-table-card" style="display:none">
+        <div class="tbl-toolbar" style="flex-wrap:wrap;gap:8px">
+          <div>
+            <div class="card-title">Video 목록</div>
+            <div class="card-sub" id="av-tbl-info">—</div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <input type="text" class="tbl-search" id="av-search" placeholder="크리에이터 검색..." oninput="avPage=1;avRender()" style="width:160px">
+            <select class="tbl-search" id="av-filter-product" onchange="avPage=1;avRender()" style="width:170px">
+              <option value="">전체 제품</option>
+            </select>
+            <select class="tbl-search" id="av-sort" onchange="avPage=1;avRender()" style="width:140px">
+              <option value="rev">매출 높은순</option>
+              <option value="sold">판매수량순</option>
+              <option value="views">조회수순</option>
+              <option value="date">최신순</option>
+            </select>
+          </div>
+        </div>
+        <div class="tbl-wrap" style="margin-top:10px">
+          <table>
+            <thead>
+              <tr>
+                <th style="text-align:left">크리에이터</th>
+                <th style="text-align:left">제품</th>
+                <th>매출</th>
+                <th>판매수량</th>
+                <th>조회수</th>
+                <th>좋아요</th>
+                <th>날짜</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="av-tbody"></tbody>
+          </table>
+        </div>
+        <div id="av-pagination" style="display:flex;gap:6px;justify-content:center;margin-top:12px;flex-wrap:wrap"></div>
       </div>
     </div>
 
@@ -2198,7 +2293,7 @@ const UK_MONTHLY = [
 const PAGE_TITLES = {
   overview:'Overview', sales:'Sales & Revenue', inventory:'Inventory',
   affiliates:'Affiliates', competitors:'Competitors', promotions:'Promotions',
-  uk:'UK Market', affiliatelist:'Affiliate List', cs:'CS 봇', customercrm:'Customer CRM 전략', team:'Team Dashboard', spark:'Spark Ads Codes', launch:'런칭 체크리스트', reseller:'리셀러 검토', revdash:'매출 대시보드', partnerdb:'Partner Dashboard',
+  uk:'UK Market', affiliatelist:'Affiliate List', affiliatevideos:'Affiliate Videos', cs:'CS 봇', customercrm:'Customer CRM 전략', team:'Team Dashboard', spark:'Spark Ads Codes', launch:'런칭 체크리스트', reseller:'리셀러 검토', revdash:'매출 대시보드', partnerdb:'Partner Dashboard',
   findcreator:'크리에이터 발굴', crm:'Creator CRM', seeding:'샘플 시딩 트래커', live:'LIVE 스트림 트래커',
   viral:'바이럴 영상 트래커', brief:'콘텐츠 브리프 생성기',
   settlement:'정산 트래커', report:'주간 리포트'
@@ -2232,6 +2327,7 @@ function renderSection(id) {
   if (id === 'promotions')    renderPromotions();
   if (id === 'uk')            renderUK();
   if (id === 'affiliatelist') renderAffiliateList();
+  if (id === 'affiliatevideos') avRenderSection();
   if (id === 'findcreator') renderFindCreator();
   if (id === 'crm')        renderCRM();
   if (id === 'seeding')    renderSeeding();
@@ -6004,6 +6100,319 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.removeItem('rd_free');
   }
   renderSection('overview');
+});
+
+/* ═══════════════════════════════════════════════════════
+   AFFILIATE VIDEOS
+═══════════════════════════════════════════════════════ */
+let avRaw = [];   // [{url,creator,rev,sold,gmv30,date,views,likes,comments,product,pid}]
+let avPage = 1;
+const AV_PER_PAGE = 30;
+
+// Short product label from full product name
+function avShortProduct(name) {
+  name = (name||'').toLowerCase();
+  if (name.includes('lip')) return 'Lip Serum';
+  if (name.includes('mask')) return 'PDRN Mask';
+  if (name.includes('retino')) return 'Retino-Mela';
+  if (name.includes('ceramide') || name.includes('barrier')) return 'Ceramide';
+  if (name.includes('max') || name.includes('60ml')) return 'PDRN Max';
+  if (name.includes('pdrn') || name.includes('rejuvenating cream')) return 'PDRN Cream';
+  if (name.includes('routine') || name.includes('set')) return 'Skin Set';
+  return 'Other';
+}
+
+// Robust CSV parser (handles quoted multiline fields)
+function avParseCSV(text) {
+  const rows = [];
+  let col = 0, row = [], inQ = false, cell = '';
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i], nx = text[i+1];
+    if (inQ) {
+      if (ch === '"' && nx === '"') { cell += '"'; i++; }
+      else if (ch === '"') { inQ = false; }
+      else { cell += ch; }
+    } else {
+      if (ch === '"') { inQ = true; }
+      else if (ch === ',') { row.push(cell); cell = ''; col++; }
+      else if (ch === '\n') {
+        row.push(cell); cell = ''; col = 0;
+        if (row.some(c => c.trim())) rows.push(row);
+        row = [];
+      } else if (ch === '\r') { /* skip */ }
+      else { cell += ch; }
+    }
+  }
+  if (cell || row.length) { row.push(cell); if (row.some(c=>c.trim())) rows.push(row); }
+  return rows;
+}
+
+function avHandleCsv(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const status = document.getElementById('av-upload-status');
+  status.textContent = '처리 중...';
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const rows = avParseCSV(e.target.result);
+      if (rows.length < 2) { status.textContent = '❌ 데이터 없음'; return; }
+      // Skip header row
+      const data = rows.slice(1).map(r => ({
+        url:      (r[0]||'').trim(),
+        creator:  (r[1]||'').trim(),
+        rev:      parseFloat(r[2]) || 0,
+        sold:     parseInt(r[3]) || 0,
+        gmv30:    parseFloat(r[4]) || 0,
+        date:     (r[5]||'').slice(0,10),
+        views:    parseInt(r[6]) || 0,
+        likes:    parseInt(r[7]) || 0,
+        comments: parseInt(r[8]) || 0,
+        product:  avShortProduct(r[10]||''),
+        pid:      (r[11]||'').trim(),
+      })).filter(r => r.creator);
+      avRaw = data;
+      // Save slim version to localStorage
+      try {
+        const slim = data.map(r => [r.creator, r.rev, r.sold, r.views, r.likes, r.date, r.product, r.url].join('|'));
+        localStorage.setItem('av_slim', slim.join('\n'));
+      } catch(e) { /* quota — skip cache */ }
+      status.textContent = `✅ ${data.length.toLocaleString()}개 영상 로드 완료`;
+      avPage = 1;
+      avRenderSection();
+    } catch(err) {
+      status.textContent = '❌ 파싱 오류: ' + err.message;
+    }
+  };
+  reader.readAsText(file, 'UTF-8');
+}
+
+function avLoadCache() {
+  try {
+    const raw = localStorage.getItem('av_slim');
+    if (!raw) return;
+    avRaw = raw.split('\n').filter(Boolean).map(line => {
+      const p = line.split('|');
+      return { creator:p[0], rev:+p[1], sold:+p[2], views:+p[3], likes:+p[4], date:p[5], product:p[6], url:p[7]||'', gmv30:0, comments:0, pid:'' };
+    });
+  } catch(e) {}
+}
+
+function avRenderSection() {
+  if (!avRaw.length) {
+    document.getElementById('av-dropzone-card').style.display = '';
+    document.getElementById('av-table-card').style.display = 'none';
+    ['c-av-creator','c-av-product','c-av-trend'].forEach(id => destroyChart(id));
+    return;
+  }
+  document.getElementById('av-dropzone-card').style.display = 'none';
+  document.getElementById('av-table-card').style.display = '';
+  avRenderKPIs();
+  avBuildProductFilter();
+  avRenderCharts();
+  avRender();
+}
+
+function avFiltered() {
+  const q = (document.getElementById('av-search')?.value||'').toLowerCase();
+  const prod = document.getElementById('av-filter-product')?.value || '';
+  return avRaw.filter(r =>
+    (!q || r.creator.toLowerCase().includes(q)) &&
+    (!prod || r.product === prod)
+  );
+}
+
+function avRenderKPIs() {
+  const d = avRaw;
+  const totalRev  = d.reduce((s,r)=>s+r.rev, 0);
+  const totalSold = d.reduce((s,r)=>s+r.sold, 0);
+  const totalViews= d.reduce((s,r)=>s+r.views, 0);
+  const creators  = new Set(d.map(r=>r.creator)).size;
+  const avgRev    = d.length ? totalRev/d.length : 0;
+  const fmt = v => '$'+v.toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0});
+  const fmtK = v => v >= 1e6 ? (v/1e6).toFixed(1)+'M' : v >= 1e3 ? (v/1e3).toFixed(0)+'K' : v.toLocaleString();
+
+  document.getElementById('av-k-videos').textContent    = d.length.toLocaleString();
+  document.getElementById('av-k-rev').textContent       = fmt(totalRev);
+  document.getElementById('av-k-sold').textContent      = totalSold.toLocaleString();
+  document.getElementById('av-k-views').textContent     = fmtK(totalViews);
+  document.getElementById('av-k-creators').textContent  = creators.toLocaleString();
+  document.getElementById('av-k-avg').textContent       = fmt(avgRev);
+
+  const dates = d.map(r=>r.date).filter(Boolean).sort();
+  if (dates.length) {
+    document.getElementById('av-sub').textContent =
+      `${dates[0]} ~ ${dates[dates.length-1]} · ${d.length.toLocaleString()} videos`;
+  }
+}
+
+function avBuildProductFilter() {
+  const sel = document.getElementById('av-filter-product');
+  const cur = sel.value;
+  const prods = [...new Set(avRaw.map(r=>r.product))].sort();
+  sel.innerHTML = '<option value="">전체 제품</option>' +
+    prods.map(p=>`<option value="${p}"${p===cur?' selected':''}>${p}</option>`).join('');
+}
+
+function avRenderCharts() {
+  // Top 15 creators by revenue
+  const creatorMap = {};
+  avRaw.forEach(r => { creatorMap[r.creator] = (creatorMap[r.creator]||0) + r.rev; });
+  const top15 = Object.entries(creatorMap).sort((a,b)=>b[1]-a[1]).slice(0,15);
+  destroyChart('c-av-creator');
+  const ctxC = document.getElementById('c-av-creator');
+  if (ctxC) {
+    activeCharts['c-av-creator'] = new Chart(ctxC, {
+      type:'bar',
+      data:{
+        labels: top15.map(([c])=>c),
+        datasets:[{
+          label:'매출',
+          data: top15.map(([,v])=>+v.toFixed(2)),
+          backgroundColor: top15.map((_,i) => [PINK,CYAN,PURPLE,YELLOW,GREEN,ORANGE,BLUE,TEAL,'#ec4899','#84cc16','#06b6d4','#8b5cf6','#f97316','#14b8a6','#facc15'][i]),
+          borderRadius:4,
+        }]
+      },
+      options:{
+        responsive:true, maintainAspectRatio:false, indexAxis:'y',
+        plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>'$'+c.raw.toLocaleString()}}},
+        scales:{
+          x:{ticks:{color:'#9CA3AF',callback:v=>'$'+(v>=1000?(v/1000).toFixed(0)+'K':v)}, grid:{color:'rgba(255,255,255,.05)'}},
+          y:{ticks:{color:'#9CA3AF',font:{size:11}}, grid:{display:false}},
+        }
+      }
+    });
+  }
+
+  // Product donut
+  const prodMap = {};
+  avRaw.forEach(r => { prodMap[r.product] = (prodMap[r.product]||0) + r.rev; });
+  const prodEntries = Object.entries(prodMap).sort((a,b)=>b[1]-a[1]);
+  destroyChart('c-av-product');
+  const ctxP = document.getElementById('c-av-product');
+  if (ctxP) {
+    activeCharts['c-av-product'] = new Chart(ctxP, {
+      type:'doughnut',
+      data:{
+        labels: prodEntries.map(([k])=>k),
+        datasets:[{ data: prodEntries.map(([,v])=>+v.toFixed(2)),
+          backgroundColor:[PINK,CYAN,PURPLE,YELLOW,GREEN,ORANGE,BLUE,TEAL], borderWidth:0 }]
+      },
+      options:{
+        responsive:true, maintainAspectRatio:false, cutout:'65%',
+        plugins:{legend:{position:'right', labels:{color:'#9CA3AF',font:{size:11},boxWidth:12}},
+          tooltip:{callbacks:{label:c=>`${c.label}: $${(+c.raw).toLocaleString()}`}}}
+      }
+    });
+  }
+
+  // Daily revenue trend
+  const dayMap = {};
+  avRaw.forEach(r => { if(r.date) dayMap[r.date] = (dayMap[r.date]||0) + r.rev; });
+  const sortedDays = Object.entries(dayMap).sort((a,b)=>a[0].localeCompare(b[0]));
+  destroyChart('c-av-trend');
+  const ctxT = document.getElementById('c-av-trend');
+  if (ctxT) {
+    activeCharts['c-av-trend'] = new Chart(ctxT, {
+      type:'line',
+      data:{
+        labels: sortedDays.map(([d])=>d),
+        datasets:[{
+          label:'일별 매출',
+          data: sortedDays.map(([,v])=>+v.toFixed(2)),
+          borderColor:PINK, backgroundColor:PINK+'22',
+          borderWidth:2, tension:0.3, pointRadius:0, fill:true,
+        }]
+      },
+      options:{
+        responsive:true, maintainAspectRatio:false,
+        plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>'$'+c.raw.toLocaleString()}}},
+        scales:{
+          x:{ticks:{color:'#9CA3AF',maxTicksLimit:12}, grid:{color:'rgba(255,255,255,.05)'}},
+          y:{ticks:{color:'#9CA3AF',callback:v=>'$'+(v>=1000?(v/1000).toFixed(0)+'K':v)}, grid:{color:'rgba(255,255,255,.05)'}},
+        }
+      }
+    });
+  }
+}
+
+function avRender() {
+  const sort = document.getElementById('av-sort')?.value || 'rev';
+  let data = avFiltered().slice();
+  data.sort((a,b) => {
+    if (sort==='rev')  return b.rev - a.rev;
+    if (sort==='sold') return b.sold - a.sold;
+    if (sort==='views')return b.views - a.views;
+    if (sort==='date') return b.date.localeCompare(a.date);
+    return 0;
+  });
+  const total = data.length;
+  const pages = Math.ceil(total / AV_PER_PAGE) || 1;
+  avPage = Math.min(avPage, pages);
+  const slice = data.slice((avPage-1)*AV_PER_PAGE, avPage*AV_PER_PAGE);
+
+  document.getElementById('av-tbl-info').textContent =
+    `${total.toLocaleString()}개 영상 · 페이지 ${avPage}/${pages}`;
+
+  const prodColors = {
+    'PDRN Cream':PINK,'PDRN Max':CYAN,'Retino-Mela':PURPLE,
+    'Ceramide':GREEN,'Lip Serum':YELLOW,'PDRN Mask':ORANGE,'Skin Set':BLUE,'Other':'#9CA3AF'
+  };
+  const fmtK = v => v>=1e6?(v/1e6).toFixed(1)+'M':v>=1e3?(v/1e3).toFixed(0)+'K':v.toLocaleString();
+
+  const tbody = document.getElementById('av-tbody');
+  tbody.innerHTML = slice.map(r => `
+    <tr>
+      <td style="text-align:left">
+        ${r.url ? `<a href="${esc(r.url)}" target="_blank" style="color:var(--pink);text-decoration:none;font-weight:600">@${esc(r.creator)}</a>` : `<span style="font-weight:600">@${esc(r.creator)}</span>`}
+      </td>
+      <td style="text-align:left"><span style="color:${prodColors[r.product]||'#9CA3AF'};font-size:12px;font-weight:600">${esc(r.product)}</span></td>
+      <td style="color:var(--green);font-weight:700">$${r.rev.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
+      <td>${r.sold.toLocaleString()}</td>
+      <td>${fmtK(r.views)}</td>
+      <td>${fmtK(r.likes)}</td>
+      <td style="color:var(--muted)">${r.date||'—'}</td>
+      <td>${r.url?`<a href="${esc(r.url)}" target="_blank" class="btn-ghost" style="font-size:11px;padding:3px 8px">&#127760;</a>`:''}</td>
+    </tr>`).join('') || '<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:20px">데이터 없음</td></tr>';
+
+  // Pagination
+  const pg = document.getElementById('av-pagination');
+  if (pages <= 1) { pg.innerHTML=''; return; }
+  let pgHtml = '';
+  const from = Math.max(1, avPage-3), to = Math.min(pages, avPage+3);
+  if (from>1) pgHtml += `<button class="filter-btn" onclick="avGoPage(1)">1</button>`;
+  if (from>2) pgHtml += `<span style="color:var(--muted)">…</span>`;
+  for(let i=from;i<=to;i++)
+    pgHtml+=`<button class="filter-btn${i===avPage?' active':''}" onclick="avGoPage(${i})">${i}</button>`;
+  if (to<pages-1) pgHtml+=`<span style="color:var(--muted)">…</span>`;
+  if (to<pages) pgHtml+=`<button class="filter-btn" onclick="avGoPage(${pages})">${pages}</button>`;
+  pg.innerHTML = pgHtml;
+}
+
+function avGoPage(p) { avPage=p; avRender(); }
+
+function avExport() {
+  if (!avRaw.length) { alert('데이터가 없습니다. CSV를 먼저 업로드하세요.'); return; }
+  const header = 'Creator,Product,Revenue,Items Sold,Views,Likes,Comments,Date,URL\n';
+  const rows = avRaw.map(r =>
+    `"${r.creator}","${r.product}",${r.rev},${r.sold},${r.views},${r.likes},${r.comments},"${r.date}","${r.url}"`
+  ).join('\n');
+  dlCSV(header+rows, `affiliate-videos-${new Date().toISOString().slice(0,10)}.csv`);
+}
+
+// Setup dropzone
+document.addEventListener('DOMContentLoaded', () => {
+  avLoadCache();
+  const dz = document.getElementById('av-dropzone');
+  if (dz) {
+    dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag-over'); });
+    dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
+    dz.addEventListener('drop', e => {
+      e.preventDefault(); dz.classList.remove('drag-over');
+      const f = e.dataTransfer.files[0];
+      if (f) { const inp = document.getElementById('avCsvInput'); inp.files = e.dataTransfer.files; avHandleCsv(inp); }
+    });
+  }
 });
 </script>
 </body>
