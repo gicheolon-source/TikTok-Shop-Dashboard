@@ -1839,6 +1839,20 @@ textarea.form-input{resize:vertical}
             </table>
           </div>
         </div>
+
+        <!-- 일별 샘플 수량 요약 -->
+        <div id="rd-sample-table-wrap" style="display:none" class="kpi-card" style="padding:16px;margin-bottom:16px">
+          <div style="font-size:13px;font-weight:700;margin-bottom:10px">🎁 일별 Free Sample 발송 요약</div>
+          <div style="overflow-x:auto;max-height:320px;overflow-y:auto">
+            <table class="data-table" style="min-width:500px">
+              <thead><tr id="rd-sample-head">
+                <th>날짜</th><th style="text-align:center">요일</th>
+                <th style="text-align:center">총 수량</th>
+              </tr></thead>
+              <tbody id="rd-sample-tbody"></tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -3341,6 +3355,46 @@ function rdCompute() {
       +'<td style="text-align:center">'+row.qty+'</td>'
       +skuCells+'</tr>';
   }).join('');
+
+  // 일별 Free Sample 테이블
+  const sampleWrap = gEl('rd-sample-table-wrap');
+  const stbody = gEl('rd-sample-tbody');
+  if (sampleWrap && stbody && filteredFree.length) {
+    // 날짜별 SKU 집계
+    const sampleDayMap = {};
+    filteredFree.forEach(f => {
+      if (!f.date) return;
+      if (!sampleDayMap[f.date]) sampleDayMap[f.date] = {total:0, skus:{}};
+      sampleDayMap[f.date].total += f.qty;
+      sampleDayMap[f.date].skus[f.sku] = (sampleDayMap[f.date].skus[f.sku]||0) + f.qty;
+    });
+    const sampleDays = Object.keys(sampleDayMap).sort();
+    const activeSampleSkus = RD_SKUS.filter(s => sampleDays.some(d => sampleDayMap[d].skus[s]));
+
+    // 헤더 동적 생성
+    const shead = gEl('rd-sample-head');
+    if (shead) {
+      shead.innerHTML = '<th>날짜</th><th style="text-align:center">요일</th><th style="text-align:center">총 수량</th>'
+        + activeSampleSkus.map(s=>`<th style="text-align:center;font-size:11px">${s}</th>`).join('');
+    }
+
+    stbody.innerHTML = [...sampleDays].reverse().map(d => {
+      const row = sampleDayMap[d];
+      const dow = DOW[new Date(d+'T00:00:00').getDay()];
+      const skuCells = activeSampleSkus.map(s =>
+        '<td style="text-align:center;font-size:12px;color:var(--cyan)">'+(row.skus[s]||'')+'</td>'
+      ).join('');
+      return '<tr>'
+        +'<td style="font-size:12px;white-space:nowrap;font-weight:600">'+d+'</td>'
+        +'<td style="text-align:center;font-size:12px;color:var(--muted)">'+dow+'</td>'
+        +'<td style="text-align:center;font-weight:700;color:var(--cyan)">'+row.total+'</td>'
+        +skuCells+'</tr>';
+    }).join('');
+
+    sampleWrap.style.display = 'block';
+  } else if (sampleWrap) {
+    sampleWrap.style.display = 'none';
+  }
 }
 
 function rdClear() {
