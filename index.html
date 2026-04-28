@@ -2016,7 +2016,6 @@ function nav(id, el) {
   document.getElementById('sec-' + id).classList.add('active');
   document.getElementById('topbarTitle').textContent = PAGE_TITLES[id];
   currentSection = id;
-  localStorage.setItem('last_nav', id);
   // Destroy old charts for that section then render
   setTimeout(() => renderSection(id), 50);
 }
@@ -5339,22 +5338,17 @@ function doLogin() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  // 매출 데이터 메모리 선복원 (nav 클릭 전에도 준비)
+  // 매출 데이터 메모리 선복원
   try {
     const s = localStorage.getItem('rd_slim');
     const f = localStorage.getItem('rd_free');
     if (s) rdRaw = JSON.parse(s);
     if (f) rdFreeSamples = JSON.parse(f);
-  } catch(e) {}
-
-  // 마지막 섹션 복원
-  const lastNav = localStorage.getItem('last_nav') || 'overview';
-  const savedNavEl = document.querySelector(`.nav-item[onclick*="'${lastNav}'"]`);
-  if (savedNavEl) {
-    savedNavEl.click();
-  } else {
-    renderSection('overview');
+  } catch(e) {
+    localStorage.removeItem('rd_slim');
+    localStorage.removeItem('rd_free');
   }
+  renderSection('overview');
 });
 </script>
 </body>
