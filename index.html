@@ -3233,9 +3233,11 @@ function rdCompute() {
   });
   const topSku = Object.entries(skuRev).sort((a,b)=>b[1]-a[1])[0];
 
-  // Free sample map
+  // Free sample map — 날짜 필터 동기화
+  const from = gEl('rd-from').value, to = gEl('rd-to').value;
+  const filteredFree = rdFreeSamples.filter(f => (!from||f.date>=from) && (!to||f.date<=to));
   const freeMap = {};
-  rdFreeSamples.forEach(f => freeMap[f.sku] = (freeMap[f.sku]||0) + f.qty);
+  filteredFree.forEach(f => freeMap[f.sku] = (freeMap[f.sku]||0) + f.qty);
   const freeTotalQty = Object.values(freeMap).reduce((s,v)=>s+v, 0);
 
   // KPIs
