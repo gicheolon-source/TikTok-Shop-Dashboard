@@ -372,6 +372,9 @@ textarea.form-input{resize:vertical}
       <span class="nav-icon">&#128101;</span> Affiliate List
     </div>
     <div class="sb-section">Creator Tools</div>
+    <div class="nav-item" onclick="nav('findcreator',this)">
+      <span class="nav-icon">&#128269;</span> 크리에이터 발굴
+    </div>
     <div class="nav-item" onclick="nav('crm',this)">
       <span class="nav-icon">&#128100;</span> Creator CRM
     </div>
@@ -1242,6 +1245,131 @@ textarea.form-input{resize:vertical}
       <div class="modal-actions"><button class="btn-ghost" onclick="closeModal('viral-modal')">취소</button><button class="btn-primary" onclick="viralSave()">저장</button></div>
     </div></div>
 
+    <!-- ═══ 크리에이터 발굴 ══════════════════════ -->
+    <div id="sec-findcreator" class="page-section">
+      <div class="sec-head">
+        <div><div class="sec-title">크리에이터 발굴</div><div class="sec-sub">발굴 → 컨택 → 협의 → CRM 등록 파이프라인</div></div>
+        <button class="btn-primary" onclick="openModal('fc-modal')">+ 크리에이터 추가</button>
+      </div>
+
+      <!-- 발굴 툴 바로가기 -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:18px">
+        <a href="https://app.euka.ai/find-creators" target="_blank" style="text-decoration:none">
+          <div class="card" style="padding:14px;cursor:pointer;border:1.5px solid #FE2C5530;transition:border-color .2s" onmouseover="this.style.borderColor='#FE2C55'" onmouseout="this.style.borderColor='#FE2C5530'">
+            <div style="font-size:22px;margin-bottom:6px">🔍</div>
+            <div style="font-size:13px;font-weight:700;color:var(--fg)">Euka.ai</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px">크리에이터 탐색</div>
+          </div>
+        </a>
+        <a href="https://creatormarketplace.tiktok.com" target="_blank" style="text-decoration:none">
+          <div class="card" style="padding:14px;cursor:pointer;border:1.5px solid #25F4EE30;transition:border-color .2s" onmouseover="this.style.borderColor='#25F4EE'" onmouseout="this.style.borderColor='#25F4EE30'">
+            <div style="font-size:22px;margin-bottom:6px">🎵</div>
+            <div style="font-size:13px;font-weight:700;color:var(--fg)">TikTok Marketplace</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px">공식 크리에이터 마켓</div>
+          </div>
+        </a>
+        <a href="https://www.modash.io" target="_blank" style="text-decoration:none">
+          <div class="card" style="padding:14px;cursor:pointer;border:1.5px solid #A855F730;transition:border-color .2s" onmouseover="this.style.borderColor='#A855F7'" onmouseout="this.style.borderColor='#A855F730'">
+            <div style="font-size:22px;margin-bottom:6px">📊</div>
+            <div style="font-size:13px;font-weight:700;color:var(--fg)">Modash</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px">팔로워·참여율 분석</div>
+          </div>
+        </a>
+        <a href="https://hypeauditor.com" target="_blank" style="text-decoration:none">
+          <div class="card" style="padding:14px;cursor:pointer;border:1.5px solid #F59E0B30;transition:border-color .2s" onmouseover="this.style.borderColor='#F59E0B'" onmouseout="this.style.borderColor='#F59E0B30'">
+            <div style="font-size:22px;margin-bottom:6px">🎯</div>
+            <div style="font-size:13px;font-weight:700;color:var(--fg)">HypeAuditor</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px">가짜 팔로워 검증</div>
+          </div>
+        </a>
+        <a href="https://affiliate.tiktok.com" target="_blank" style="text-decoration:none">
+          <div class="card" style="padding:14px;cursor:pointer;border:1.5px solid #22C55E30;transition:border-color .2s" onmouseover="this.style.borderColor='#22C55E'" onmouseout="this.style.borderColor='#22C55E30'">
+            <div style="font-size:22px;margin-bottom:6px">🛒</div>
+            <div style="font-size:13px;font-weight:700;color:var(--fg)">TikTok Affiliate</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px">어필리에이트 센터</div>
+          </div>
+        </a>
+      </div>
+
+      <!-- KPI -->
+      <div class="kpi-grid" style="margin-bottom:18px">
+        <div class="kpi"><div class="kpi-bar" style="background:var(--pink)"></div><div class="kpi-lbl">발굴됨</div><div class="kpi-val" id="fc-kpi-all">0</div><div class="kpi-sub neu">총 발굴 크리에이터</div></div>
+        <div class="kpi"><div class="kpi-bar" style="background:var(--cyan)"></div><div class="kpi-lbl">컨택 중</div><div class="kpi-val" id="fc-kpi-contact">0</div><div class="kpi-sub neu">진행 중</div></div>
+        <div class="kpi"><div class="kpi-bar" style="background:var(--yellow)"></div><div class="kpi-lbl">협의 중</div><div class="kpi-val" id="fc-kpi-nego">0</div><div class="kpi-sub neu">협상 단계</div></div>
+        <div class="kpi"><div class="kpi-bar" style="background:var(--green)"></div><div class="kpi-lbl">CRM 등록</div><div class="kpi-val" id="fc-kpi-crm">0</div><div class="kpi-sub up">전환 완료</div></div>
+      </div>
+
+      <!-- 필터 + 검색 -->
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px">
+        <input class="tbl-search" id="fc-search" placeholder="핸들 / 이름 검색..." oninput="fcRender()" style="width:200px">
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <button class="filter-btn active" onclick="fcFilter('all',this)">전체</button>
+          <button class="filter-btn" onclick="fcFilter('discovered',this)" style="--fb:#6B7280">발굴됨</button>
+          <button class="filter-btn" onclick="fcFilter('contacting',this)" style="--fb:#25F4EE">컨택 중</button>
+          <button class="filter-btn" onclick="fcFilter('negotiating',this)" style="--fb:#F59E0B">협의 중</button>
+          <button class="filter-btn" onclick="fcFilter('contracted',this)" style="--fb:#22C55E">계약 완료</button>
+          <button class="filter-btn" onclick="fcFilter('registered',this)" style="--fb:#A855F7">CRM 등록</button>
+        </div>
+      </div>
+
+      <!-- 테이블 -->
+      <div class="card" style="padding:0">
+        <div class="tbl-wrap"><table>
+          <thead><tr>
+            <th>TikTok 핸들</th>
+            <th style="text-align:center">팔로워</th>
+            <th>니치</th>
+            <th>발굴 출처</th>
+            <th style="text-align:center">단계</th>
+            <th>메모</th>
+            <th style="text-align:center">등록일</th>
+            <th style="text-align:center">액션</th>
+          </tr></thead>
+          <tbody id="fc-tbody"></tbody>
+        </table></div>
+        <div id="fc-empty" style="text-align:center;padding:40px;color:var(--muted);font-size:13px">발굴한 크리에이터를 추가해보세요</div>
+      </div>
+    </div>
+
+    <!-- 발굴 크리에이터 모달 -->
+    <div class="modal-overlay hidden" id="fc-modal"><div class="modal-box">
+      <div class="modal-title">크리에이터 발굴 등록</div>
+      <input type="hidden" id="fc-edit-id">
+      <div class="form-row"><label>TikTok 핸들 *</label><input class="form-input" id="fc-f-handle" placeholder="@username"></div>
+      <div class="g2">
+        <div class="form-row"><label>팔로워 수</label><input class="form-input" id="fc-f-followers" type="number" placeholder="50000"></div>
+        <div class="form-row"><label>니치/카테고리</label><input class="form-input" id="fc-f-niche" placeholder="스킨케어, 뷰티..."></div>
+      </div>
+      <div class="g2">
+        <div class="form-row"><label>발굴 출처</label>
+          <select class="form-input" id="fc-f-source">
+            <option value="euka.ai">Euka.ai</option>
+            <option value="TikTok Marketplace">TikTok Marketplace</option>
+            <option value="Modash">Modash</option>
+            <option value="HypeAuditor">HypeAuditor</option>
+            <option value="직접 발굴">직접 발굴</option>
+            <option value="추천">추천</option>
+            <option value="기타">기타</option>
+          </select>
+        </div>
+        <div class="form-row"><label>단계</label>
+          <select class="form-input" id="fc-f-stage">
+            <option value="discovered">발굴됨</option>
+            <option value="contacting">컨택 중</option>
+            <option value="negotiating">협의 중</option>
+            <option value="contracted">계약 완료</option>
+            <option value="registered">CRM 등록</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row"><label>TikTok 프로필 URL</label><input class="form-input" id="fc-f-url" placeholder="https://www.tiktok.com/@..."></div>
+      <div class="form-row"><label>메모</label><textarea class="form-input" id="fc-f-note" rows="2" placeholder="참여율, 콘텐츠 스타일, 연락 내용 등..."></textarea></div>
+      <div style="display:flex;gap:8px;margin-top:16px">
+        <button class="btn-primary" style="flex:1" onclick="fcSave()">저장</button>
+        <button class="btn-sec" onclick="closeModal('fc-modal')">취소</button>
+      </div>
+    </div></div>
+
     <!-- ═══ 13. 콘텐츠 브리프 ══════════════════ -->
     <div id="sec-brief" class="page-section">
       <div class="sec-head">
@@ -2003,7 +2131,7 @@ const PAGE_TITLES = {
   overview:'Overview', sales:'Sales & Revenue', inventory:'Inventory',
   affiliates:'Affiliates', competitors:'Competitors', promotions:'Promotions',
   uk:'UK Market', affiliatelist:'Affiliate List', cs:'CS 봇', customercrm:'Customer CRM 전략', team:'Team Dashboard', spark:'Spark Ads Codes', launch:'런칭 체크리스트', reseller:'리셀러 검토', revdash:'매출 대시보드', partnerdb:'Partner Dashboard',
-  crm:'Creator CRM', seeding:'샘플 시딩 트래커', live:'LIVE 스트림 트래커',
+  findcreator:'크리에이터 발굴', crm:'Creator CRM', seeding:'샘플 시딩 트래커', live:'LIVE 스트림 트래커',
   viral:'바이럴 영상 트래커', brief:'콘텐츠 브리프 생성기',
   settlement:'정산 트래커', report:'주간 리포트'
 };
@@ -2036,6 +2164,7 @@ function renderSection(id) {
   if (id === 'promotions')    renderPromotions();
   if (id === 'uk')            renderUK();
   if (id === 'affiliatelist') renderAffiliateList();
+  if (id === 'findcreator') renderFindCreator();
   if (id === 'crm')        renderCRM();
   if (id === 'seeding')    renderSeeding();
   if (id === 'live')       renderLive();
@@ -3067,9 +3196,30 @@ function rdUpdateBadge() {
 }
 
 function rdSave() {
+  localStorage.removeItem('rd_orders'); // 구버전 대용량 키 항상 제거
   try {
-    localStorage.setItem('rd_slim', JSON.stringify(rdRaw));
-    localStorage.setItem('rd_free', JSON.stringify(rdFreeSamples));
+    // date+SKU 기준 집계 압축 (1700행 → ~200행)
+    const aggMap = {};
+    rdRaw.forEach(o => {
+      const k = (o.date||'') + '|' + (o.sku||'Other');
+      if (!aggMap[k]) aggMap[k] = {date:o.date||'', sku:o.sku||'Other', rev:0, qty:0, cnt:0};
+      aggMap[k].rev = +(aggMap[k].rev + o.rev).toFixed(2);
+      aggMap[k].qty += (o.qty||0);
+      aggMap[k].cnt += (o.cnt||1);
+    });
+    const freeAggMap = {};
+    rdFreeSamples.forEach(f => {
+      const k = (f.date||'none') + '|' + (f.sku||'Other');
+      if (!freeAggMap[k]) freeAggMap[k] = {date:f.date||'', sku:f.sku||'Other', qty:0};
+      freeAggMap[k].qty += (f.qty||0);
+    });
+    // orderId 목록 저장 (중복 방지용)
+    const existingIds = (localStorage.getItem('rd_ids')||'').split(',').filter(Boolean);
+    const newIds = rdRaw.map(o=>o.orderId).filter(Boolean);
+    const allIds = [...new Set([...existingIds, ...newIds])];
+    localStorage.setItem('rd_slim', JSON.stringify(Object.values(aggMap)));
+    localStorage.setItem('rd_free', JSON.stringify(Object.values(freeAggMap)));
+    localStorage.setItem('rd_ids', allIds.join(','));
     rdUpdateBadge();
   } catch(e) {
     console.warn('자동저장 실패:', e.message);
@@ -3196,23 +3346,46 @@ function rdProcessRows(rows) {
 
   if (!rdRaw.length) { alert('매출 데이터가 없어요. 날짜/매출 컬럼을 확인해주세요.'); return; }
 
-  // 기존 데이터와 merge (orderId 기준 중복 제거)
-  const existingOrders = localStorage.getItem('rd_slim');
-  const existingFree   = localStorage.getItem('rd_free');
-  if (existingOrders) {
+  // 기존 orderId 목록으로 신규 주문만 필터
+  const knownIds = new Set((localStorage.getItem('rd_ids')||'').split(',').filter(Boolean));
+  const newOrders = knownIds.size ? rdRaw.filter(o => !knownIds.has(o.orderId)) : rdRaw;
+
+  // 기존 집계 데이터(rd_slim)와 신규 주문 합치기
+  const existingAgg = localStorage.getItem('rd_slim');
+  if (existingAgg && newOrders.length > 0) {
     try {
-      const prev = JSON.parse(existingOrders);
-      const prevIds = new Set(prev.map(o => o.orderId));
-      const newOnes = rdRaw.filter(o => !prevIds.has(o.orderId));
-      rdRaw = [...prev, ...newOnes];
-    } catch(e) {}
+      const prev = JSON.parse(existingAgg); // [{date,sku,rev,qty,cnt}, ...]
+      const aggMap = {};
+      prev.forEach(p => { aggMap[p.date+'|'+p.sku] = {date:p.date, sku:p.sku, rev:p.rev||0, qty:p.qty||0, cnt:p.cnt||1}; });
+      newOrders.forEach(o => {
+        const k = (o.date||'')+'|'+(o.sku||'Other');
+        if (!aggMap[k]) aggMap[k] = {date:o.date||'', sku:o.sku||'Other', rev:0, qty:0, cnt:0};
+        aggMap[k].rev = +(aggMap[k].rev + o.rev).toFixed(2);
+        aggMap[k].qty += (o.qty||0);
+        aggMap[k].cnt++;
+      });
+      rdRaw = Object.values(aggMap);
+    } catch(e) { /* merge 실패 시 현재 데이터 유지 */ }
+  } else if (!existingAgg) {
+    // 첫 업로드: rdRaw는 개별 rows — rdSave()에서 집계 처리
+  } else if (newOrders.length === 0) {
+    // 새 주문 없음 — 기존 데이터 복원
+    try { rdRaw = JSON.parse(existingAgg); } catch(e) {}
   }
-  if (existingFree) {
+
+  // Free sample merge
+  const existingFreeAgg = localStorage.getItem('rd_free');
+  if (existingFreeAgg && rdFreeSamples.length > 0) {
     try {
-      const prevF = JSON.parse(existingFree);
-      const prevFIds = new Set(prevF.map(f => f.orderId));
-      const newFree = rdFreeSamples.filter(f => !prevFIds.has(f.orderId));
-      rdFreeSamples = [...prevF, ...newFree];
+      const prevF = JSON.parse(existingFreeAgg);
+      const freeMap = {};
+      prevF.forEach(f => { freeMap[(f.date||'')+f.sku] = {date:f.date||'', sku:f.sku, qty:f.qty||0}; });
+      rdFreeSamples.forEach(f => {
+        const k = (f.date||'')+f.sku;
+        if (!freeMap[k]) freeMap[k] = {date:f.date||'', sku:f.sku, qty:0};
+        freeMap[k].qty += (f.qty||0);
+      });
+      rdFreeSamples = Object.values(freeMap);
     } catch(e) {}
   }
 
@@ -3282,13 +3455,14 @@ function rdCompute() {
   const orders = rdFiltered; if (!orders.length) return;
   const totalRev = orders.reduce((s,o)=>s+o.rev, 0);
   const totalQty = orders.reduce((s,o)=>s+o.qty, 0);
+  const totalCnt = orders.reduce((s,o)=>s+(o.cnt||1), 0);
 
   // Daily map
   const dayMap = {};
   orders.forEach(o => {
     if (!dayMap[o.date]) dayMap[o.date] = {rev:0, cnt:0, qty:0, skus:{}};
     dayMap[o.date].rev += o.rev;
-    dayMap[o.date].cnt += 1;
+    dayMap[o.date].cnt += (o.cnt||1);
     dayMap[o.date].qty += o.qty;
     dayMap[o.date].skus[o.sku] = (dayMap[o.date].skus[o.sku]||0) + o.qty;
   });
@@ -3306,7 +3480,7 @@ function rdCompute() {
   const skuRev = {}, skuOrd = {}, skuQty = {};
   orders.forEach(o => {
     skuRev[o.sku] = (skuRev[o.sku]||0) + o.rev;
-    skuOrd[o.sku] = (skuOrd[o.sku]||0) + 1;
+    skuOrd[o.sku] = (skuOrd[o.sku]||0) + (o.cnt||1);
     skuQty[o.sku] = (skuQty[o.sku]||0) + o.qty;
   });
   const topSku = Object.entries(skuRev).sort((a,b)=>b[1]-a[1])[0];
@@ -3321,9 +3495,9 @@ function rdCompute() {
   // KPIs
   const fmt = n => '$' + n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
   gEl('rd-k-rev').textContent    = fmt(totalRev);
-  gEl('rd-k-orders').textContent = orders.length.toLocaleString();
+  gEl('rd-k-orders').textContent = totalCnt.toLocaleString();
   gEl('rd-k-daily').textContent  = fmt(avgDaily);
-  gEl('rd-k-aov').textContent    = fmt(totalRev/orders.length);
+  gEl('rd-k-aov').textContent    = fmt(totalCnt ? totalRev/totalCnt : 0);
   gEl('rd-k-qty').textContent    = totalQty.toLocaleString();
   gEl('rd-k-top').textContent    = topSku ? topSku[0] : '-';
 
@@ -3466,6 +3640,7 @@ function rdClear() {
   rdRaw = []; rdFiltered = []; rdFreeSamples = [];
   localStorage.removeItem('rd_slim');
   localStorage.removeItem('rd_free');
+  localStorage.removeItem('rd_ids');
   localStorage.removeItem('rd_orders');
   gEl('rd-guide').style.display = 'flex';
   gEl('rd-results').style.display = 'none';
@@ -3501,6 +3676,124 @@ function partnerDBFallback() {
   const iframe = gEl('partnerdb-iframe');
   if (fb) { fb.style.display = 'flex'; }
   if (iframe) iframe.style.display = 'none';
+}
+
+/* ══════════════════════════════════════════════════════════
+   FIND CREATOR 발굴 파이프라인
+══════════════════════════════════════════════════════════ */
+const FC_STAGE_LABELS = {discovered:'발굴됨', contacting:'컨택 중', negotiating:'협의 중', contracted:'계약 완료', registered:'CRM 등록'};
+const FC_STAGE_COLORS = {discovered:'#6B7280', contacting:'#25F4EE', negotiating:'#F59E0B', contracted:'#22C55E', registered:'#A855F7'};
+let fcFlt = 'all';
+
+function fcGetData() {
+  const d = localStorage.getItem('fc_list');
+  return d ? JSON.parse(d) : [];
+}
+function fcSetData(d) { localStorage.setItem('fc_list', JSON.stringify(d)); }
+
+function renderFindCreator() { fcRender(); }
+
+function fcRender() {
+  let data = fcGetData();
+  const q = (gEl('fc-search')||{value:''}).value.toLowerCase();
+  if (fcFlt !== 'all') data = data.filter(c => c.stage === fcFlt);
+  if (q) data = data.filter(c => (c.handle||'').toLowerCase().includes(q) || (c.niche||'').toLowerCase().includes(q));
+
+  gEl('fc-kpi-all').textContent     = fcGetData().length;
+  gEl('fc-kpi-contact').textContent = fcGetData().filter(c=>c.stage==='contacting').length;
+  gEl('fc-kpi-nego').textContent    = fcGetData().filter(c=>c.stage==='negotiating').length;
+  gEl('fc-kpi-crm').textContent     = fcGetData().filter(c=>c.stage==='registered').length;
+
+  const tbody = gEl('fc-tbody');
+  const empty = gEl('fc-empty');
+  if (!data.length) { tbody.innerHTML = ''; empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+  const fmtFollowers = n => n >= 1000000 ? (n/1000000).toFixed(1)+'M' : n >= 1000 ? (n/1000).toFixed(0)+'K' : n||'-';
+  tbody.innerHTML = data.map(c => `<tr>
+    <td>
+      ${c.url ? `<a href="${c.url}" target="_blank" style="color:var(--cyan);font-weight:700;text-decoration:none">@${c.handle}</a>` : `<span style="font-weight:700">@${c.handle}</span>`}
+    </td>
+    <td style="text-align:center;font-size:12px">${fmtFollowers(c.followers)}</td>
+    <td style="font-size:12px">${c.niche||'-'}</td>
+    <td style="font-size:11px"><span class="b" style="background:#ffffff10;color:var(--muted)">${c.source||'-'}</span></td>
+    <td style="text-align:center"><span class="b" style="background:${FC_STAGE_COLORS[c.stage]||'#6B7280'}22;color:${FC_STAGE_COLORS[c.stage]||'#6B7280'};font-size:11px">${FC_STAGE_LABELS[c.stage]||c.stage}</span></td>
+    <td style="font-size:11px;color:var(--muted);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${c.note||''}">${c.note||'-'}</td>
+    <td style="text-align:center;font-size:11px;color:var(--muted)">${c.date||''}</td>
+    <td style="text-align:center;white-space:nowrap">
+      <button class="btn-sec" style="font-size:11px;padding:3px 8px;margin-right:4px" onclick="fcEdit('${c.id}')">수정</button>
+      ${c.stage !== 'registered' ? `<button class="btn-primary" style="font-size:11px;padding:3px 8px;margin-right:4px" onclick="fcMoveToCRM('${c.id}')">→ CRM</button>` : ''}
+      <button class="btn-sec" style="font-size:11px;padding:3px 8px;color:#FE2C55;border-color:#FE2C5540" onclick="fcDel('${c.id}')">삭제</button>
+    </td>
+  </tr>`).join('');
+}
+
+function fcFilter(v, el) {
+  fcFlt = v;
+  document.querySelectorAll('#sec-findcreator .filter-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  fcRender();
+}
+
+function fcSave() {
+  const id = gEl('fc-edit-id').value;
+  const handle = (gEl('fc-f-handle').value||'').replace('@','').trim();
+  if (!handle) { alert('TikTok 핸들을 입력해주세요.'); return; }
+  const entry = {
+    id: id || 'fc' + Date.now(),
+    handle,
+    followers: parseInt(gEl('fc-f-followers').value)||0,
+    niche:     (gEl('fc-f-niche').value||'').trim(),
+    source:    gEl('fc-f-source').value,
+    stage:     gEl('fc-f-stage').value,
+    url:       (gEl('fc-f-url').value||'').trim(),
+    note:      (gEl('fc-f-note').value||'').trim(),
+    date:      id ? (fcGetData().find(c=>c.id===id)||{}).date||new Date().toISOString().slice(0,10) : new Date().toISOString().slice(0,10)
+  };
+  let d = fcGetData();
+  if (id) d = d.map(c => c.id===id ? entry : c);
+  else d = [...d, entry];
+  fcSetData(d);
+  closeModal('fc-modal');
+  fcRender();
+}
+
+function fcEdit(id) {
+  const c = fcGetData().find(x => x.id===id); if (!c) return;
+  gEl('fc-edit-id').value   = c.id;
+  gEl('fc-f-handle').value  = c.handle||'';
+  gEl('fc-f-followers').value = c.followers||'';
+  gEl('fc-f-niche').value   = c.niche||'';
+  gEl('fc-f-source').value  = c.source||'euka.ai';
+  gEl('fc-f-stage').value   = c.stage||'discovered';
+  gEl('fc-f-url').value     = c.url||'';
+  gEl('fc-f-note').value    = c.note||'';
+  openModal('fc-modal');
+}
+
+function fcDel(id) {
+  if (!confirm('삭제할까요?')) return;
+  fcSetData(fcGetData().filter(c => c.id !== id));
+  fcRender();
+}
+
+function fcMoveToCRM(id) {
+  const c = fcGetData().find(x => x.id===id); if (!c) return;
+  // CRM에 추가
+  const crmData = lsGet('crm_creators');
+  const exists = crmData.find(x => x.username === c.handle);
+  if (!exists) {
+    const newCRM = {
+      id: 'crm'+Date.now(), username: c.handle,
+      tier: c.followers>=500000?'Macro':c.followers>=100000?'Mid':c.followers>=10000?'Micro':'Nano',
+      followers: c.followers||0, status:'contacted', gmv:0,
+      notes: c.note||'', date: new Date().toLocaleDateString('ko-KR')
+    };
+    lsSet('crm_creators', [...crmData, newCRM]);
+  }
+  // 단계를 registered로 업데이트
+  fcSetData(fcGetData().map(x => x.id===id ? {...x, stage:'registered'} : x));
+  fcRender();
+  alert(`@${c.handle}을(를) Creator CRM에 추가했어요!`);
 }
 
 /* ══════════════════════════════════════════════════════════
