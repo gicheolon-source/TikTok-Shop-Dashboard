@@ -1721,6 +1721,7 @@ textarea.form-input{resize:vertical}
         </div>
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
           <span id="rd-file-info" style="font-size:12px;color:var(--muted)"></span>
+          <span id="rd-storage-badge" style="font-size:11px;padding:2px 8px;border-radius:10px;background:var(--bg);border:1px solid var(--border)">💾 확인 중...</span>
           <button class="btn-ghost" onclick="rdClear()" id="rd-clear-btn" style="display:none">초기화</button>
           <button class="btn-ghost" style="font-size:12px" onclick="rdToggleApiKey()">⚙️ API Key</button>
           <button class="btn-primary" id="rd-fetch-btn" onclick="rdFetchFromSheet()">🔄 시트에서 불러오기</button>
@@ -3044,12 +3045,36 @@ function rdParseCSV(text) {
   return rows;
 }
 
+function rdUpdateBadge() {
+  const badge = document.getElementById('rd-storage-badge');
+  if (!badge) return;
+  try {
+    const s = localStorage.getItem('rd_slim');
+    if (s) {
+      const count = JSON.parse(s).length;
+      badge.textContent = '💾 저장됨 ' + count + '건';
+      badge.style.borderColor = '#22C55E';
+      badge.style.color = '#22C55E';
+    } else {
+      badge.textContent = '⚠️ 저장 없음';
+      badge.style.borderColor = '#F59E0B';
+      badge.style.color = '#F59E0B';
+    }
+  } catch(e) {
+    badge.textContent = '❌ 저장 오류';
+    badge.style.color = '#FE2C55';
+  }
+}
+
 function rdSave() {
   try {
     localStorage.setItem('rd_slim', JSON.stringify(rdRaw));
     localStorage.setItem('rd_free', JSON.stringify(rdFreeSamples));
+    rdUpdateBadge();
   } catch(e) {
-    console.warn('자동저장 실패 (용량):', e.message);
+    console.warn('자동저장 실패:', e.message);
+    const badge = document.getElementById('rd-storage-badge');
+    if (badge) { badge.textContent = '❌ 저장 실패: ' + e.message; badge.style.color = '#FE2C55'; }
   }
 }
 
@@ -3060,8 +3085,11 @@ function renderRevDash() {
       const f = localStorage.getItem('rd_free');
       if (s) rdRaw = JSON.parse(s);
       if (f) rdFreeSamples = JSON.parse(f);
-    } catch(e) {}
+    } catch(e) {
+      console.error('데이터 복원 실패:', e);
+    }
   }
+  rdUpdateBadge();
   if (rdRaw.length) rdShow();
 }
 
