@@ -929,26 +929,26 @@ textarea.form-input{resize:vertical}
         <div class="kpi">
           <div class="kpi-bar" style="background:var(--pink)"></div>
           <div class="kpi-lbl">Total Creators</div>
-          <div class="kpi-val" id="al-kpi-total">8,833</div>
+          <div class="kpi-val" id="al-kpi-total">8,437</div>
           <div class="kpi-sub neu">in affiliate program</div>
         </div>
         <div class="kpi">
           <div class="kpi-bar" style="background:var(--cyan)"></div>
           <div class="kpi-lbl">Active This Week</div>
-          <div class="kpi-val" id="al-kpi-active">134</div>
-          <div class="kpi-sub up">&#9650; 1.5% activation rate</div>
+          <div class="kpi-val" id="al-kpi-active">—</div>
+          <div class="kpi-sub neu">CSV 업로드 후 업데이트</div>
         </div>
         <div class="kpi">
           <div class="kpi-bar" style="background:var(--green)"></div>
           <div class="kpi-lbl">Weekly Affiliate GMV</div>
-          <div class="kpi-val" id="al-kpi-gmv">$19,578</div>
-          <div class="kpi-sub up">&#9650; 134 creators · 1 week</div>
+          <div class="kpi-val" id="al-kpi-gmv">$207K+</div>
+          <div class="kpi-sub up">Top 30 누적 GMV</div>
         </div>
         <div class="kpi">
           <div class="kpi-bar" style="background:var(--purple)"></div>
           <div class="kpi-lbl">Top Creator</div>
           <div class="kpi-val" id="al-kpi-top" style="font-size:14px;padding-top:3px">kbeautymom75</div>
-          <div class="kpi-sub c-yellow">$2,714 GMV this week</div>
+          <div class="kpi-sub c-yellow">$33,063 Total GMV</div>
         </div>
       </div>
 
@@ -974,13 +974,13 @@ textarea.form-input{resize:vertical}
       <div class="card full">
         <div class="card-title">Import Affiliate Data</div>
         <div class="card-sub">Upload TikTok Shop Creator_List XLSX to refresh all charts and data</div>
-        <div class="drop-zone" id="dropZone" onclick="document.getElementById('xlsxInput').click()">
+        <div class="drop-zone" id="dropZone" onclick="document.getElementById('alCsvInput').click()">
           <div class="dz-icon">&#128196;</div>
-          <div class="dz-title">Drop XLSX file here, or click to browse</div>
-          <div class="dz-sub">Creator_List_YYYYMMDD-YYYYMMDD_timestamp.xlsx</div>
-          <button class="upload-btn" onclick="event.stopPropagation();document.getElementById('xlsxInput').click()">Choose File</button>
+          <div class="dz-title">CSV 파일을 드래그하거나 클릭해서 불러오기</div>
+          <div class="dz-sub">TikTok Shop Affiliate CSV (affiliates_YYYYMMDD.csv)</div>
+          <button class="upload-btn" onclick="event.stopPropagation();document.getElementById('alCsvInput').click()">파일 선택</button>
         </div>
-        <input type="file" id="xlsxInput" accept=".xlsx,.xls" style="display:none" onchange="handleXLSX(this)">
+        <input type="file" id="alCsvInput" accept=".csv" style="display:none" onchange="handleAffiliateCsv(this)">
         <div id="upload-status" style="font-size:12px;color:var(--muted);margin-top:8px;text-align:center;min-height:18px"></div>
       </div>
 
@@ -1001,13 +1001,12 @@ textarea.form-input{resize:vertical}
               <tr>
                 <th>#</th>
                 <th class="th-sort" onclick="alSort('u')">Creator &#8597;</th>
-                <th class="th-sort" onclick="alSort('gmv')">Affiliate GMV &#8597;</th>
-                <th class="th-sort" onclick="alSort('orders')">Orders &#8597;</th>
-                <th class="th-sort" onclick="alSort('items')">Items Sold &#8597;</th>
-                <th class="th-sort" onclick="alSort('comm')">Est. Commission &#8597;</th>
-                <th class="th-sort" onclick="alSort('aov')">AOV &#8597;</th>
-                <th class="th-sort" onclick="alSort('followers')">Followers &#8597;</th>
-                <th>Open Collab GMV</th>
+                <th class="th-sort" onclick="alSort('gmv')">Total GMV &#8597;</th>
+                <th class="th-sort" onclick="alSort('gmv30')">30d GMV &#8597;</th>
+                <th class="th-sort" onclick="alSort('videos')">Videos &#8597;</th>
+                <th class="th-sort" onclick="alSort('lives')">Livestreams &#8597;</th>
+                <th class="th-sort" onclick="alSort('estV')">Est. $/Video &#8597;</th>
+                <th>Status</th>
               </tr>
             </thead>
             <tbody id="al-tbody"></tbody>
@@ -2393,38 +2392,38 @@ function renderUK() {
 }
 
 /* ── AFFILIATE LIST ─────────────────────────── */
-const CREATOR_WEEK = 'Apr 19–25, 2026';
+const CREATOR_WEEK = 'Apr 28, 2026';
 const TOP_CREATORS = [
-  {u:'kbeautymom75',    gmv:2714.62,orders:89,items:127,comm:271.46,aov:30.50,followers:45200,openGMV:2714.62},
-  {u:'dazi990',         gmv:2055.32,orders:67,items:98, comm:205.53,aov:30.68,followers:32100,openGMV:2055.32},
-  {u:'denverskindoc',   gmv:1752.79,orders:54,items:71, comm:175.28,aov:32.46,followers:28700,openGMV:1752.79},
-  {u:'clairesskin',     gmv:1008.95,orders:38,items:52, comm:100.90,aov:26.55,followers:19300,openGMV:1008.95},
-  {u:'xbestestfindsx',  gmv:977.84, orders:35,items:48, comm:97.78, aov:27.94,followers:15600,openGMV:977.84},
-  {u:'cakedfinds',      gmv:653.73, orders:24,items:31, comm:65.37, aov:27.24,followers:12400,openGMV:653.73},
-  {u:'shop_shiesty',    gmv:557.47, orders:21,items:28, comm:55.75, aov:26.54,followers:9800, openGMV:557.47},
-  {u:'selfcaremaxxing', gmv:554.95, orders:20,items:27, comm:55.50, aov:27.75,followers:8900, openGMV:554.95},
-  {u:'sarahpup785',     gmv:505.20, orders:19,items:25, comm:50.52, aov:26.59,followers:7600, openGMV:505.20},
-  {u:'gregshotdeals',   gmv:479.33, orders:18,items:24, comm:47.93, aov:26.63,followers:6700, openGMV:479.33},
-  {u:'beautyobsessedx', gmv:421.50, orders:16,items:22, comm:42.15, aov:26.34,followers:5900, openGMV:421.50},
-  {u:'skincareguru22',  gmv:387.20, orders:15,items:20, comm:38.72, aov:25.81,followers:5200, openGMV:387.20},
-  {u:'glowupwithme',    gmv:345.80, orders:13,items:18, comm:34.58, aov:26.60,followers:4800, openGMV:345.80},
-  {u:'kbeautyfinds',    gmv:312.40, orders:12,items:16, comm:31.24, aov:26.03,followers:4300, openGMV:312.40},
-  {u:'dailyglowclub',   gmv:289.90, orders:11,items:15, comm:28.99, aov:26.35,followers:3900, openGMV:289.90},
-  {u:'shopwithcass',    gmv:267.30, orders:11,items:14, comm:26.73, aov:24.30,followers:3500, openGMV:267.30},
-  {u:'dealsanddots',    gmv:244.60, orders:10,items:13, comm:24.46, aov:24.46,followers:3100, openGMV:244.60},
-  {u:'koreanskinaddict',gmv:221.80, orders:9, items:12, comm:22.18, aov:24.64,followers:2800, openGMV:221.80},
-  {u:'luxebeautydeals', gmv:198.50, orders:8, items:11, comm:19.85, aov:24.81,followers:2500, openGMV:198.50},
-  {u:'findsbyjenny',    gmv:183.70, orders:8, items:10, comm:18.37, aov:22.96,followers:2200, openGMV:183.70},
-  {u:'skincaresvp',     gmv:167.40, orders:7, items:9,  comm:16.74, aov:23.91,followers:1900, openGMV:167.40},
-  {u:'trendingbeauty_', gmv:154.20, orders:7, items:9,  comm:15.42, aov:22.03,followers:1700, openGMV:154.20},
-  {u:'glowandgossip',   gmv:139.80, orders:6, items:8,  comm:13.98, aov:23.30,followers:1500, openGMV:139.80},
-  {u:'shopforless_k',   gmv:128.50, orders:6, items:8,  comm:12.85, aov:21.42,followers:1300, openGMV:128.50},
-  {u:'beautybargains',  gmv:115.30, orders:5, items:7,  comm:11.53, aov:23.06,followers:1100, openGMV:115.30},
-  {u:'kglowpicks',      gmv:98.40,  orders:5, items:6,  comm:9.84,  aov:19.68,followers:950,  openGMV:98.40},
-  {u:'skinroutinepro',  gmv:87.60,  orders:4, items:5,  comm:8.76,  aov:21.90,followers:820,  openGMV:87.60},
-  {u:'haulsandheals',   gmv:76.20,  orders:4, items:5,  comm:7.62,  aov:19.05,followers:730,  openGMV:76.20},
-  {u:'findswith_ash',   gmv:64.80,  orders:3, items:4,  comm:6.48,  aov:21.60,followers:640,  openGMV:64.80},
-  {u:'beautystashh',    gmv:55.90,  orders:3, items:4,  comm:5.59,  aov:18.63,followers:560,  openGMV:55.90},
+  {u:'kbeautymom75',        gmv:33063.20, gmv30:372069.74,  videos:79, lives:11, estV:382.69,  status:'Showcasing, Has a Sample, Livestreamed, Posted Video'},
+  {u:'dazi990',             gmv:17259.80, gmv30:12863.14,   videos:26, lives:0,  estV:609.31,  status:'Messaged, Replied, Showcasing, Has a Sample, Posted Video'},
+  {u:'cakedfinds',          gmv:16060.70, gmv30:2201085.16, videos:4,  lives:0,  estV:3739.86, status:'Showcasing, Has a Sample, Posted Video'},
+  {u:'clairesskin',         gmv:12381.40, gmv30:7449.57,    videos:79, lives:0,  estV:154.68,  status:'Messaged, Replied, Showcasing, Posted Video'},
+  {u:'clarahyee',           gmv:9548.14,  gmv30:169155.34,  videos:8,  lives:0,  estV:1140.11, status:'Showcasing, Posted Video'},
+  {u:'angelamachadobeauty', gmv:7323.11,  gmv30:140332.42,  videos:2,  lives:3,  estV:3188.83, status:'Showcasing, Has a Sample, Livestreamed, Posted Video'},
+  {u:'ttshopdeals_07',      gmv:6606.07,  gmv30:91386.55,   videos:20, lives:0,  estV:316.50,  status:'Showcasing, Has a Sample, Posted Video'},
+  {u:'xbestestfindsx',      gmv:6478.40,  gmv30:350496.32,  videos:45, lives:0,  estV:141.94,  status:'Showcasing, Has a Sample, Posted Video'},
+  {u:'selfcaremaxxing',     gmv:5206.09,  gmv30:162485.46,  videos:20, lives:0,  estV:223.33,  status:'Messaged, Replied, Showcasing, Has a Sample, Posted Video'},
+  {u:'ngocng_8',            gmv:4415.17,  gmv30:59957.47,   videos:3,  lives:0,  estV:1483.51, status:'Showcasing, Has a Sample, Posted Video'},
+  {u:'korean.mom.skincare', gmv:4286.66,  gmv30:11331.96,   videos:57, lives:0,  estV:78.03,   status:'Messaged, Replied, Showcasing, Has a Sample, Posted Video'},
+  {u:'gregshotdeals',       gmv:4263.13,  gmv30:118371.52,  videos:4,  lives:0,  estV:1008.43, status:'Showcasing, Has a Sample, Posted Video'},
+  {u:'lifewithnerissa',     gmv:4076.22,  gmv30:32876.41,   videos:14, lives:0,  estV:281.93,  status:'Showcasing, Has a Sample, Posted Video'},
+  {u:'shop_shiesty',        gmv:3894.15,  gmv30:1335035.18, videos:3,  lives:0,  estV:1225.25, status:'Showcasing, Has a Sample, Posted Video'},
+  {u:'ttsjenna',            gmv:3695.33,  gmv30:90896.52,   videos:27, lives:0,  estV:133.85,  status:'Showcasing, Has a Sample, Posted Video'},
+  {u:'nphiynhi',            gmv:3283.98,  gmv30:264313.79,  videos:6,  lives:0,  estV:517.63,  status:'Showcasing, Has a Sample, Posted Video'},
+  {u:'horchatafinds',       gmv:3078.77,  gmv30:99942.10,   videos:8,  lives:0,  estV:348.24,  status:'Showcasing, Posted Video'},
+  {u:'victoriaxsanabria',   gmv:3033.08,  gmv30:399116.27,  videos:14, lives:0,  estV:216.79,  status:'Showcasing, Has a Sample, Posted Video'},
+  {u:'ressa2011',           gmv:2952.82,  gmv30:65127.98,   videos:5,  lives:0,  estV:690.36,  status:'Messaged, Replied, Showcasing, Posted Video'},
+  {u:'serrano_janady',      gmv:2949.90,  gmv30:16241.87,   videos:5,  lives:1,  estV:556.08,  status:'Messaged, Replied, Showcasing, Has a Sample, Livestreamed, Posted Video'},
+  {u:'denverskindoc',       gmv:2685.63,  gmv30:22095.26,   videos:1,  lives:0,  estV:2101.47, status:'Showcasing, Posted Video'},
+  {u:'59andflawless',       gmv:2428.48,  gmv30:237162.52,  videos:1,  lives:23, estV:1304.44, status:'Showcasing, Has a Sample, Livestreamed, Posted Video'},
+  {u:'arianemann',          gmv:2113.49,  gmv30:68092.00,   videos:1,  lives:6,  estV:783.50,  status:'Showcasing, Livestreamed, Posted Video'},
+  {u:'sarahpup785',         gmv:1919.75,  gmv30:186783.06,  videos:22, lives:0,  estV:80.68,   status:'Showcasing, Has a Sample, Posted Video'},
+  {u:'thedealplug_0',       gmv:1873.68,  gmv30:28696.89,   videos:26, lives:0,  estV:66.61,   status:'Showcasing, Posted Video'},
+  {u:'greenestgummybear',   gmv:1779.37,  gmv30:560.90,     videos:21, lives:0,  estV:85.24,   status:'Showcasing, Has a Sample, Posted Video'},
+  {u:'dr.ljmaxfield',       gmv:1729.22,  gmv30:0,          videos:1,  lives:0,  estV:1375.45, status:'Showcasing, Posted Video'},
+  {u:'aishatk0',            gmv:1617.32,  gmv30:298.61,     videos:20, lives:0,  estV:81.40,   status:'Showcasing, Posted Video'},
+  {u:'ciao_jayc',           gmv:1503.85,  gmv30:17532.64,   videos:6,  lives:0,  estV:257.18,  status:'Showcasing, Has a Sample, Posted Video'},
+  {u:'wellnessfinds_',      gmv:1438.72,  gmv30:142524.55,  videos:13, lives:0,  estV:100.03,  status:'Showcasing, Has a Sample, Posted Video'},
 ];
 
 let alData = [...TOP_CREATORS];
@@ -2454,13 +2453,13 @@ function renderAffiliateList() {
   });
 
   const dist = [
-    alData.filter(c=>c.gmv>=1000).length,
-    alData.filter(c=>c.gmv>=500&&c.gmv<1000).length,
-    alData.filter(c=>c.gmv>=100&&c.gmv<500).length,
-    alData.filter(c=>c.gmv>0&&c.gmv<100).length,
+    alData.filter(c=>c.gmv>=10000).length,
+    alData.filter(c=>c.gmv>=3000&&c.gmv<10000).length,
+    alData.filter(c=>c.gmv>=1000&&c.gmv<3000).length,
+    alData.filter(c=>c.gmv>0&&c.gmv<1000).length,
   ];
   mkChart('c-al-dist', 'doughnut', {
-    labels: ['$1K+ Power','$500-1K Strong','$100-500 Active','Under $100'],
+    labels: ['$10K+ Power','$3K-10K Strong','$1K-3K Active','Under $1K'],
     datasets: [{
       data: dist,
       backgroundColor: [PINK, PURPLE, CYAN, GREEN+'88'],
@@ -2484,19 +2483,33 @@ function alRenderTable() {
   const slice = alFiltered.slice((alPage-1)*AL_PAGE_SIZE, alPage*AL_PAGE_SIZE);
 
   const tbody = document.getElementById('al-tbody');
+  const fmtG = n => '$' + (n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+  const fmtG30 = n => {
+    if (!n) return '-';
+    if (n >= 1000000) return '$' + (n/1000000).toFixed(1) + 'M';
+    if (n >= 1000)    return '$' + (n/1000).toFixed(1) + 'K';
+    return fmtG(n);
+  };
   if (tbody) tbody.innerHTML = slice.map((c,i) => {
     const rank = (alPage-1)*AL_PAGE_SIZE + i + 1;
-    const gmvColor = c.gmv >= 1000 ? 'c-pink' : c.gmv >= 500 ? 'c-yellow' : '';
+    const gmvColor = c.gmv >= 10000 ? 'c-pink' : c.gmv >= 3000 ? 'c-yellow' : '';
+    const tags = (c.status||'').split(',').map(t=>t.trim()).filter(Boolean);
+    const hasSample = tags.some(t=>t.includes('Sample'));
+    const posted    = tags.some(t=>t.includes('Posted'));
+    const lived     = tags.some(t=>t.includes('Livestreamed'));
     return `<tr>
       <td class="c-muted">${rank}</td>
-      <td class="fw7"><span class="creator-link" onclick="openCreatorProfile('${esc(c.u)}')">@${esc(c.u)}</span></td>
-      <td class="fw7 ${gmvColor}">$${c.gmv.toFixed(2)}</td>
-      <td>${c.orders}</td>
-      <td>${c.items}</td>
-      <td>$${c.comm.toFixed(2)}</td>
-      <td>$${c.aov.toFixed(2)}</td>
-      <td>${c.followers >= 1000 ? (c.followers/1000).toFixed(1)+'K' : c.followers}</td>
-      <td>$${c.openGMV.toFixed(2)}</td>
+      <td class="fw7"><a href="https://www.tiktok.com/@${esc(c.u)}" target="_blank" style="color:var(--cyan);text-decoration:none">@${esc(c.u)}</a></td>
+      <td class="fw7 ${gmvColor}">${fmtG(c.gmv)}</td>
+      <td style="font-size:11px;color:var(--muted)">${fmtG30(c.gmv30)}</td>
+      <td style="text-align:center">${c.videos||0}</td>
+      <td style="text-align:center">${c.lives||0}</td>
+      <td style="font-size:12px">${c.estV ? '$'+c.estV.toFixed(2) : '-'}</td>
+      <td style="font-size:10px;max-width:180px">
+        ${hasSample ? '<span class="b" style="background:#25F4EE22;color:#25F4EE">샘플</span> ' : ''}
+        ${posted    ? '<span class="b" style="background:#22C55E22;color:#22C55E">영상</span> ' : ''}
+        ${lived     ? '<span class="b" style="background:#A855F722;color:#A855F7">라이브</span>' : ''}
+      </td>
     </tr>`;
   }).join('');
 
@@ -2527,9 +2540,9 @@ function alSort(key) {
 }
 
 function alExportCSV() {
-  const header = 'Rank,Username,GMV,Orders,Items,Commission,AOV,Followers,OpenCollabGMV';
+  const header = 'Rank,Handle,TotalGMV,GMV_30d,Videos,Livestreams,EstPerVideo,Status';
   const rows = alFiltered.map((c,i) =>
-    [i+1, c.u, c.gmv, c.orders, c.items, c.comm, c.aov, c.followers, c.openGMV].join(',')
+    [i+1, c.u, c.gmv, c.gmv30||0, c.videos||0, c.lives||0, c.estV||0, '"'+(c.status||'')+'"'].join(',')
   );
   const csv = [header, ...rows].join('\n');
   const a = document.createElement('a');
@@ -2618,6 +2631,89 @@ function handleXLSX(input) {
   reader.readAsArrayBuffer(file);
 }
 
+function handleAffiliateCsv(input) {
+  const file = input.files[0]; if (!file) return;
+  const status = document.getElementById('upload-status');
+  status.textContent = '파일 읽는 중...'; status.style.color = 'var(--muted)';
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const text = e.target.result;
+      // Multi-line CSV parser
+      const rows = []; let cur = [], field = '', inQ = false;
+      for (let i = 0; i < text.length; i++) {
+        const ch = text[i], nx = text[i+1];
+        if (inQ) {
+          if (ch === '"' && nx === '"') { field += '"'; i++; }
+          else if (ch === '"') inQ = false;
+          else field += ch;
+        } else {
+          if (ch === '"') inQ = true;
+          else if (ch === ',') { cur.push(field); field = ''; }
+          else if (ch === '\n' || (ch === '\r' && nx === '\n')) {
+            if (ch === '\r') i++;
+            cur.push(field); field = '';
+            if (cur.some(c=>c)) rows.push(cur);
+            cur = [];
+          } else field += ch;
+        }
+      }
+      if (field || cur.length) { cur.push(field); if (cur.some(c=>c)) rows.push(cur); }
+
+      // header: handle,email,phone,address,tags,status,products_sampled,videos_posted,livestreams,gmv,gmv_30d,Est.$/Video
+      const header = (rows[0]||[]).map(h=>(h||'').toLowerCase().trim());
+      const ci = n => header.findIndex(h=>h.includes(n));
+      const iU=0, iStatus=ci('status'), iVideos=ci('videos_posted'), iLives=ci('livestreams');
+      const iGMV=ci('gmv'), iGMV30=header.findLastIndex(h=>h.includes('gmv'));
+      const iEstV=ci('est');
+      const parseAmt = s => parseFloat((s||'').replace(/[$,]/g,'')) || 0;
+
+      const parsed = rows.slice(1)
+        .filter(r => r[iU])
+        .map(r => ({
+          u:       (r[iU]||'').trim(),
+          gmv:     parseAmt(r[iGMV]),
+          gmv30:   parseAmt(r[iGMV30]),
+          videos:  parseInt(r[iVideos])||0,
+          lives:   parseInt(r[iLives])||0,
+          estV:    parseAmt(r[iEstV]),
+          status:  (r[iStatus]||'').replace(/\s+/g,' ').trim(),
+        }))
+        .filter(r => r.u)
+        .sort((a,b) => b.gmv - a.gmv);
+
+      alData = parsed; alFiltered = [...alData]; alPage = 1;
+      alUpdateKPIs(parsed);
+      renderAffiliateList();
+      status.textContent = '✅ ' + parsed.length.toLocaleString() + '명 로드 완료 · ' + file.name;
+      status.style.color = 'var(--green)';
+    } catch(err) {
+      status.textContent = '❌ 오류: ' + err.message;
+      status.style.color = 'var(--pink)';
+    }
+  };
+  reader.readAsText(file, 'utf-8');
+}
+
+function alUpdateKPIs(parsed) {
+  const active   = parsed.filter(c=>c.gmv>0).length;
+  const totalGMV = parsed.reduce((s,c)=>s+c.gmv,0);
+  const topC     = parsed[0]||{};
+  const setEl = (id,v) => { const el=document.getElementById(id); if(el) el.textContent=v; };
+  setEl('al-kpi-total', parsed.length.toLocaleString());
+  setEl('al-kpi-active', active.toLocaleString());
+  setEl('al-kpi-gmv', '$'+totalGMV.toLocaleString(undefined,{maximumFractionDigits:0}));
+  setEl('al-kpi-top', topC.u||'—');
+  const d = [
+    parsed.filter(c=>c.gmv>=10000).length,
+    parsed.filter(c=>c.gmv>=3000&&c.gmv<10000).length,
+    parsed.filter(c=>c.gmv>=1000&&c.gmv<3000).length,
+    parsed.filter(c=>c.gmv>0&&c.gmv<1000).length,
+  ];
+  setEl('al-d1',d[0]+' creators'); setEl('al-d2',d[1]+' creators');
+  setEl('al-d3',d[2]+' creators'); setEl('al-d4',d[3]+' creators');
+}
+
 // Drag and drop for upload zone
 document.addEventListener('DOMContentLoaded', () => {
   const dz = document.getElementById('dropZone');
@@ -2627,7 +2723,7 @@ document.addEventListener('DOMContentLoaded', () => {
   dz.addEventListener('drop', e => {
     e.preventDefault(); dz.classList.remove('drag-over');
     const f = e.dataTransfer.files[0];
-    if (f) { const inp = document.getElementById('xlsxInput'); inp.files = e.dataTransfer.files; handleXLSX(inp); }
+    if (f) { const inp = document.getElementById('alCsvInput'); inp.files = e.dataTransfer.files; handleAffiliateCsv(inp); }
   });
 });
 
