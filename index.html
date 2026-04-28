@@ -344,8 +344,8 @@ textarea.form-input{resize:vertical}
     <div class="nav-item" onclick="nav('partnerdb',this)">
       <span class="nav-icon">&#128200;</span> Partner Dashboard
     </div>
-    <div class="nav-item" onclick="nav('orderanalytics',this)">
-      <span class="nav-icon">&#128203;</span> Order Analytics
+    <div class="nav-item" onclick="nav('salesmetrics',this)">
+      <span class="nav-icon">&#128200;</span> 매출지표
     </div>
     <div class="nav-item" onclick="nav('sales',this)">
       <span class="nav-icon">&#128200;</span> Sales &amp; Revenue
@@ -1711,116 +1711,107 @@ textarea.form-input{resize:vertical}
       </div>
     </div>
 
-    <!-- ═══ ORDER ANALYTICS ═══════════════════════ -->
-    <div id="sec-orderanalytics" class="page-section">
+    <!-- ═══ 매출지표 ═══════════════════════ -->
+    <div id="sec-salesmetrics" class="page-section">
       <div class="sec-head">
         <div>
-          <div class="sec-title">📋 Order Analytics</div>
-          <div class="sec-sub">TikTok Shop 주문 CSV 업로드 → 재구매율 · 일일 판매량 · 일일 매출 자동 집계</div>
-        </div>
-        <div style="display:flex;gap:8px;align-items:center">
-          <button class="btn-ghost" onclick="oaClearData()" id="oa-clear-btn" style="display:none">데이터 초기화</button>
-          <label class="btn-primary" style="cursor:pointer;margin:0">
-            📂 CSV 업로드
-            <input type="file" accept=".csv" style="display:none" onchange="oaHandleFile(this)">
-          </label>
+          <div class="sec-title">📊 매출지표</div>
+          <div class="sec-sub">월별 GMV 목표 · SKU별 판매량 · FBT 재고 현황 · 경쟁사 포지셔닝</div>
         </div>
       </div>
 
-      <!-- 업로드 전 안내 -->
-      <div id="oa-upload-guide" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:60px 20px;background:var(--card);border-radius:16px;border:2px dashed var(--border)">
-        <div style="font-size:48px">📥</div>
-        <div style="font-size:16px;font-weight:700;color:var(--text)">TikTok Shop 주문 내역 CSV를 업로드하세요</div>
-        <div style="font-size:13px;color:var(--muted);text-align:center;line-height:1.8">
-          셀러센터 → Orders → 우측 상단 <strong>Export</strong> → All Orders CSV 다운로드<br>
-          업로드하면 재구매율, 일일 판매량, 일일 매출이 자동으로 계산돼요
+      <!-- KPI 상단 -->
+      <div class="kpi-grid" style="grid-template-columns:repeat(5,1fr);margin-bottom:20px">
+        <div class="kpi-card" style="border:2px solid var(--pink)">
+          <div class="kpi-label">현재 티어</div>
+          <div class="kpi-value" style="color:var(--pink)">T3</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px">$65K ~ $200K/월</div>
         </div>
-        <label class="btn-primary" style="cursor:pointer;font-size:15px;padding:12px 32px">
-          📂 CSV 파일 선택
-          <input type="file" accept=".csv" style="display:none" onchange="oaHandleFile(this)">
-        </label>
+        <div class="kpi-card">
+          <div class="kpi-label">최근 월 GMV</div>
+          <div class="kpi-value" style="color:var(--green)">$105,912</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px">T3 기준 달성</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">다음 티어 목표</div>
+          <div class="kpi-value">$200K</div>
+          <div style="font-size:11px;color:var(--cyan);margin-top:4px">T4 진입 기준</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">총 FBT 재고</div>
+          <div class="kpi-value" id="sm-total-stock">18,731</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px">개</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Hero SKU</div>
+          <div class="kpi-value" style="color:var(--purple);font-size:16px">PDRN Cream</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px">전체 매출 1위</div>
+        </div>
       </div>
 
-      <!-- 분석 결과 (업로드 후) -->
-      <div id="oa-results" style="display:none">
-        <!-- 날짜 범위 + 파일 정보 -->
-        <div style="background:var(--card);border-radius:12px;padding:12px 18px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;border:1px solid var(--border)">
-          <div style="font-size:13px;color:var(--muted)" id="oa-file-info"></div>
-          <div style="display:flex;gap:8px;align-items:center">
-            <label style="font-size:12px;color:var(--muted)">기간:</label>
-            <input type="date" class="form-input" id="oa-date-from" style="padding:4px 8px;font-size:12px;width:130px" onchange="oaApplyFilter()">
-            <span style="color:var(--muted)">~</span>
-            <input type="date" class="form-input" id="oa-date-to" style="padding:4px 8px;font-size:12px;width:130px" onchange="oaApplyFilter()">
-            <button class="btn-ghost" style="font-size:11px;padding:4px 10px" onclick="oaResetFilter()">전체 기간</button>
-          </div>
+      <!-- 월별 목표 차트 + 재고 현황 -->
+      <div style="display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:20px">
+        <div class="kpi-card" style="padding:16px">
+          <div style="font-size:13px;font-weight:700;margin-bottom:12px">📈 월별 GMV 목표 (억KRW)</div>
+          <canvas id="sm-chart-monthly" height="180"></canvas>
         </div>
-
-        <!-- KPI 카드 -->
-        <div class="kpi-grid" style="grid-template-columns:repeat(6,1fr);margin-bottom:20px">
-          <div class="kpi-card"><div class="kpi-label">총 주문 수</div><div class="kpi-value" id="oa-k-orders">-</div></div>
-          <div class="kpi-card"><div class="kpi-label">총 매출</div><div class="kpi-value" id="oa-k-revenue" style="color:var(--green)">-</div></div>
-          <div class="kpi-card"><div class="kpi-label">평균 주문 금액</div><div class="kpi-value" id="oa-k-aov">-</div></div>
-          <div class="kpi-card"><div class="kpi-label">일평균 매출</div><div class="kpi-value" id="oa-k-daily-rev">-</div></div>
-          <div class="kpi-card"><div class="kpi-label">유니크 구매자</div><div class="kpi-value" id="oa-k-buyers">-</div></div>
-          <div class="kpi-card"><div class="kpi-label" style="color:var(--pink)">🔁 재구매율</div><div class="kpi-value" id="oa-k-repeat" style="color:var(--pink)">-</div></div>
+        <div class="kpi-card" style="padding:16px">
+          <div style="font-size:13px;font-weight:700;margin-bottom:12px">📦 FBT 재고 현황</div>
+          <div id="sm-inventory-list" style="display:flex;flex-direction:column;gap:8px"></div>
         </div>
+      </div>
 
-        <!-- 차트 2개 -->
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
-          <div class="kpi-card" style="padding:16px">
-            <div style="font-size:13px;font-weight:700;margin-bottom:12px">📈 일일 매출</div>
-            <canvas id="oa-chart-revenue" height="200"></canvas>
-          </div>
-          <div class="kpi-card" style="padding:16px">
-            <div style="font-size:13px;font-weight:700;margin-bottom:12px">📦 일일 주문 수</div>
-            <canvas id="oa-chart-orders" height="200"></canvas>
-          </div>
+      <!-- SKU별 월 판매량 목표 + 경쟁사 -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
+        <div class="kpi-card" style="padding:16px">
+          <div style="font-size:13px;font-weight:700;margin-bottom:12px">🎯 SKU별 월 판매량 목표</div>
+          <canvas id="sm-chart-sku" height="220"></canvas>
         </div>
-
-        <!-- 하단: 제품별 + 재구매 분석 -->
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
-          <div class="kpi-card" style="padding:16px">
-            <div style="font-size:13px;font-weight:700;margin-bottom:12px">🏆 제품별 판매수량</div>
-            <canvas id="oa-chart-products" height="220"></canvas>
-          </div>
-          <div class="kpi-card" style="padding:16px">
-            <div style="font-size:13px;font-weight:700;margin-bottom:12px">🔁 재구매 분석</div>
-            <div id="oa-repeat-detail" style="font-size:13px;line-height:2.2"></div>
-          </div>
-        </div>
-
-        <!-- 일별 매출 요약 테이블 (매출 시트 형식) -->
-        <div class="kpi-card" style="padding:16px;margin-bottom:16px">
-          <div style="font-size:13px;font-weight:700;margin-bottom:12px">📅 일별 매출 요약</div>
-          <div class="table-wrap" style="max-height:340px;overflow-y:auto">
+        <div class="kpi-card" style="padding:16px">
+          <div style="font-size:13px;font-weight:700;margin-bottom:12px">🏆 경쟁사 K-beauty 포지셔닝 (TikTok Shop)</div>
+          <div class="table-wrap" style="max-height:260px;overflow-y:auto">
             <table class="data-table">
-              <thead><tr>
-                <th>날짜</th><th style="text-align:center">요일</th><th>매출 (USD)</th><th style="text-align:center">판매수량</th>
-                <th style="text-align:center">PDRN<br>Cream</th>
-                <th style="text-align:center">Lip<br>Serum</th>
-                <th style="text-align:center">Ceramide</th>
-                <th style="text-align:center">Retino-<br>Mela</th>
-                <th style="text-align:center">B&R<br>Duo</th>
-                <th style="text-align:center">Routine<br>Set</th>
-                <th style="text-align:center">PDRN<br>Mask</th>
-              </tr></thead>
-              <tbody id="oa-daily-tbody"></tbody>
+              <thead><tr><th>브랜드</th><th>월 GMV</th><th>티어</th></tr></thead>
+              <tbody id="sm-comp-tbody"></tbody>
             </table>
           </div>
         </div>
+      </div>
 
-        <!-- 주문 테이블 -->
+      <!-- 월별 목표 상세 테이블 -->
+      <div class="kpi-card" style="padding:16px;margin-bottom:20px">
+        <div style="font-size:13px;font-weight:700;margin-bottom:12px">📅 월별 매출 & SKU 판매량 목표</div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr>
+              <th>월</th>
+              <th>매출목표(억)</th>
+              <th>광고비(억)</th>
+              <th style="text-align:center">PDRN Cream</th>
+              <th style="text-align:center">Lip Serum</th>
+              <th style="text-align:center">Ceramide</th>
+              <th style="text-align:center">Retino-Mela</th>
+              <th style="text-align:center">PDRN Mask</th>
+              <th style="text-align:center">Skincare Set</th>
+              <th style="text-align:right">총 판매량</th>
+            </tr></thead>
+            <tbody id="sm-monthly-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 단위 수익성 + 제품 가격 -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
         <div class="kpi-card" style="padding:16px">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-            <div style="font-size:13px;font-weight:700">📄 주문 상세 (<span id="oa-table-count">0</span>건)</div>
-            <input class="search-box" id="oa-table-search" placeholder="주문ID · 구매자 · 제품 검색..." style="max-width:260px;margin:0" oninput="oaRenderTable()">
-          </div>
-          <div class="table-wrap" style="max-height:400px;overflow-y:auto">
+          <div style="font-size:13px;font-weight:700;margin-bottom:12px">💰 단위 수익성 분석 (PDRN Cream 기준)</div>
+          <div id="sm-unit-econ" style="display:flex;flex-direction:column;gap:6px"></div>
+        </div>
+        <div class="kpi-card" style="padding:16px">
+          <div style="font-size:13px;font-weight:700;margin-bottom:12px">🏷️ 제품 가격표 (영국 GBP)</div>
+          <div class="table-wrap">
             <table class="data-table">
-              <thead><tr>
-                <th>주문 날짜</th><th>주문 ID</th><th>구매자</th><th>제품</th><th>수량</th><th>매출</th><th>상태</th>
-              </tr></thead>
-              <tbody id="oa-tbody"></tbody>
+              <thead><tr><th>제품</th><th>상시가</th><th>Tier S</th><th>Tier A</th><th>Tier B</th></tr></thead>
+              <tbody id="sm-price-tbody"></tbody>
             </table>
           </div>
         </div>
@@ -1972,7 +1963,7 @@ const UK_MONTHLY = [
 const PAGE_TITLES = {
   overview:'Overview', sales:'Sales & Revenue', inventory:'Inventory',
   affiliates:'Affiliates', competitors:'Competitors', promotions:'Promotions',
-  uk:'UK Market', affiliatelist:'Affiliate List', cs:'CS 봇', customercrm:'Customer CRM 전략', team:'Team Dashboard', spark:'Spark Ads Codes', launch:'런칭 체크리스트', reseller:'리셀러 검토', partnerdb:'Partner Dashboard', orderanalytics:'Order Analytics',
+  uk:'UK Market', affiliatelist:'Affiliate List', cs:'CS 봇', customercrm:'Customer CRM 전략', team:'Team Dashboard', spark:'Spark Ads Codes', launch:'런칭 체크리스트', reseller:'리셀러 검토', partnerdb:'Partner Dashboard', salesmetrics:'매출지표',
   crm:'Creator CRM', seeding:'샘플 시딩 트래커', live:'LIVE 스트림 트래커',
   viral:'바이럴 영상 트래커', brief:'콘텐츠 브리프 생성기',
   settlement:'정산 트래커', report:'주간 리포트'
@@ -2020,7 +2011,7 @@ function renderSection(id) {
   if (id === 'launch')      renderLaunch();
   if (id === 'reseller')    renderReseller();
   if (id === 'partnerdb')   renderPartnerDB();
-  if (id === 'orderanalytics') renderOrderAnalytics();
+  if (id === 'salesmetrics')   renderSalesMetrics();
 }
 
 const PINK='#FE2C55', CYAN='#25F4EE', PURPLE='#A855F7', BLUE='#3B82F6',
@@ -2947,222 +2938,167 @@ function launchSetNote(tab, no, note){
 }
 
 /* ══════════════════════════════════════════════════════════
-   ORDER ANALYTICS
+   매출지표 DASHBOARD
 ══════════════════════════════════════════════════════════ */
-let oaRawOrders = [];
-let oaFiltered  = [];
 
-// SKU detection from TikTok Shop product name
-const OA_SKU_MAP = [
-  {key:'mask',      label:'PDRN Mask'},
-  {key:'lip serum', label:'Lip Serum'},
-  {key:'ceramide',  label:'Ceramide'},
-  {key:'retino',    label:'Retino-Mela'},
-  {key:'duo',       label:'Barrier & Repair Duo'},
-  {key:'bundle',    label:'Skin Routine Set'},
-  {key:'routine',   label:'Skin Routine Set'},
-  {key:'pdrn',      label:'PDRN Cream'},
+const SM_MONTHLY = [
+  {m:'4월', gmv:4.7, ad:3.6, pdrn:6300,  lip:6000,  cer:600,  ret:500,  msk:300,  set:60,  total:13760},
+  {m:'5월', gmv:5.1, ad:3.9, pdrn:6800,  lip:5000,  cer:800,  ret:600,  msk:500,  set:80,  total:13780},
+  {m:'6월', gmv:2.4, ad:1.8, pdrn:3500,  lip:3000,  cer:100,  ret:100,  msk:50,   set:30,  total:6780},
+  {m:'7월', gmv:9.8, ad:7.5, pdrn:13500, lip:1300,  cer:1000, ret:500,  msk:500,  set:150, total:16950},
+  {m:'8월', gmv:6.8, ad:5.2, pdrn:9500,  lip:9000,  cer:1744, ret:807,  msk:517,  set:117, total:21685},
+  {m:'9월', gmv:6.4, ad:4.9, pdrn:8500,  lip:8000,  cer:1641, ret:760,  msk:487,  set:110, total:19498},
+  {m:'10월',gmv:8.8, ad:6.6, pdrn:10000, lip:10000, cer:2000, ret:1000, msk:500,  set:150, total:23650},
+  {m:'11월',gmv:17.3,ad:13.3,pdrn:23000, lip:22000, cer:4437, ret:2053, msk:1316, set:297, total:53103},
+  {m:'12월',gmv:12.7,ad:9.8, pdrn:17000, lip:16500, cer:3000, ret:1500, msk:1500, set:300, total:39800},
 ];
-const OA_SKU_LABELS = ['PDRN Cream','Lip Serum','Ceramide','Retino-Mela','Barrier & Repair Duo','Skin Routine Set','PDRN Mask'];
+const SM_INVENTORY = [
+  {sku:'PDRN Cream',     qty:13707, dailySales:71,  color:'#FE2C55'},
+  {sku:'PDRN Lip Serum', qty:593,   dailySales:30,  color:'#25F4EE'},
+  {sku:'Ceramide Cream', qty:1729,  dailySales:18,  color:'#A855F7'},
+  {sku:'Retino-Mela',    qty:1706,  dailySales:3,   color:'#F59E0B'},
+  {sku:'PDRN Max Cream', qty:133,   dailySales:11,  color:'#22C55E'},
+];
+const SM_COMPETITORS = [
+  {brand:'Dr.Melaxin',       gmv:14840000, tier:'Beyond'},
+  {brand:'medicube',          gmv:14560000, tier:'Beyond'},
+  {brand:'SUNGBOON EDITOR',   gmv:1740000,  tier:'Beyond'},
+  {brand:'COSRX',             gmv:1470000,  tier:'T5'},
+  {brand:'SKIN1004',          gmv:1370000,  tier:'T5'},
+  {brand:'TIRTIR',            gmv:1090000,  tier:'T5'},
+  {brand:'ANUA',              gmv:1010000,  tier:'T5'},
+  {brand:'mixsoon',           gmv:500370,   tier:'T4'},
+  {brand:'Beauty of Joseon',  gmv:429230,   tier:'T4'},
+  {brand:'Torriden',          gmv:251920,   tier:'T4'},
+  {brand:'VT COSMETICS',      gmv:156980,   tier:'T3'},
+  {brand:'Dr.Reju-All ⭐',    gmv:105912,   tier:'T3', highlight:true},
+  {brand:'MEDITHERAPY',       gmv:140370,   tier:'T3'},
+  {brand:'ARENCIA',           gmv:102700,   tier:'T3'},
+  {brand:'KAHI',              gmv:94310,    tier:'T3'},
+  {brand:'BIODANCE',          gmv:68130,    tier:'T3'},
+  {brand:'numbuzin',          gmv:56100,    tier:'T2'},
+  {brand:'AXIS-Y',            gmv:44230,    tier:'T2'},
+  {brand:'Abib',              gmv:35240,    tier:'T2'},
+];
+const SM_PRICES = [
+  {sku:'PDRN Cream',     list:'£39.00', regular:'£25.9', s:'£18.9', a:'£19.9', b:'£21.9'},
+  {sku:'PDRN Cream Max', list:'£117.00',regular:'£69.9', s:'£53.9', a:'£58.9', b:'£58.9'},
+  {sku:'Retino-Mela',    list:'£42.50', regular:'£27.9', s:'£19.9', a:'£21.9', b:'£23.49'},
+  {sku:'Ceramide Cream', list:'£34.00', regular:'£22.9', s:'£16.9', a:'£17.9', b:'£18.9'},
+  {sku:'PDRN Mask',      list:'£22.00', regular:'£14.9', s:'£10.9', a:'£11.49',b:'£12.49'},
+  {sku:'Lip Serum',      list:'£19.00', regular:'£12.9', s:'£9.9',  a:'£10.49',b:'£10.9'},
+];
+const SM_UNIT_ECON = [
+  {label:'판매가',             val:'$29.9',  pct:'',      color:'var(--green)'},
+  {label:'제조원가',           val:'-$1.70', pct:'5.7%',  color:'var(--muted)'},
+  {label:'틱톡 수수료 (6%)',   val:'-$1.79', pct:'6%',    color:''},
+  {label:'인플루언서 수수료',  val:'-$5.98', pct:'20%',   color:''},
+  {label:'광고비 (ShopAds)',   val:'-$2.99', pct:'10%',   color:''},
+  {label:'배송비 (Local)',     val:'-$4.28', pct:'',      color:''},
+  {label:'배송비 (Export)',    val:'-$1.86', pct:'',      color:''},
+  {label:'예상 마진',          val:'≈$13.30',pct:'~44.5%',color:'var(--pink)', bold:true},
+];
 
-function oaDetectSKU(name) {
-  const n = (name||'').toLowerCase();
-  for (const m of OA_SKU_MAP) { if (n.includes(m.key)) return m.label; }
-  return 'Other';
+function renderSalesMetrics() {
+  smRenderInventory();
+  smRenderMonthlyTable();
+  smRenderCompetitors();
+  smRenderUnitEcon();
+  smRenderPrices();
+  setTimeout(() => { smRenderCharts(); }, 60);
 }
 
-// Multi-line CSV parser (handles embedded newlines in quoted fields)
-function oaParseCSVText(text) {
-  if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
-  const rows = []; let row = []; let cur = ''; let inQ = false;
-  for (let i = 0; i < text.length; i++) {
-    const c = text[i], nx = text[i+1];
-    if (c === '"') {
-      if (!inQ) { inQ = true; }
-      else if (nx === '"') { cur += '"'; i++; }
-      else { inQ = false; }
-    } else if (c === ',' && !inQ) {
-      row.push(cur.trim()); cur = '';
-    } else if ((c === '\n' || (c === '\r' && nx === '\n')) && !inQ) {
-      if (c === '\r') i++;
-      row.push(cur.trim()); cur = '';
-      if (row.some(x => x)) rows.push(row);
-      row = [];
-    } else { cur += c; }
-  }
-  if (cur || row.length) { row.push(cur.trim()); if (row.some(x=>x)) rows.push(row); }
-  return rows;
-}
-
-// Parse TikTok Shop date: "MM/DD/YYYY HH:MM:SS AM/PM" (may have trailing tab)
-function oaParseDate(raw) {
-  const s = (raw||'').replace(/\t/g,'').trim();
-  const m = s.match(/(\d{2})\/(\d{2})\/(\d{4})/);
-  if (m) return m[3]+'-'+m[1]+'-'+m[2];
-  const m2 = s.match(/(\d{4}-\d{2}-\d{2})/);
-  return m2 ? m2[1] : '';
-}
-
-function renderOrderAnalytics() {
-  const saved = localStorage.getItem('oa_orders');
-  if (saved) { oaRawOrders = JSON.parse(saved); oaShowResults(); }
-}
-
-function oaHandleFile(input) {
-  const file = input.files[0]; if (!file) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    try {
-      const rows = oaParseCSVText(e.target.result);
-      if (rows.length < 2) { alert('주문 데이터를 찾을 수 없어요.'); return; }
-      // TikTok Shop fixed columns: 0=OrderID, 1=Status, 7=Product, 10=Qty, 25=Amount, 27=CreatedTime, 43=BuyerUsername
-      oaRawOrders = rows.slice(1).filter(r => {
-        const st = (r[1]||'').toLowerCase();
-        return !st.includes('cancel') && !st.includes('refund');
-      }).map(r => ({
-        orderId: r[0]||'', status: r[1]||'',
-        product: r[7]||'', sku: oaDetectSKU(r[7]),
-        qty:     parseInt(r[10])||1,
-        amount:  parseFloat((r[25]||'').replace(/[^0-9.]/g,''))||0,
-        date:    oaParseDate(r[27]),
-        buyer:   r[43]||''
-      })).filter(o => o.date);
-      if (!oaRawOrders.length) { alert('유효한 주문이 없어요. (취소 제외 후 0건)'); return; }
-      localStorage.setItem('oa_orders', JSON.stringify(oaRawOrders));
-      oaShowResults();
-    } catch(err) { alert('파싱 오류: ' + err.message); console.error(err); }
-  };
-  reader.readAsText(file, 'UTF-8');
-  input.value = '';
-}
-
-function oaShowResults() {
-  gEl('oa-upload-guide').style.display = 'none';
-  gEl('oa-results').style.display = 'block';
-  const cb = gEl('oa-clear-btn'); if (cb) cb.style.display = '';
-  const dates = oaRawOrders.map(o=>o.date).sort();
-  gEl('oa-date-from').value = dates[0];
-  gEl('oa-date-to').value   = dates[dates.length-1];
-  const fi = gEl('oa-file-info');
-  if (fi) fi.textContent = oaRawOrders.length + '건 로드 · ' + dates[0] + ' ~ ' + dates[dates.length-1];
-  oaApplyFilter();
-}
-
-function oaApplyFilter() {
-  const from = gEl('oa-date-from').value, to = gEl('oa-date-to').value;
-  oaFiltered = oaRawOrders.filter(o => (!from||o.date>=from) && (!to||o.date<=to));
-  oaComputeAndRender();
-}
-
-function oaResetFilter() {
-  const dates = oaRawOrders.map(o=>o.date).sort();
-  gEl('oa-date-from').value = dates[0];
-  gEl('oa-date-to').value   = dates[dates.length-1];
-  oaApplyFilter();
-}
-
-function oaComputeAndRender() {
-  const orders = oaFiltered; if (!orders.length) return;
-  const totalRev = orders.reduce((s,o)=>s+o.amount, 0);
-  const totalOrders = orders.length;
-  // Daily map with SKU breakdown
-  const dayMap = {};
-  orders.forEach(o => {
-    if (!dayMap[o.date]) {
-      dayMap[o.date] = {rev:0, cnt:0, qty:0, skus:{}};
-      OA_SKU_LABELS.forEach(s => dayMap[o.date].skus[s]=0);
-    }
-    dayMap[o.date].rev += o.amount;
-    dayMap[o.date].cnt += 1;
-    dayMap[o.date].qty += o.qty;
-    if (dayMap[o.date].skus[o.sku] !== undefined) dayMap[o.date].skus[o.sku] += o.qty;
-  });
-  const days = Object.keys(dayMap).sort();
-  const avgDailyRev = days.length ? totalRev/days.length : 0;
-  // Repurchase rate
-  const buyerMap = {};
-  orders.forEach(o => { if(o.buyer) buyerMap[o.buyer]=(buyerMap[o.buyer]||0)+1; });
-  const uniqueBuyers = Object.keys(buyerMap).length;
-  const repeatBuyers = Object.values(buyerMap).filter(c=>c>1).length;
-  const repeatRate   = uniqueBuyers ? repeatBuyers/uniqueBuyers*100 : 0;
-  // SKU totals
-  const skuTotals = {}; OA_SKU_LABELS.forEach(s=>skuTotals[s]=0);
-  orders.forEach(o=>{ if(skuTotals[o.sku]!==undefined) skuTotals[o.sku]+=o.qty; });
-  // KPIs
-  const fmt = n => '$' + n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
-  gEl('oa-k-orders').textContent    = totalOrders.toLocaleString();
-  gEl('oa-k-revenue').textContent   = fmt(totalRev);
-  gEl('oa-k-aov').textContent       = fmt(totalRev/totalOrders);
-  gEl('oa-k-daily-rev').textContent = fmt(avgDailyRev);
-  gEl('oa-k-buyers').textContent    = uniqueBuyers.toLocaleString();
-  gEl('oa-k-repeat').textContent    = repeatRate.toFixed(1)+'%';
-  // Repeat detail
-  const rd = gEl('oa-repeat-detail');
-  if (rd) {
-    const once=Object.values(buyerMap).filter(c=>c===1).length;
-    const twice=Object.values(buyerMap).filter(c=>c===2).length;
-    const more=Object.values(buyerMap).filter(c=>c>=3).length;
-    rd.innerHTML = '<div style="display:flex;flex-direction:column;gap:10px">'
-      +'<div style="display:flex;justify-content:space-between;padding:8px 12px;background:var(--bg);border-radius:8px"><span>1회 구매자</span><strong>'+once.toLocaleString()+'명</strong></div>'
-      +'<div style="display:flex;justify-content:space-between;padding:8px 12px;background:var(--bg);border-radius:8px"><span>2회 구매자</span><strong style="color:var(--cyan)">'+twice.toLocaleString()+'명</strong></div>'
-      +'<div style="display:flex;justify-content:space-between;padding:8px 12px;background:var(--bg);border-radius:8px"><span>3회+ 구매자</span><strong style="color:var(--pink)">'+more.toLocaleString()+'명</strong></div>'
-      +'<div style="display:flex;justify-content:space-between;padding:8px 12px;background:#FEF2F2;border-radius:8px"><span style="color:var(--pink);font-weight:700">재구매율</span><strong style="color:var(--pink);font-size:20px">'+repeatRate.toFixed(1)+'%</strong></div>'
+function smRenderInventory() {
+  const el = gEl('sm-inventory-list'); if (!el) return;
+  el.innerHTML = SM_INVENTORY.map(x => {
+    const days = x.dailySales > 0 ? Math.round(x.qty / x.dailySales) : 999;
+    const pct = Math.min(100, Math.round(x.qty / Math.max(...SM_INVENTORY.map(i=>i.qty)) * 100));
+    const warn = days < 30 ? 'color:#EF4444' : days < 60 ? 'color:#F59E0B' : 'color:var(--green)';
+    return '<div style="margin-bottom:6px">'
+      +'<div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px">'
+      +'<span style="font-weight:600">'+x.sku+'</span>'
+      +'<span style="'+warn+'">'+x.qty.toLocaleString()+'개 · <strong>~'+days+'일</strong></span>'
+      +'</div>'
+      +'<div style="background:var(--bg);border-radius:4px;height:6px"><div style="background:'+x.color+';width:'+pct+'%;height:100%;border-radius:4px"></div></div>'
       +'</div>';
-  }
-  // Charts
-  const lblDays = days.map(d=>d.slice(5));
-  const skuColors = ['#FE2C55','#25F4EE','#A855F7','#F59E0B','#22C55E','#F97316','#3B82F6'];
-  destroyChart('oa-chart-revenue'); destroyChart('oa-chart-orders'); destroyChart('oa-chart-products');
-  mkChart('oa-chart-revenue','line',{labels:lblDays,datasets:[{label:'매출($)',data:days.map(d=>+dayMap[d].rev.toFixed(2)),borderColor:'#22C55E',backgroundColor:'rgba(34,197,94,0.1)',fill:true,tension:0.3,pointRadius:2}]},{plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>'$'+v.toLocaleString()}}}});
-  mkChart('oa-chart-orders','bar',{labels:lblDays,datasets:[{label:'주문',data:days.map(d=>dayMap[d].cnt),backgroundColor:'rgba(59,130,246,0.7)',borderRadius:4}]},{plugins:{legend:{display:false}},scales:{y:{ticks:{stepSize:1}}}});
-  mkChart('oa-chart-products','bar',{labels:OA_SKU_LABELS.map(s=>s.length>16?s.slice(0,16)+'…':s),datasets:[{label:'판매수량',data:OA_SKU_LABELS.map(s=>skuTotals[s]),backgroundColor:skuColors,borderRadius:4}]},{indexAxis:'y',plugins:{legend:{display:false}}});
-  oaRenderDailyTable(days, dayMap);
-  oaRenderTable();
-}
-
-function oaRenderDailyTable(days, dayMap) {
-  const DOW = ['일','월','화','수','목','금','토'];
-  const tb = gEl('oa-daily-tbody'); if (!tb) return;
-  tb.innerHTML = [...days].reverse().map(d => {
-    const row = dayMap[d];
-    const dow = DOW[new Date(d+'T00:00:00').getDay()];
-    const skuCells = OA_SKU_LABELS.map(s =>
-      '<td style="text-align:center;font-size:12px">'+(row.skus[s]||'')+'</td>'
-    ).join('');
-    return '<tr>'
-      +'<td style="font-size:12px;white-space:nowrap">'+d+'</td>'
-      +'<td style="text-align:center;font-size:12px;color:var(--muted)">'+dow+'</td>'
-      +'<td style="font-weight:700;color:var(--green)">$'+row.rev.toFixed(2)+'</td>'
-      +'<td style="text-align:center">'+row.qty+'</td>'
-      +skuCells+'</tr>';
   }).join('');
 }
 
-function oaRenderTable() {
-  const q = ((gEl('oa-table-search')||{}).value||'').toLowerCase();
-  let rows = oaFiltered;
-  if (q) rows = rows.filter(o=>(o.orderId+o.buyer+o.product).toLowerCase().includes(q));
-  gEl('oa-table-count').textContent = rows.length.toLocaleString();
-  gEl('oa-tbody').innerHTML = rows.slice(0,500).map(o =>
-    '<tr>'
-    +'<td style="font-size:12px">'+o.date+'</td>'
-    +'<td style="font-size:11px;color:var(--muted)">'+esc(o.orderId.slice(0,18))+'</td>'
-    +'<td>'+esc(o.buyer||'-')+'</td>'
-    +'<td><span style="background:var(--bg);padding:2px 6px;border-radius:8px;font-size:11px">'+esc(o.sku)+'</span></td>'
-    +'<td style="text-align:center">'+o.qty+'</td>'
-    +'<td style="font-weight:700;color:var(--green)">$'+o.amount.toFixed(2)+'</td>'
-    +'<td style="font-size:11px">'+esc(o.status)+'</td></tr>'
+function smRenderMonthlyTable() {
+  const tb = gEl('sm-monthly-tbody'); if (!tb) return;
+  tb.innerHTML = SM_MONTHLY.map(r => {
+    const isHigh = r.gmv >= 10;
+    return '<tr style="'+(isHigh?'background:rgba(254,44,85,0.04)':'')+'">'
+      +'<td style="font-weight:700">'+(isHigh?'🔥':'')+r.m+'</td>'
+      +'<td style="font-weight:700;color:var(--green)">'+r.gmv+'억</td>'
+      +'<td style="color:var(--muted)">'+r.ad+'억</td>'
+      +'<td style="text-align:center">'+r.pdrn.toLocaleString()+'</td>'
+      +'<td style="text-align:center">'+r.lip.toLocaleString()+'</td>'
+      +'<td style="text-align:center">'+r.cer.toLocaleString()+'</td>'
+      +'<td style="text-align:center">'+r.ret.toLocaleString()+'</td>'
+      +'<td style="text-align:center">'+r.msk.toLocaleString()+'</td>'
+      +'<td style="text-align:center">'+r.set.toLocaleString()+'</td>'
+      +'<td style="text-align:right;font-weight:700">'+r.total.toLocaleString()+'</td>'
+      +'</tr>';
+  }).join('');
+}
+
+function smRenderCompetitors() {
+  const tb = gEl('sm-comp-tbody'); if (!tb) return;
+  const tierColor = t => t==='Beyond'?'#FE2C55':t==='T5'?'#F97316':t==='T4'?'#F59E0B':t==='T3'?'#22C55E':t==='T2'?'#3B82F6':'#9CA3AF';
+  tb.innerHTML = SM_COMPETITORS.map(c => {
+    const hi = c.highlight ? 'background:rgba(34,197,94,0.08);font-weight:700' : '';
+    const gmvStr = c.gmv >= 1000000 ? '$'+(c.gmv/1000000).toFixed(1)+'M' : '$'+(c.gmv/1000).toFixed(0)+'K';
+    return '<tr style="'+hi+'">'
+      +'<td style="font-size:12px'+(c.highlight?';color:var(--green)':'')+'">'+c.brand+'</td>'
+      +'<td style="font-weight:600">'+gmvStr+'</td>'
+      +'<td><span style="background:'+tierColor(c.tier)+';color:#fff;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700">'+c.tier+'</span></td>'
+      +'</tr>';
+  }).join('');
+}
+
+function smRenderUnitEcon() {
+  const el = gEl('sm-unit-econ'); if (!el) return;
+  el.innerHTML = SM_UNIT_ECON.map(x =>
+    '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;border-radius:8px;background:var(--bg);'+(x.bold?'margin-top:8px;border:1px solid var(--pink)':'')+'">'
+    +'<span style="font-size:12px'+(x.bold?';font-weight:700':'')+'">'+x.label+(x.pct?' <span style="color:var(--muted);font-size:10px">('+x.pct+')</span>':'')+'</span>'
+    +'<strong style="font-size:13px;'+(x.color?'color:'+x.color:'')+'">'+x.val+'</strong>'
+    +'</div>'
   ).join('');
 }
 
-function oaClearData() {
-  if (!confirm('업로드된 주문 데이터를 초기화할까요?')) return;
-  localStorage.removeItem('oa_orders');
-  oaRawOrders = []; oaFiltered = [];
-  gEl('oa-upload-guide').style.display = 'flex';
-  gEl('oa-results').style.display = 'none';
-  const clearBtn = gEl('oa-clear-btn');
-  if (clearBtn) clearBtn.style.display = 'none';
+function smRenderPrices() {
+  const tb = gEl('sm-price-tbody'); if (!tb) return;
+  tb.innerHTML = SM_PRICES.map(p =>
+    '<tr><td style="font-size:12px">'+p.sku+'</td>'
+    +'<td style="font-weight:700">'+p.regular+'</td>'
+    +'<td style="color:var(--pink);font-weight:700">'+p.s+'</td>'
+    +'<td>'+p.a+'</td><td style="color:var(--muted)">'+p.b+'</td></tr>'
+  ).join('');
+}
+
+function smRenderCharts() {
+  const months = SM_MONTHLY.map(r=>r.m);
+  const skuColors = ['#FE2C55','#25F4EE','#A855F7','#F59E0B','#22C55E','#F97316'];
+  destroyChart('sm-chart-monthly');
+  destroyChart('sm-chart-sku');
+  mkChart('sm-chart-monthly','bar',{
+    labels: months,
+    datasets:[
+      {label:'매출목표(억)', data:SM_MONTHLY.map(r=>r.gmv), backgroundColor:'rgba(34,197,94,0.8)', borderRadius:4, yAxisID:'y'},
+      {label:'광고비(억)',   data:SM_MONTHLY.map(r=>r.ad),  backgroundColor:'rgba(254,44,85,0.5)',  borderRadius:4, yAxisID:'y'},
+    ]
+  },{plugins:{legend:{labels:{font:{size:11}}}},scales:{y:{ticks:{callback:v=>v+'억'}}}});
+  mkChart('sm-chart-sku','bar',{
+    labels: months,
+    datasets:[
+      {label:'PDRN Cream',  data:SM_MONTHLY.map(r=>r.pdrn), backgroundColor:skuColors[0], borderRadius:3},
+      {label:'Lip Serum',   data:SM_MONTHLY.map(r=>r.lip),  backgroundColor:skuColors[1], borderRadius:3},
+      {label:'Ceramide',    data:SM_MONTHLY.map(r=>r.cer),  backgroundColor:skuColors[2], borderRadius:3},
+      {label:'Retino-Mela', data:SM_MONTHLY.map(r=>r.ret),  backgroundColor:skuColors[3], borderRadius:3},
+      {label:'Mask',        data:SM_MONTHLY.map(r=>r.msk),  backgroundColor:skuColors[4], borderRadius:3},
+    ]
+  },{plugins:{legend:{labels:{font:{size:10}}}},scales:{x:{stacked:true},y:{stacked:true,ticks:{callback:v=>v.toLocaleString()}}}});
 }
 
 /* ══════════════════════════════════════════════════════════
