@@ -3044,7 +3044,24 @@ function rdParseCSV(text) {
   return rows;
 }
 
+function rdSave() {
+  try {
+    localStorage.setItem('rd_slim', JSON.stringify(rdRaw));
+    localStorage.setItem('rd_free', JSON.stringify(rdFreeSamples));
+  } catch(e) {
+    console.warn('자동저장 실패 (용량):', e.message);
+  }
+}
+
 function renderRevDash() {
+  if (!rdRaw.length) {
+    try {
+      const s = localStorage.getItem('rd_slim');
+      const f = localStorage.getItem('rd_free');
+      if (s) rdRaw = JSON.parse(s);
+      if (f) rdFreeSamples = JSON.parse(f);
+    } catch(e) {}
+  }
   if (rdRaw.length) rdShow();
 }
 
@@ -3153,6 +3170,28 @@ function rdProcessRows(rows) {
   }
 
   if (!rdRaw.length) { alert('매출 데이터가 없어요. 날짜/매출 컬럼을 확인해주세요.'); return; }
+
+  // 기존 데이터와 merge (orderId 기준 중복 제거)
+  const existingOrders = localStorage.getItem('rd_slim');
+  const existingFree   = localStorage.getItem('rd_free');
+  if (existingOrders) {
+    try {
+      const prev = JSON.parse(existingOrders);
+      const prevIds = new Set(prev.map(o => o.orderId));
+      const newOnes = rdRaw.filter(o => !prevIds.has(o.orderId));
+      rdRaw = [...prev, ...newOnes];
+    } catch(e) {}
+  }
+  if (existingFree) {
+    try {
+      const prevF = JSON.parse(existingFree);
+      const prevFIds = new Set(prevF.map(f => f.orderId));
+      const newFree = rdFreeSamples.filter(f => !prevFIds.has(f.orderId));
+      rdFreeSamples = [...prevF, ...newFree];
+    } catch(e) {}
+  }
+
+  rdSave();
   rdShow();
 }
 
@@ -3400,6 +3439,8 @@ function rdCompute() {
 function rdClear() {
   if (!confirm('매출 데이터를 초기화할까요?')) return;
   rdRaw = []; rdFiltered = []; rdFreeSamples = [];
+  localStorage.removeItem('rd_slim');
+  localStorage.removeItem('rd_free');
   gEl('rd-guide').style.display = 'flex';
   gEl('rd-results').style.display = 'none';
   const cb = gEl('rd-clear-btn'); if (cb) cb.style.display = 'none';
