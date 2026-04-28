@@ -1777,18 +1777,18 @@ textarea.form-input{resize:vertical}
         <div style="display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:16px">
           <div class="kpi-card" style="padding:16px;min-width:0">
             <div style="font-size:13px;font-weight:700;margin-bottom:10px">📈 일별 매출 ($)</div>
-            <canvas id="rd-chart-daily" height="180"></canvas>
+            <div style="position:relative;height:180px"><canvas id="rd-chart-daily"></canvas></div>
           </div>
           <div class="kpi-card" style="padding:16px;min-width:0">
             <div style="font-size:13px;font-weight:700;margin-bottom:10px">🏆 SKU별 매출 비중</div>
-            <canvas id="rd-chart-sku" height="180"></canvas>
+            <div style="position:relative;height:180px"><canvas id="rd-chart-sku"></canvas></div>
           </div>
         </div>
 
         <!-- 월별 차트 -->
         <div class="kpi-card" style="padding:16px;margin-bottom:16px;min-width:0">
           <div style="font-size:13px;font-weight:700;margin-bottom:10px">📅 월별 매출 ($)</div>
-          <canvas id="rd-chart-monthly" height="120"></canvas>
+          <div style="position:relative;height:120px"><canvas id="rd-chart-monthly"></canvas></div>
         </div>
 
         <!-- 일별 요약 테이블 -->
