@@ -3176,8 +3176,6 @@ function rdProcessRows(rows) {
       rev:    Math.max(0, (parseFloat(r[13])||0) - (parseFloat(r[15])||0)),
       qty:    parseInt(r[10]) || 1,
       sku:    RD_SKU_MAP[(r[5]||'').trim()] || rdDetectSku(r[6]||'') || rdDetectSku(r[7]||''),
-      skuId:  (r[5]||'').trim(),
-      status: r[1] || '',
       orderId:r[0] || ''
     })).filter(o => o.date && o.rev > 0);
   } else {
@@ -3192,7 +3190,6 @@ function rdProcessRows(rows) {
       rev:    parseFloat(r[17]) || 0,
       qty:    parseInt(r[11]) || 1,
       sku:    rdDetectSku(r[9]||''),
-      status: r[3] || '',
       orderId:r[2] || ''
     })).filter(o => o.date && o.rev > 0);
   }
@@ -3469,6 +3466,7 @@ function rdClear() {
   rdRaw = []; rdFiltered = []; rdFreeSamples = [];
   localStorage.removeItem('rd_slim');
   localStorage.removeItem('rd_free');
+  localStorage.removeItem('rd_orders');
   gEl('rd-guide').style.display = 'flex';
   gEl('rd-results').style.display = 'none';
   const cb = gEl('rd-clear-btn'); if (cb) cb.style.display = 'none';
@@ -5366,6 +5364,8 @@ function doLogin() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  // 구버전 대용량 키 정리 (rd_orders → rd_slim으로 교체됨)
+  localStorage.removeItem('rd_orders');
   // 매출 데이터 메모리 선복원
   try {
     const s = localStorage.getItem('rd_slim');
