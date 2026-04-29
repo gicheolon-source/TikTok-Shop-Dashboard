@@ -1229,6 +1229,7 @@ textarea.form-input{resize:vertical}
           <span id="viral-fetch-status" style="font-size:12px;color:var(--muted)"></span>
           <button class="btn-primary" id="viral-fetch-btn" onclick="viralFetch()">🔄 시트에서 불러오기</button>
           <button class="btn-ghost" style="font-size:12px" onclick="viralExportCSV()">⬇ CSV</button>
+          <button class="btn-primary" style="font-size:12px" onclick="viralOpenAddModal()">+ URL 추가</button>
         </div>
       </div>
       <div class="crm-tabs" id="viral-tabs" style="margin-bottom:14px">
@@ -1310,6 +1311,58 @@ textarea.form-input{resize:vertical}
         <div id="settle-empty" style="text-align:center;padding:40px;color:var(--muted);font-size:13px">정산 기록을 추가하세요</div>
       </div>
     </div>
+    <!-- TikTok URL 추가 모달 -->
+    <div class="modal-overlay hidden" id="viral-add-modal">
+      <div class="modal-box" style="max-width:520px">
+        <div class="modal-title">TikTok URL 추가</div>
+        <div style="margin-bottom:14px">
+          <label class="form-label">TikTok URL</label>
+          <div style="display:flex;gap:8px">
+            <input class="form-input" id="viral-add-url" placeholder="https://www.tiktok.com/@username/video/..." style="flex:1">
+            <button class="btn-primary" id="viral-oembed-btn" onclick="viralFetchOembed()">정보 가져오기</button>
+          </div>
+          <div id="viral-oembed-status" style="font-size:12px;margin-top:4px;color:var(--muted)"></div>
+        </div>
+        <div id="viral-oembed-preview" style="display:none;margin-bottom:14px;padding:10px;background:rgba(255,255,255,0.05);border-radius:8px;flex-direction:row;gap:10px;align-items:center">
+          <img id="viral-oembed-thumb" style="width:60px;height:60px;object-fit:cover;border-radius:6px">
+          <div style="overflow:hidden">
+            <div id="viral-oembed-account" style="font-weight:700;color:var(--pink)"></div>
+            <div id="viral-oembed-title" style="font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:360px"></div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+          <div><label class="form-label">크리에이터</label><input class="form-input" id="viral-add-account" placeholder="@username"></div>
+          <div><label class="form-label">브랜드</label><input class="form-input" id="viral-add-brand" placeholder="브랜드명"></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+          <div><label class="form-label">조회수</label><input class="form-input" id="viral-add-views" type="number" placeholder="0" min="0"></div>
+          <div><label class="form-label">좋아요</label><input class="form-input" id="viral-add-likes" type="number" placeholder="0" min="0"></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+          <div><label class="form-label">댓글</label><input class="form-input" id="viral-add-comments" type="number" placeholder="0" min="0"></div>
+          <div><label class="form-label">저장/공유</label><input class="form-input" id="viral-add-shares" type="number" placeholder="0" min="0"></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+          <div><label class="form-label">전환</label>
+            <select class="form-input" id="viral-add-conv">
+              <option value="">—</option><option value="O">O</option><option value="X">X</option>
+            </select>
+          </div>
+          <div><label class="form-label">광고</label>
+            <select class="form-input" id="viral-add-ad">
+              <option value="">—</option><option value="O">O</option><option value="X">X</option>
+            </select>
+          </div>
+        </div>
+        <div style="margin-bottom:10px"><label class="form-label">Hook (첫 3초)</label><input class="form-input" id="viral-add-hook" placeholder="예: 이 크림 진짜 미쳤어..."></div>
+        <div style="margin-bottom:14px"><label class="form-label">업로드 날짜</label><input class="form-input" id="viral-add-date" type="date"></div>
+        <div style="display:flex;gap:8px;justify-content:flex-end">
+          <button class="btn-ghost" onclick="closeModal('viral-add-modal')">취소</button>
+          <button class="btn-primary" onclick="viralSaveManual()">저장</button>
+        </div>
+      </div>
+    </div>
+
     <div class="modal-overlay hidden" id="settle-modal"><div class="modal-box">
       <div class="modal-title">정산 추가</div>
       <input type="hidden" id="settle-edit-id">
@@ -4389,6 +4442,7 @@ const VIRAL_SHEET_KBEAUTY  = 'RawData_#kbeauty_100만이상';
 const VIRAL_SHEET_REJUALL  = 'RawData_바이럴+닥터리쥬올 store';
 
 let viralStore = { kbeauty: [], rejuall: [] };
+let viralManual = [];
 let viralActiveTab = 'kbeauty';
 let viralPage = 1;
 const VIRAL_PER_PAGE = 40;
@@ -4402,12 +4456,102 @@ function viralFmtV(v) {
 }
 
 function renderViral() {
-  // Load cached data on section open
   try {
     const c = localStorage.getItem('viral_store');
     if (c) viralStore = JSON.parse(c);
   } catch(e) {}
+  try {
+    const m = localStorage.getItem('viral_manual');
+    if (m) viralManual = JSON.parse(m);
+  } catch(e) {}
   viralRenderDash();
+}
+
+/* ─── Manual URL Add ─── */
+function viralOpenAddModal() {
+  // reset form
+  ['viral-add-url','viral-add-account','viral-add-brand','viral-add-hook'].forEach(id => { const el = gEl(id); if(el) el.value=''; });
+  ['viral-add-views','viral-add-likes','viral-add-comments','viral-add-shares'].forEach(id => { const el = gEl(id); if(el) el.value=''; });
+  const convEl = gEl('viral-add-conv'); if(convEl) convEl.value='';
+  const adEl   = gEl('viral-add-ad');   if(adEl)   adEl.value='';
+  const dateEl = gEl('viral-add-date'); if(dateEl) dateEl.value = new Date().toISOString().slice(0,10);
+  const preview = gEl('viral-oembed-preview'); if(preview) preview.style.display='none';
+  const status  = gEl('viral-oembed-status');  if(status)  status.textContent='';
+  openModal('viral-add-modal');
+}
+
+async function viralFetchOembed() {
+  const url   = (gEl('viral-add-url')||{}).value?.trim();
+  const btn   = gEl('viral-oembed-btn');
+  const status= gEl('viral-oembed-status');
+  const preview = gEl('viral-oembed-preview');
+  if (!url) { if(status) status.textContent='URL을 입력해주세요.'; return; }
+
+  if(btn)    { btn.disabled=true; btn.textContent='불러오는 중...'; }
+  if(status) status.textContent='';
+  if(preview) preview.style.display='none';
+
+  try {
+    const resp = await fetch('https://www.tiktok.com/oembed?url=' + encodeURIComponent(url));
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const data = await resp.json();
+
+    // Fill account from author_name
+    const accountEl = gEl('viral-add-account');
+    if (accountEl && !accountEl.value) {
+      accountEl.value = data.author_name ? '@' + data.author_name.replace(/^@/,'') : '';
+    }
+    // Show preview
+    if (preview) {
+      const thumb = gEl('viral-oembed-thumb');
+      const acc   = gEl('viral-oembed-account');
+      const title = gEl('viral-oembed-title');
+      if(thumb) thumb.src = data.thumbnail_url || '';
+      if(acc)   acc.textContent  = data.author_name ? '@' + data.author_name.replace(/^@/,'') : '—';
+      if(title) title.textContent = data.title || '—';
+      preview.style.display = 'flex';
+    }
+    if(status) { status.style.color='var(--green)'; status.textContent='✅ 정보를 가져왔습니다. 나머지 수치를 직접 입력해주세요.'; }
+  } catch(e) {
+    if(status) { status.style.color='var(--yellow)'; status.textContent='⚠️ 자동 정보 가져오기 실패 — 크리에이터명 등을 직접 입력해주세요.'; }
+  } finally {
+    if(btn) { btn.disabled=false; btn.textContent='정보 가져오기'; }
+  }
+}
+
+function viralSaveManual() {
+  const url      = (gEl('viral-add-url')||{}).value?.trim() || '';
+  const account  = (gEl('viral-add-account')||{}).value?.trim() || '(알 수 없음)';
+  const brand    = (gEl('viral-add-brand')||{}).value?.trim() || '';
+  const views    = +(gEl('viral-add-views')||{}).value || 0;
+  const likes    = +(gEl('viral-add-likes')||{}).value || 0;
+  const comments = +(gEl('viral-add-comments')||{}).value || 0;
+  const shares   = +(gEl('viral-add-shares')||{}).value || 0;
+  const conv     = (gEl('viral-add-conv')||{}).value || '';
+  const ad       = (gEl('viral-add-ad')||{}).value || '';
+  const hook     = (gEl('viral-add-hook')||{}).value?.trim() || '';
+  const uploaded = (gEl('viral-add-date')||{}).value || '';
+
+  const totalEng = likes + comments + shares;
+  const engRate  = views > 0 ? (totalEng / views) * 100 : 0;
+
+  const entry = {
+    id: 'vm_' + Date.now(),
+    manual: true,
+    account, brand, views, likes, comments, shares,
+    totalEng, engRate, hook, flow: '', conv, ad, uploaded, url
+  };
+
+  viralManual.push(entry);
+  try { localStorage.setItem('viral_manual', JSON.stringify(viralManual)); } catch(e) {}
+  closeModal('viral-add-modal');
+  viralRenderTable();
+}
+
+function viralDeleteManual(id) {
+  viralManual = viralManual.filter(x => x.id !== id);
+  try { localStorage.setItem('viral_manual', JSON.stringify(viralManual)); } catch(e) {}
+  viralRenderTable();
 }
 
 async function viralFetch() {
@@ -4495,7 +4639,7 @@ function viralTab(tab, el) {
 }
 
 function viralRenderDash() {
-  const kb = viralStore.kbeauty;
+  const kb = [...viralStore.kbeauty, ...viralManual];
   const rj = viralStore.rejuall;
 
   // Tab counts
@@ -4716,7 +4860,10 @@ function viralRenderTableKB(raw) {
     <td style="font-weight:700;color:${x.conv==='O'?'#22C55E':'#9CA3AF'}">${x.conv||'—'}</td>
     <td style="color:${x.ad==='O'?'#F59E0B':'#9CA3AF'}">${x.ad||'—'}</td>
     <td style="color:var(--muted);font-size:11px">${x.uploaded||'—'}</td>
-    <td>${x.url?`<a href="${esc(x.url)}" target="_blank" class="btn-ghost" style="font-size:11px;padding:2px 7px">▶</a>`:''}</td>
+    <td style="white-space:nowrap">
+      ${x.url?`<a href="${esc(x.url)}" target="_blank" class="btn-ghost" style="font-size:11px;padding:2px 7px">▶</a>`:''}
+      ${x.manual?`<button onclick="viralDeleteManual('${x.id}')" style="background:none;border:none;cursor:pointer;font-size:13px;opacity:.5;padding:2px 4px" title="삭제">🗑</button>`:''}
+    </td>
   </tr>`).join('') || '<tr><td colspan="13" style="text-align:center;color:var(--muted);padding:20px">필터 조건에 맞는 영상 없음</td></tr>';
 
   viralRenderPagination(pages);
@@ -4754,8 +4901,12 @@ function viralRenderTableRJ(raw) {
 }
 
 function viralRenderTable() {
-  if (viralActiveTab === 'kbeauty') viralRenderTableKB(viralStore.kbeauty);
-  else viralRenderTableRJ(viralStore.rejuall);
+  if (viralActiveTab === 'kbeauty') {
+    const merged = [...viralStore.kbeauty, ...viralManual];
+    viralRenderTableKB(merged);
+  } else {
+    viralRenderTableRJ(viralStore.rejuall);
+  }
 }
 
 function viralRenderPagination(pages) {
