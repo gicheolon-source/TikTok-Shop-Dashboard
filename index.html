@@ -358,18 +358,15 @@ textarea.form-input{resize:vertical}
     </div>
     <div class="sb-section">Growth</div>
     <div class="nav-item" onclick="nav('affiliates',this)">
-      <span class="nav-icon">&#128101;</span> Affiliates
+      <span class="nav-icon">&#128101;</span> Affiliates TikTok Info
     </div>
     <div class="nav-item" onclick="nav('competitors',this)">
       <span class="nav-icon">&#127942;</span> Competitors
     </div>
-    <div class="sb-section">Operations</div>
     <div class="nav-item" onclick="nav('promotions',this)">
       <span class="nav-icon">&#127881;</span> Promotions
     </div>
-    <div class="nav-item" onclick="nav('uk',this)">
-      <span class="nav-icon">&#127468;&#127463;</span> UK Market
-    </div>
+    <div class="sb-section">Operations</div>
     <div class="sb-section">Affiliates</div>
     <div class="nav-item" onclick="nav('affiliatelist',this)">
       <span class="nav-icon">&#128101;</span> Affiliate List
@@ -377,24 +374,8 @@ textarea.form-input{resize:vertical}
     <div class="nav-item" onclick="nav('affiliatevideos',this)">
       <span class="nav-icon">&#127909;</span> Affiliate Videos
     </div>
-    <div class="sb-section">Creator Tools</div>
-    <div class="nav-item" onclick="nav('findcreator',this)">
-      <span class="nav-icon">&#128269;</span> 크리에이터 발굴
-    </div>
-    <div class="nav-item" onclick="nav('crm',this)">
-      <span class="nav-icon">&#128100;</span> Creator CRM
-    </div>
-    <div class="nav-item" onclick="nav('seeding',this)">
-      <span class="nav-icon">&#127873;</span> 샘플 시딩
-    </div>
-    <div class="nav-item" onclick="nav('live',this)">
-      <span class="nav-icon">&#128250;</span> LIVE 트래커
-    </div>
     <div class="nav-item" onclick="nav('viral',this)">
       <span class="nav-icon">&#128293;</span> 바이럴 영상
-    </div>
-    <div class="nav-item" onclick="nav('brief',this)">
-      <span class="nav-icon">&#128203;</span> 콘텐츠 브리프
     </div>
     <div class="nav-item" onclick="nav('spark',this)">
       <span class="nav-icon">&#9889;</span> Spark Ads Codes
@@ -1236,382 +1217,68 @@ textarea.form-input{resize:vertical}
       </div>
     </div>
 
-    <!-- ═══ 9. CREATOR CRM ═══════════════════════ -->
-    <div id="sec-crm" class="page-section">
-      <div class="sec-head">
-        <div><div class="sec-title">Creator CRM</div><div class="sec-sub">크리에이터 관계 관리 · 상태 추적</div></div>
-        <button class="btn-primary" onclick="openModal('crm-modal')">+ 크리에이터 추가</button>
-      </div>
-      <div class="kpi-grid">
-        <div class="kpi"><div class="kpi-bar" style="background:var(--pink)"></div><div class="kpi-lbl">Total</div><div class="kpi-val" id="crm-kpi-total">0</div><div class="kpi-sub neu">등록된 크리에이터</div></div>
-        <div class="kpi"><div class="kpi-bar" style="background:var(--green)"></div><div class="kpi-lbl">Active</div><div class="kpi-val" id="crm-kpi-active">0</div><div class="kpi-sub up">활성 크리에이터</div></div>
-        <div class="kpi"><div class="kpi-bar" style="background:var(--cyan)"></div><div class="kpi-lbl">샘플 발송</div><div class="kpi-val" id="crm-kpi-sampled">0</div><div class="kpi-sub neu">명</div></div>
-        <div class="kpi"><div class="kpi-bar" style="background:var(--purple)"></div><div class="kpi-lbl">전환율</div><div class="kpi-val" id="crm-kpi-conv">0%</div><div class="kpi-sub neu">샘플 → 활성</div></div>
-      </div>
-      <div class="card full">
-        <div class="tbl-toolbar">
-          <div style="display:flex;gap:6px;flex-wrap:wrap">
-            <button class="filter-btn active" onclick="crmFilter('all',this)">All</button>
-            <button class="filter-btn" onclick="crmFilter('contacted',this)">연락함</button>
-            <button class="filter-btn" onclick="crmFilter('sampled',this)">샘플발송</button>
-            <button class="filter-btn" onclick="crmFilter('active',this)">활성</button>
-            <button class="filter-btn" onclick="crmFilter('inactive',this)">비활성</button>
-          </div>
-          <div style="display:flex;gap:8px">
-            <input class="tbl-search" id="crm-search" placeholder="검색..." oninput="crmRender()">
-            <button class="export-btn" onclick="crmExport()">&#11015; CSV</button>
-          </div>
-        </div>
-        <div class="tbl-wrap"><table>
-          <thead><tr><th>#</th><th class="th-sort" onclick="crmSort('username')">Username &#8597;</th><th>Tier</th><th class="th-sort" onclick="crmSort('followers')">Followers &#8597;</th><th>Status</th><th class="th-sort" onclick="crmSort('gmv')">GMV &#8597;</th><th>Notes</th><th>날짜</th><th></th></tr></thead>
-          <tbody id="crm-tbody"></tbody>
-        </table></div>
-        <div id="crm-empty" style="text-align:center;padding:40px;color:var(--muted);font-size:13px">크리에이터를 추가해서 CRM을 시작하세요</div>
-      </div>
-    </div>
-    <div class="modal-overlay hidden" id="crm-modal"><div class="modal-box">
-      <div class="modal-title">크리에이터 추가/수정</div>
-      <input type="hidden" id="crm-edit-id">
-      <div class="form-row"><label>TikTok Username *</label><input class="form-input" id="crm-f-user" placeholder="@username"></div>
-      <div class="form-row2">
-        <div><label>Tier</label><select class="form-input" id="crm-f-tier"><option>Nano (&lt;10K)</option><option>Micro (10K-100K)</option><option>Mid (100K-500K)</option><option>Macro (500K+)</option></select></div>
-        <div><label>Followers</label><input class="form-input" id="crm-f-followers" type="number" placeholder="50000"></div>
-      </div>
-      <div class="form-row2">
-        <div><label>Status</label><select class="form-input" id="crm-f-status"><option value="none">미연락</option><option value="contacted">연락함</option><option value="sampled">샘플발송</option><option value="active">활성</option><option value="inactive">비활성</option></select></div>
-        <div><label>GMV ($)</label><input class="form-input" id="crm-f-gmv" type="number" placeholder="0.00" step="0.01"></div>
-      </div>
-      <div class="form-row"><label>Notes</label><textarea class="form-input" id="crm-f-notes" rows="2" placeholder="메모..."></textarea></div>
-      <div class="modal-actions"><button class="btn-ghost" onclick="closeModal('crm-modal')">취소</button><button class="btn-primary" onclick="crmSave()">저장</button></div>
-    </div></div>
 
-    <!-- ═══ 10. 샘플 시딩 ══════════════════════════ -->
-    <div id="sec-seeding" class="page-section">
-      <div class="sec-head">
-        <div><div class="sec-title">샘플 시딩 트래커</div><div class="sec-sub">샘플 발송 현황 및 전환율 추적</div></div>
-        <button class="btn-primary" onclick="openModal('seed-modal')">+ 시딩 추가</button>
-      </div>
-      <div class="kpi-grid">
-        <div class="kpi"><div class="kpi-bar" style="background:var(--pink)"></div><div class="kpi-lbl">총 발송</div><div class="kpi-val" id="seed-kpi-total">0</div><div class="kpi-sub neu">건</div></div>
-        <div class="kpi"><div class="kpi-bar" style="background:var(--yellow)"></div><div class="kpi-lbl">총 비용</div><div class="kpi-val" id="seed-kpi-cost">$0</div><div class="kpi-sub neu">원가 기준</div></div>
-        <div class="kpi"><div class="kpi-bar" style="background:var(--green)"></div><div class="kpi-lbl">전환</div><div class="kpi-val" id="seed-kpi-conv">0</div><div class="kpi-sub up">콘텐츠 업로드</div></div>
-        <div class="kpi"><div class="kpi-bar" style="background:var(--purple)"></div><div class="kpi-lbl">시딩 ROI</div><div class="kpi-val" id="seed-kpi-roi">0x</div><div class="kpi-sub neu">GMV / 비용</div></div>
-      </div>
-      <div class="card full">
-        <div class="tbl-toolbar">
-          <div style="display:flex;gap:6px;flex-wrap:wrap">
-            <button class="filter-btn active" onclick="seedFilter('all',this)">All</button>
-            <button class="filter-btn" onclick="seedFilter('pending',this)">대기</button>
-            <button class="filter-btn" onclick="seedFilter('shipped',this)">발송완료</button>
-            <button class="filter-btn" onclick="seedFilter('posted',this)">업로드</button>
-            <button class="filter-btn" onclick="seedFilter('converted',this)">전환완료</button>
-          </div>
-          <button class="export-btn" onclick="seedExport()">&#11015; CSV</button>
-        </div>
-        <div class="tbl-wrap"><table>
-          <thead><tr><th>#</th><th>Creator</th><th>Product</th><th>수량</th><th>비용</th><th>발송일</th><th>Status</th><th>GMV 발생</th><th>Notes</th><th></th></tr></thead>
-          <tbody id="seed-tbody"></tbody>
-        </table></div>
-        <div id="seed-empty" style="text-align:center;padding:40px;color:var(--muted);font-size:13px">시딩 기록을 추가하세요</div>
-      </div>
-    </div>
-    <div class="modal-overlay hidden" id="seed-modal"><div class="modal-box">
-      <div class="modal-title">샘플 시딩 추가</div>
-      <input type="hidden" id="seed-edit-id">
-      <div class="form-row2">
-        <div><label>Creator *</label><input class="form-input" id="seed-f-creator" placeholder="@username"></div>
-        <div><label>Product</label><select class="form-input" id="seed-f-product"><option>PDRN Cream 20ml</option><option>PDRN Cream 60ml</option><option>PDRN Lip Serum</option><option>Ceramide Cream</option><option>Retino-mela Serum</option><option>PDRN Mask</option></select></div>
-      </div>
-      <div class="form-row2">
-        <div><label>수량</label><input class="form-input" id="seed-f-qty" type="number" placeholder="1" min="1"></div>
-        <div><label>비용 ($)</label><input class="form-input" id="seed-f-cost" type="number" placeholder="0.00" step="0.01"></div>
-      </div>
-      <div class="form-row2">
-        <div><label>발송일</label><input class="form-input" id="seed-f-date" type="date"></div>
-        <div><label>Status</label><select class="form-input" id="seed-f-status"><option value="pending">발송 대기</option><option value="shipped">발송 완료</option><option value="posted">콘텐츠 업로드</option><option value="converted">전환 완료</option></select></div>
-      </div>
-      <div class="form-row"><label>발생 GMV ($)</label><input class="form-input" id="seed-f-gmv" type="number" placeholder="0.00" step="0.01"></div>
-      <div class="form-row"><label>Notes</label><textarea class="form-input" id="seed-f-notes" rows="2" placeholder="메모..."></textarea></div>
-      <div class="modal-actions"><button class="btn-ghost" onclick="closeModal('seed-modal')">취소</button><button class="btn-primary" onclick="seedSave()">저장</button></div>
-    </div></div>
-
-    <!-- ═══ 11. LIVE 트래커 ══════════════════════ -->
-    <div id="sec-live" class="page-section">
-      <div class="sec-head">
-        <div><div class="sec-title">LIVE 스트림 트래커</div><div class="sec-sub">라이브 방송 성과 기록 및 분석</div></div>
-        <button class="btn-primary" onclick="openModal('live-modal')">+ LIVE 추가</button>
-      </div>
-      <div class="kpi-grid">
-        <div class="kpi"><div class="kpi-bar" style="background:var(--pink)"></div><div class="kpi-lbl">총 LIVE</div><div class="kpi-val" id="live-kpi-total">0</div><div class="kpi-sub neu">회</div></div>
-        <div class="kpi"><div class="kpi-bar" style="background:var(--green)"></div><div class="kpi-lbl">총 LIVE GMV</div><div class="kpi-val" id="live-kpi-gmv">$0</div><div class="kpi-sub neu">누적</div></div>
-        <div class="kpi"><div class="kpi-bar" style="background:var(--cyan)"></div><div class="kpi-lbl">평균 최고 시청자</div><div class="kpi-val" id="live-kpi-viewers">0</div><div class="kpi-sub neu">명</div></div>
-        <div class="kpi"><div class="kpi-bar" style="background:var(--yellow)"></div><div class="kpi-lbl">최고 단일 LIVE</div><div class="kpi-val" id="live-kpi-best">$0</div><div class="kpi-sub c-yellow">GMV 기준</div></div>
-      </div>
-      <div class="g2">
-        <div class="card"><div class="card-title">LIVE GMV 추이</div><div class="card-sub">방송별 GMV</div><div class="ch ch-200"><canvas id="c-live-gmv"></canvas></div></div>
-        <div class="card"><div class="card-title">최고 시청자 추이</div><div class="card-sub">방송별 피크 시청자</div><div class="ch ch-200"><canvas id="c-live-viewers"></canvas></div></div>
-      </div>
-      <div class="card full">
-        <div class="tbl-toolbar">
-          <div class="card-title">LIVE 기록</div>
-          <button class="export-btn" onclick="liveExport()">&#11015; CSV</button>
-        </div>
-        <div class="tbl-wrap"><table>
-          <thead><tr><th>#</th><th>날짜</th><th>Host</th><th>방송시간(분)</th><th>최고 시청자</th><th>GMV</th><th>제품</th><th>Notes</th><th></th></tr></thead>
-          <tbody id="live-tbody"></tbody>
-        </table></div>
-        <div id="live-empty" style="text-align:center;padding:40px;color:var(--muted);font-size:13px">LIVE 기록을 추가하세요</div>
-      </div>
-    </div>
-    <div class="modal-overlay hidden" id="live-modal"><div class="modal-box">
-      <div class="modal-title">LIVE 기록 추가</div>
-      <input type="hidden" id="live-edit-id">
-      <div class="form-row2">
-        <div><label>날짜 *</label><input class="form-input" id="live-f-date" type="date"></div>
-        <div><label>Host</label><input class="form-input" id="live-f-host" placeholder="@username 또는 자체"></div>
-      </div>
-      <div class="form-row2">
-        <div><label>방송 시간 (분)</label><input class="form-input" id="live-f-dur" type="number" placeholder="60"></div>
-        <div><label>최고 시청자</label><input class="form-input" id="live-f-viewers" type="number" placeholder="500"></div>
-      </div>
-      <div class="form-row2">
-        <div><label>GMV ($) *</label><input class="form-input" id="live-f-gmv" type="number" placeholder="0.00" step="0.01"></div>
-        <div><label>주요 제품</label><input class="form-input" id="live-f-products" placeholder="PDRN Cream, Lip..."></div>
-      </div>
-      <div class="form-row"><label>Notes</label><textarea class="form-input" id="live-f-notes" rows="2" placeholder="메모..."></textarea></div>
-      <div class="modal-actions"><button class="btn-ghost" onclick="closeModal('live-modal')">취소</button><button class="btn-primary" onclick="liveSave()">저장</button></div>
-    </div></div>
-
-    <!-- ═══ 12. 바이럴 영상 ══════════════════════ -->
+    <!-- ═══ 바이럴 영상 트래커 ════════════════════ -->
     <div id="sec-viral" class="page-section">
       <div class="sec-head">
         <div>
-          <div class="sec-title">바이럴 영상 트래커</div>
-          <div class="sec-sub" id="viral-sub">Google Sheets 연동 · 닥터리쥬올 바이럴 + #kbeauty 100만+</div>
+          <div class="sec-title">🔥 바이럴 영상 트래커</div>
+          <div class="sec-sub">Google Sheets 연동 · #kbeauty 100만+ &amp; 닥터리쥬올 바이럴 분석</div>
         </div>
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-          <span id="viral-fetch-status" style="font-size:11px;color:var(--muted)"></span>
-          <button class="btn-ghost" style="font-size:12px" onclick="viralFetch()" id="viral-fetch-btn">🔄 시트에서 불러오기</button>
-          <button class="btn-ghost" onclick="viralExportCSV()">&#11015; CSV</button>
+          <span id="viral-fetch-status" style="font-size:12px;color:var(--muted)"></span>
+          <button class="btn-primary" id="viral-fetch-btn" onclick="viralFetch()">🔄 시트에서 불러오기</button>
+          <button class="btn-ghost" style="font-size:12px" onclick="viralExportCSV()">⬇ CSV</button>
         </div>
       </div>
-
-      <!-- Source Tabs -->
-      <div class="crm-tabs" id="viral-tabs" style="margin-bottom:16px">
-        <button class="crm-tab active" onclick="viralTab('kbeauty',this)">#kbeauty 100만+ <span id="viral-tab-cnt-kbeauty" style="opacity:.6;font-size:10px"></span></button>
-        <button class="crm-tab" onclick="viralTab('rejuall',this)">닥터리쥬올 바이럴 <span id="viral-tab-cnt-rejuall" style="opacity:.6;font-size:10px"></span></button>
+      <div class="crm-tabs" id="viral-tabs" style="margin-bottom:14px">
+        <button class="crm-tab active" onclick="viralTab('kbeauty',this)">#kbeauty 100만+ <span id="viral-tab-cnt-kbeauty" style="font-size:11px;opacity:.7"></span></button>
+        <button class="crm-tab" onclick="viralTab('rejuall',this)">닥터리쥬올 바이럴 <span id="viral-tab-cnt-rejuall" style="font-size:11px;opacity:.7"></span></button>
       </div>
-
-      <!-- KPIs -->
-      <div class="kpi-grid" id="viral-kpi-grid">
-        <div class="kpi"><div class="kpi-bar" style="background:var(--pink)"></div><div class="kpi-lbl">총 영상 / 크리에이터</div><div class="kpi-val" id="viral-kpi-total">—</div><div class="kpi-sub neu" id="viral-kpi-total-sub">시트에서 불러오기</div></div>
-        <div class="kpi"><div class="kpi-bar" style="background:var(--cyan)"></div><div class="kpi-lbl">총 조회수</div><div class="kpi-val" id="viral-kpi-views">—</div><div class="kpi-sub neu"></div></div>
-        <div class="kpi"><div class="kpi-bar" style="background:var(--green)"></div><div class="kpi-lbl">평균 참여율</div><div class="kpi-val" id="viral-kpi-eng">—</div><div class="kpi-sub neu">#kbeauty 100만+ 기준</div></div>
-        <div class="kpi"><div class="kpi-bar" style="background:var(--yellow)"></div><div class="kpi-lbl">전환 확인 영상</div><div class="kpi-val" id="viral-kpi-conv">—</div><div class="kpi-sub neu">확실한 전환 O</div></div>
-        <div class="kpi"><div class="kpi-bar" style="background:var(--purple)"></div><div class="kpi-lbl">브랜드 광고</div><div class="kpi-val" id="viral-kpi-ad">—</div><div class="kpi-sub neu">스폰서 영상</div></div>
+      <div class="kpi-grid" style="grid-template-columns:repeat(5,1fr);margin-bottom:14px">
+        <div class="kpi-card"><div class="kpi-label">총 영상/크리에이터</div><div class="kpi-value" id="viral-kpi-total">—</div><div style="font-size:11px;color:var(--muted)" id="viral-kpi-total-sub"></div></div>
+        <div class="kpi-card"><div class="kpi-label">총 조회수</div><div class="kpi-value" id="viral-kpi-views" style="color:var(--cyan)">—</div></div>
+        <div class="kpi-card"><div class="kpi-label">평균 참여율</div><div class="kpi-value" id="viral-kpi-eng" style="color:var(--green)">—</div></div>
+        <div class="kpi-card"><div class="kpi-label">전환 확인 (O)</div><div class="kpi-value" id="viral-kpi-conv" style="color:var(--pink)">—</div></div>
+        <div class="kpi-card"><div class="kpi-label">브랜드 광고 (O)</div><div class="kpi-value" id="viral-kpi-ad" style="color:var(--yellow)">—</div></div>
       </div>
-
-      <!-- Charts -->
-      <div class="g2" id="viral-charts-kbeauty">
-        <div class="card">
-          <div class="card-title">Top 15 크리에이터 (조회수)</div>
-          <div class="ch ch-280"><canvas id="c-viral-creators"></canvas></div>
-        </div>
-        <div class="card">
-          <div class="card-title">브랜드 분포</div>
-          <div class="ch ch-200"><canvas id="c-viral-brands"></canvas></div>
+      <div class="g21" style="margin-bottom:14px">
+        <div class="card"><div class="card-title">Top 15 크리에이터 (조회수)</div><div class="ch" style="height:320px"><canvas id="c-viral-creators"></canvas></div></div>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div class="card"><div class="card-title">브랜드 분포</div><div class="ch" style="height:180px"><canvas id="c-viral-brands"></canvas></div></div>
+          <div class="card"><div class="card-title">월별 업로드 추이</div><div class="ch" style="height:150px"><canvas id="c-viral-trend"></canvas></div></div>
         </div>
       </div>
-      <div class="card full" id="viral-trend-card">
-        <div class="card-title">월별 바이럴 업로드 추이</div>
-        <div class="ch ch-180"><canvas id="c-viral-trend"></canvas></div>
-      </div>
-
-      <!-- Filters + Table -->
       <div class="card full">
-        <div class="tbl-toolbar" style="flex-wrap:wrap;gap:8px">
-          <div><div class="card-title" id="viral-tbl-title">영상 목록</div><div class="card-sub" id="viral-tbl-info">—</div></div>
-          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-            <input class="tbl-search" id="viral-search" placeholder="크리에이터 검색..." oninput="viralPage=1;viralRenderTable()" style="width:160px">
-            <select class="tbl-search" id="viral-filter-conv" onchange="viralPage=1;viralRenderTable()" style="width:120px">
-              <option value="">전환 전체</option>
-              <option value="O">전환 확인 O</option>
-              <option value="X">전환 없음 X</option>
-            </select>
-            <select class="tbl-search" id="viral-filter-ad" onchange="viralPage=1;viralRenderTable()" style="width:130px">
-              <option value="">광고 전체</option>
-              <option value="O">브랜드 광고 O</option>
-              <option value="X">광고 아님 X</option>
-            </select>
-            <select class="tbl-search" id="viral-filter-brand" onchange="viralPage=1;viralRenderTable()" style="width:130px">
-              <option value="">전체 브랜드</option>
-            </select>
-            <select class="tbl-search" id="viral-sort" onchange="viralPage=1;viralRenderTable()" style="width:120px">
-              <option value="views">조회수순</option>
-              <option value="eng">참여율순</option>
-              <option value="date">최신순</option>
-              <option value="likes">좋아요순</option>
-            </select>
-          </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px">
+          <input class="search-box" id="viral-search" placeholder="크리에이터 검색..." style="max-width:200px" oninput="viralPage=1;viralRenderTable()">
+          <select class="form-input" id="viral-filter-conv" style="padding:6px 8px;font-size:12px;width:100px" onchange="viralPage=1;viralRenderTable()">
+            <option value="">전환 전체</option><option value="O">전환 O</option><option value="X">전환 X</option>
+          </select>
+          <select class="form-input" id="viral-filter-ad" style="padding:6px 8px;font-size:12px;width:100px" onchange="viralPage=1;viralRenderTable()">
+            <option value="">광고 전체</option><option value="O">광고 O</option><option value="X">광고 X</option>
+          </select>
+          <select class="form-input" id="viral-filter-brand" style="padding:6px 8px;font-size:12px;width:130px" onchange="viralPage=1;viralRenderTable()">
+            <option value="">브랜드 전체</option>
+          </select>
+          <select class="form-input" id="viral-sort" style="padding:6px 8px;font-size:12px;width:120px" onchange="viralPage=1;viralRenderTable()">
+            <option value="views">조회수순</option><option value="eng">참여율순</option>
+            <option value="likes">좋아요순</option><option value="date">날짜순</option>
+          </select>
+          <span id="viral-tbl-info" style="font-size:12px;color:var(--muted);margin-left:auto"></span>
         </div>
-        <div class="tbl-wrap" style="margin-top:10px">
-          <table id="viral-table">
-            <thead id="viral-thead"></thead>
+        <div class="tbl-wrap">
+          <table class="data-table">
+            <thead id="viral-thead"><tr>
+              <th style="text-align:left">크리에이터</th><th style="text-align:left">브랜드</th>
+              <th>조회수</th><th>좋아요</th><th>댓글</th><th>공유</th>
+              <th>참여율</th><th style="text-align:left">훅</th><th style="text-align:left">플로우</th>
+              <th>전환</th><th>광고</th><th>업로드일</th><th>링크</th>
+            </tr></thead>
             <tbody id="viral-tbody"></tbody>
           </table>
         </div>
-        <div id="viral-pagination" style="display:flex;gap:6px;justify-content:center;margin-top:12px;flex-wrap:wrap"></div>
-        <div id="viral-empty" style="text-align:center;padding:40px;color:var(--muted);font-size:13px;display:none">🔄 시트에서 불러오기를 눌러주세요</div>
-      </div>
-    </div>
-
-    <!-- ═══ 크리에이터 발굴 ══════════════════════ -->
-    <div id="sec-findcreator" class="page-section">
-      <div class="sec-head">
-        <div><div class="sec-title">크리에이터 발굴</div><div class="sec-sub">발굴 → 컨택 → 협의 → CRM 등록 파이프라인</div></div>
-        <button class="btn-primary" onclick="openModal('fc-modal')">+ 크리에이터 추가</button>
-      </div>
-
-      <!-- 발굴 툴 바로가기 -->
-      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:18px">
-        <a href="https://app.euka.ai/find-creators" target="_blank" style="text-decoration:none">
-          <div class="card" style="padding:14px;cursor:pointer;border:1.5px solid #FE2C5530;transition:border-color .2s" onmouseover="this.style.borderColor='#FE2C55'" onmouseout="this.style.borderColor='#FE2C5530'">
-            <div style="font-size:22px;margin-bottom:6px">🔍</div>
-            <div style="font-size:13px;font-weight:700;color:var(--fg)">Euka.ai</div>
-            <div style="font-size:11px;color:var(--muted);margin-top:2px">크리에이터 탐색</div>
-          </div>
-        </a>
-        <a href="https://creatormarketplace.tiktok.com" target="_blank" style="text-decoration:none">
-          <div class="card" style="padding:14px;cursor:pointer;border:1.5px solid #25F4EE30;transition:border-color .2s" onmouseover="this.style.borderColor='#25F4EE'" onmouseout="this.style.borderColor='#25F4EE30'">
-            <div style="font-size:22px;margin-bottom:6px">🎵</div>
-            <div style="font-size:13px;font-weight:700;color:var(--fg)">TikTok Marketplace</div>
-            <div style="font-size:11px;color:var(--muted);margin-top:2px">공식 크리에이터 마켓</div>
-          </div>
-        </a>
-        <a href="https://www.modash.io" target="_blank" style="text-decoration:none">
-          <div class="card" style="padding:14px;cursor:pointer;border:1.5px solid #A855F730;transition:border-color .2s" onmouseover="this.style.borderColor='#A855F7'" onmouseout="this.style.borderColor='#A855F730'">
-            <div style="font-size:22px;margin-bottom:6px">📊</div>
-            <div style="font-size:13px;font-weight:700;color:var(--fg)">Modash</div>
-            <div style="font-size:11px;color:var(--muted);margin-top:2px">팔로워·참여율 분석</div>
-          </div>
-        </a>
-        <a href="https://hypeauditor.com" target="_blank" style="text-decoration:none">
-          <div class="card" style="padding:14px;cursor:pointer;border:1.5px solid #F59E0B30;transition:border-color .2s" onmouseover="this.style.borderColor='#F59E0B'" onmouseout="this.style.borderColor='#F59E0B30'">
-            <div style="font-size:22px;margin-bottom:6px">🎯</div>
-            <div style="font-size:13px;font-weight:700;color:var(--fg)">HypeAuditor</div>
-            <div style="font-size:11px;color:var(--muted);margin-top:2px">가짜 팔로워 검증</div>
-          </div>
-        </a>
-        <a href="https://affiliate.tiktok.com" target="_blank" style="text-decoration:none">
-          <div class="card" style="padding:14px;cursor:pointer;border:1.5px solid #22C55E30;transition:border-color .2s" onmouseover="this.style.borderColor='#22C55E'" onmouseout="this.style.borderColor='#22C55E30'">
-            <div style="font-size:22px;margin-bottom:6px">🛒</div>
-            <div style="font-size:13px;font-weight:700;color:var(--fg)">TikTok Affiliate</div>
-            <div style="font-size:11px;color:var(--muted);margin-top:2px">어필리에이트 센터</div>
-          </div>
-        </a>
-      </div>
-
-      <!-- KPI -->
-      <div class="kpi-grid" style="margin-bottom:18px">
-        <div class="kpi"><div class="kpi-bar" style="background:var(--pink)"></div><div class="kpi-lbl">발굴됨</div><div class="kpi-val" id="fc-kpi-all">0</div><div class="kpi-sub neu">총 발굴 크리에이터</div></div>
-        <div class="kpi"><div class="kpi-bar" style="background:var(--cyan)"></div><div class="kpi-lbl">컨택 중</div><div class="kpi-val" id="fc-kpi-contact">0</div><div class="kpi-sub neu">진행 중</div></div>
-        <div class="kpi"><div class="kpi-bar" style="background:var(--yellow)"></div><div class="kpi-lbl">협의 중</div><div class="kpi-val" id="fc-kpi-nego">0</div><div class="kpi-sub neu">협상 단계</div></div>
-        <div class="kpi"><div class="kpi-bar" style="background:var(--green)"></div><div class="kpi-lbl">CRM 등록</div><div class="kpi-val" id="fc-kpi-crm">0</div><div class="kpi-sub up">전환 완료</div></div>
-      </div>
-
-      <!-- 필터 + 검색 -->
-      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px">
-        <input class="tbl-search" id="fc-search" placeholder="핸들 / 이름 검색..." oninput="fcRender()" style="width:200px">
-        <div style="display:flex;gap:6px;flex-wrap:wrap">
-          <button class="filter-btn active" onclick="fcFilter('all',this)">전체</button>
-          <button class="filter-btn" onclick="fcFilter('discovered',this)" style="--fb:#6B7280">발굴됨</button>
-          <button class="filter-btn" onclick="fcFilter('contacting',this)" style="--fb:#25F4EE">컨택 중</button>
-          <button class="filter-btn" onclick="fcFilter('negotiating',this)" style="--fb:#F59E0B">협의 중</button>
-          <button class="filter-btn" onclick="fcFilter('contracted',this)" style="--fb:#22C55E">계약 완료</button>
-          <button class="filter-btn" onclick="fcFilter('registered',this)" style="--fb:#A855F7">CRM 등록</button>
-        </div>
-      </div>
-
-      <!-- 테이블 -->
-      <div class="card" style="padding:0">
-        <div class="tbl-wrap"><table>
-          <thead><tr>
-            <th>TikTok 핸들</th>
-            <th style="text-align:center">팔로워</th>
-            <th>니치</th>
-            <th>발굴 출처</th>
-            <th style="text-align:center">단계</th>
-            <th>메모</th>
-            <th style="text-align:center">등록일</th>
-            <th style="text-align:center">액션</th>
-          </tr></thead>
-          <tbody id="fc-tbody"></tbody>
-        </table></div>
-        <div id="fc-empty" style="text-align:center;padding:40px;color:var(--muted);font-size:13px">발굴한 크리에이터를 추가해보세요</div>
-      </div>
-    </div>
-
-    <!-- 발굴 크리에이터 모달 -->
-    <div class="modal-overlay hidden" id="fc-modal"><div class="modal-box">
-      <div class="modal-title">크리에이터 발굴 등록</div>
-      <input type="hidden" id="fc-edit-id">
-      <div class="form-row"><label>TikTok 핸들 *</label><input class="form-input" id="fc-f-handle" placeholder="@username"></div>
-      <div class="g2">
-        <div class="form-row"><label>팔로워 수</label><input class="form-input" id="fc-f-followers" type="number" placeholder="50000"></div>
-        <div class="form-row"><label>니치/카테고리</label><input class="form-input" id="fc-f-niche" placeholder="스킨케어, 뷰티..."></div>
-      </div>
-      <div class="g2">
-        <div class="form-row"><label>발굴 출처</label>
-          <select class="form-input" id="fc-f-source">
-            <option value="euka.ai">Euka.ai</option>
-            <option value="TikTok Marketplace">TikTok Marketplace</option>
-            <option value="Modash">Modash</option>
-            <option value="HypeAuditor">HypeAuditor</option>
-            <option value="직접 발굴">직접 발굴</option>
-            <option value="추천">추천</option>
-            <option value="기타">기타</option>
-          </select>
-        </div>
-        <div class="form-row"><label>단계</label>
-          <select class="form-input" id="fc-f-stage">
-            <option value="discovered">발굴됨</option>
-            <option value="contacting">컨택 중</option>
-            <option value="negotiating">협의 중</option>
-            <option value="contracted">계약 완료</option>
-            <option value="registered">CRM 등록</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-row"><label>TikTok 프로필 URL</label><input class="form-input" id="fc-f-url" placeholder="https://www.tiktok.com/@..."></div>
-      <div class="form-row"><label>메모</label><textarea class="form-input" id="fc-f-note" rows="2" placeholder="참여율, 콘텐츠 스타일, 연락 내용 등..."></textarea></div>
-      <div style="display:flex;gap:8px;margin-top:16px">
-        <button class="btn-primary" style="flex:1" onclick="fcSave()">저장</button>
-        <button class="btn-sec" onclick="closeModal('fc-modal')">취소</button>
-      </div>
-    </div></div>
-
-    <!-- ═══ 13. 콘텐츠 브리프 ══════════════════ -->
-    <div id="sec-brief" class="page-section">
-      <div class="sec-head">
-        <div><div class="sec-title">콘텐츠 브리프 생성기</div><div class="sec-sub">크리에이터용 콘텐츠 가이드 자동 생성</div></div>
-      </div>
-      <div class="g2">
-        <div class="card">
-          <div class="card-title">브리프 설정</div>
-          <div class="card-sub">옵션 선택 후 브리프 자동 생성</div>
-          <div style="margin-top:14px">
-            <div class="form-row"><label>제품 *</label><select class="form-input" id="brief-product" onchange="generateBrief()"><option value="pdrn20">PDRN Cream 20ml</option><option value="pdrn60">PDRN Cream 60ml</option><option value="lip">PDRN Lip Serum</option><option value="cera">Ceramide Cream</option><option value="reti">Retino-mela Serum</option><option value="mask">PDRN Mask</option></select></div>
-            <div class="form-row"><label>콘텐츠 타입</label><select class="form-input" id="brief-type" onchange="generateBrief()"><option value="review">제품 리뷰</option><option value="routine">스킨케어 루틴</option><option value="before_after">Before &amp; After</option><option value="unboxing">언박싱</option><option value="live">LIVE 방송</option></select></div>
-            <div class="form-row"><label>크리에이터 Tier</label><select class="form-input" id="brief-tier" onchange="generateBrief()"><option value="nano">Nano (&lt;10K)</option><option value="micro">Micro (10K-100K)</option><option value="mid">Mid (100K-500K)</option><option value="macro">Macro (500K+)</option></select></div>
-            <div class="form-row"><label>크리에이터명 (선택)</label><input class="form-input" id="brief-creator" placeholder="@username" oninput="generateBrief()"></div>
-            <button class="btn-primary" style="width:100%;margin-top:4px" onclick="copyBrief()">&#128203; 브리프 복사</button>
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-title">생성된 브리프</div>
-          <div class="card-sub">아래 내용을 크리에이터에게 전달하세요</div>
-          <div id="brief-output" class="brief-out" style="margin-top:12px"></div>
-        </div>
+        <div id="viral-pagination" style="display:flex;gap:4px;justify-content:center;margin-top:12px;flex-wrap:wrap"></div>
       </div>
     </div>
 
@@ -2467,10 +2134,9 @@ const UK_MONTHLY = [
 ════════════════════════════════════════════════ */
 const PAGE_TITLES = {
   overview:'Overview', sales:'Sales & Revenue', inventory:'Inventory',
-  affiliates:'Affiliates', competitors:'Competitors', promotions:'Promotions',
-  uk:'UK Market', affiliatelist:'Affiliate List', affiliatevideos:'Affiliate Videos', cs:'CS 봇', customercrm:'Customer CRM 전략', team:'Team Dashboard', spark:'Spark Ads Codes', launch:'런칭 체크리스트', reseller:'리셀러 검토', revdash:'매출 대시보드', partnerdb:'Affiliate Overview Dashboard',
-  findcreator:'크리에이터 발굴', crm:'Creator CRM', seeding:'샘플 시딩 트래커', live:'LIVE 스트림 트래커',
-  viral:'바이럴 영상 트래커', brief:'콘텐츠 브리프 생성기',
+  affiliates:'Affiliates TikTok Info', competitors:'Competitors', promotions:'Promotions',
+  uk:'UK Market',affiliatelist:'Affiliate List', affiliatevideos:'Affiliate Videos', cs:'CS 봇', customercrm:'Customer CRM 전략', team:'Team Dashboard', spark:'Spark Ads Codes', launch:'런칭 체크리스트', reseller:'리셀러 검토', revdash:'매출 대시보드', partnerdb:'Affiliate Overview Dashboard',
+  viral:'바이럴 영상 트래커',
   settlement:'정산 트래커', report:'주간 리포트'
 };
 let activeCharts = {};
@@ -2504,12 +2170,7 @@ function renderSection(id) {
   if (id === 'uk')            renderUK();
   if (id === 'affiliatelist') renderAffiliateList();
   if (id === 'affiliatevideos') avRenderSection();
-  if (id === 'findcreator') renderFindCreator();
-  if (id === 'crm')        renderCRM();
-  if (id === 'seeding')    renderSeeding();
-  if (id === 'live')       renderLive();
   if (id === 'viral')      renderViral();
-  if (id === 'brief')      generateBrief();
   if (id === 'settlement') renderSettlement();
   if (id === 'report')     generateReport();
   if (id === 'cs')         initCS();
@@ -6374,33 +6035,8 @@ function generateReport(){
     <div style="font-size:10px;color:var(--muted);padding:8px 4px">티어 기준: T1($0~$12.5K) | T2($12.5K~$65K) | T3($65K~$200K) | T4($200K~$600K) | T5($600K~$1.7M) | Beyond($1.7M+) &nbsp;·&nbsp; 현재 Dr.Reju-All: <span class="b b-red">T3</span></div>
   </div>
 
-  <!-- SECTION 3: Affiliate 현황 -->
-  <div class="report-section-label">▌ SECTION 3 &nbsp; Affiliate 현황</div>
-  <div class="card full" style="margin-bottom:14px">
-    <div class="tbl-wrap"><table>
-      <thead><tr><th>구분</th><th>Affiliates 수</th><th>Aff 매출($)</th><th>Aff 커미션($)</th><th>평균 커미션율</th><th>영상 업로드</th></tr></thead>
-      <tbody>
-        <tr style="background:#FFF0F3">
-          <td class="fw7 c-pink">이번 주</td>
-          <td class="fw7">${alActive}</td>
-          <td class="fw7 c-pink">${fmtUSD(thisAffGMV)}</td>
-          <td>${fmtUSD(alComm)}</td>
-          <td>${thisAffGMV?+(alComm/thisAffGMV*100).toFixed(1)+'%':'—'}</td>
-          <td>${d.videos||'—'}</td>
-        </tr>
-        <tr>
-          <td class="fw7 c-muted">전 주</td>
-          <td>—</td>
-          <td>${prevAffGMV?fmtUSD(prevAffGMV):'—'}</td>
-          <td>—</td><td>—</td>
-          <td>${d.prevVideos||'—'}</td>
-        </tr>
-      </tbody>
-    </table></div>
-  </div>
-
-  <!-- SECTION 4: 운영 현황 -->
-  <div class="report-section-label">▌ SECTION 4 &nbsp; 이번 주 운영 현황</div>
+  <!-- SECTION 3: 운영 현황 -->
+  <div class="report-section-label">▌ SECTION 3 &nbsp; 이번 주 운영 현황</div>
   <div class="g2" style="margin-bottom:14px">
     <div class="card">
       <div class="card-title">샵 운영 지표</div>
@@ -6419,7 +6055,7 @@ function generateReport(){
   </div>
 
   <!-- SECTION 5: Top Hooks -->
-  <div class="report-section-label">▌ SECTION 5 &nbsp; Weekly Top Hooks &amp; Selling Points</div>
+  <div class="report-section-label">▌ SECTION 4 &nbsp; Weekly Top Hooks &amp; Selling Points</div>
   <div class="g2" style="margin-bottom:14px">
     <div class="card">
       <div class="card-title">Top Hooks</div>
@@ -6437,13 +6073,13 @@ function generateReport(){
   </div>
 
   <!-- SECTION 6: 이슈 & 액션 아이템 -->
-  <div class="report-section-label">▌ SECTION 6 &nbsp; 주요 이슈 &amp; 다음 주 액션 아이템</div>
+  <div class="report-section-label">▌ SECTION 5 &nbsp; 주요 이슈 &amp; 다음 주 액션 아이템</div>
   <div class="card full" style="margin-bottom:14px">
     ${issues||actions?issues+actions:`<div style="padding:16px;color:var(--muted);font-size:13px">데이터 입력 버튼에서 이슈와 액션 아이템을 입력하세요</div>`}
   </div>
 
   <!-- SECTION 7: 주차별 누적 -->
-  <div class="report-section-label">▌ SECTION 7 &nbsp; 주차별 누적 데이터</div>
+  <div class="report-section-label">▌ SECTION 6 &nbsp; 주차별 누적 데이터</div>
   <div class="card full">
     <div class="tbl-toolbar">
       <div class="card-title">전체 주차 매출 기록</div>
