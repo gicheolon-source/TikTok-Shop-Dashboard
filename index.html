@@ -5341,6 +5341,14 @@ function renderTeamMember(id){
   const m = TEAM_MEMBERS[id]; if(!m) return;
   const panel = gEl('team-member-panel'); if(!panel) return;
   const meta = tdGetMeta(id);
+  const isUK = id === 'wjy';
+  const currSym = isUK ? '£' : '$';
+  const currRate = isUK ? 1900 : 1400;
+  const currFlag = isUK ? '🇬🇧' : '🇺🇸';
+  const currLabel = isUK ? '영국 틱톡샵 매출 목표' : '미국 틱톡샵 매출 목표';
+  const fmtCurr = v => isUK ? '£'+v.toLocaleString() : '$'+v.toLocaleString();
+  const fmtKRW = v => v ? '≈ ₩'+(Math.round(v*currRate)).toLocaleString() : '';
+
   const monthlyTarget = meta.monthlyTarget || 0;
   const monthlyActual = meta.monthlyActual || 0;
   const pct = monthlyTarget ? Math.min(100, +(monthlyActual/monthlyTarget*100).toFixed(1)) : 0;
@@ -5377,18 +5385,26 @@ function renderTeamMember(id){
     <!-- LEFT COLUMN -->
     <div>
       <!-- 이번 달 매출 목표 -->
-      <div class="card td-section">
-        <div class="td-section-title" style="color:${m.color}">💰 이번 달 매출 목표</div>
+      <div class="card td-section" style="overflow:hidden">
+        <!-- 국기 배경 -->
+        <div style="position:relative;border-radius:12px;overflow:hidden;margin:-16px -16px 14px;padding:18px 16px 14px;background:${isUK?'linear-gradient(135deg,#012169,#C8102E)':'linear-gradient(135deg,#002868,#BF0A30)'}">
+          <div style="position:absolute;top:50%;right:14px;transform:translateY(-50%);font-size:52px;opacity:.35;line-height:1">${currFlag}</div>
+          <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.7);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">이번 달 ${currLabel}</div>
+          <div style="font-size:22px;font-weight:900;color:#fff">${monthlyActual?fmtCurr(monthlyActual):'${currSym}0'}</div>
+          <div style="font-size:11px;color:rgba(255,255,255,.6);margin-top:2px">${monthlyActual?fmtKRW(monthlyActual):''}</div>
+        </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
           <div>
-            <label style="font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;display:block;margin-bottom:3px">목표 ($)</label>
-            <input class="form-input" type="number" value="${monthlyTarget||''}" placeholder="135714" id="td-target-${id}"
+            <label style="font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;display:block;margin-bottom:3px">목표 (${currSym})</label>
+            <input class="form-input" type="number" value="${monthlyTarget||''}" placeholder="0" id="td-target-${id}"
               onchange="tdSaveMeta('${id}',{...tdGetMeta('${id}'),monthlyTarget:parseFloat(this.value)||0});renderTeamMember('${id}')">
+            <div style="font-size:10px;color:var(--muted);margin-top:3px">${fmtKRW(monthlyTarget)}</div>
           </div>
           <div>
-            <label style="font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;display:block;margin-bottom:3px">현재 누적 ($)</label>
+            <label style="font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;display:block;margin-bottom:3px">현재 누적 (${currSym})</label>
             <input class="form-input" type="number" value="${monthlyActual||''}" placeholder="0" id="td-actual-${id}"
               onchange="tdSaveMeta('${id}',{...tdGetMeta('${id}'),monthlyActual:parseFloat(this.value)||0});renderTeamMember('${id}')">
+            <div style="font-size:10px;color:var(--muted);margin-top:3px">${fmtKRW(monthlyActual)}</div>
           </div>
         </div>
         <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
@@ -5399,8 +5415,8 @@ function renderTeamMember(id){
           <div class="td-progress-fill" style="width:${pct}%;background:${fillColor}"></div>
         </div>
         <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:4px">
-          <span>현재 ${monthlyActual?fmtUSD(monthlyActual):'$0'}</span>
-          <span>목표 ${monthlyTarget?fmtUSD(monthlyTarget):'미설정'}</span>
+          <span>현재 ${monthlyActual?fmtCurr(monthlyActual):currSym+'0'}</span>
+          <span>목표 ${monthlyTarget?fmtCurr(monthlyTarget):'미설정'}</span>
         </div>
       </div>
 
