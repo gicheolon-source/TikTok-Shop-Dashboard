@@ -377,6 +377,9 @@ textarea.form-input{resize:vertical}
     <div class="nav-item" onclick="nav('spark',this)">
       <span class="nav-icon">&#9889;</span> Spark Ads Codes
     </div>
+    <div class="nav-item" onclick="nav('viewads',this)">
+      <span class="nav-icon">&#127916;</span> TikTok View Ads
+    </div>
     <div class="nav-item" onclick="nav('launch',this)">
       <span class="nav-icon">&#128640;</span> 런칭 체크리스트
     </div>
@@ -1697,6 +1700,66 @@ textarea.form-input{resize:vertical}
       </div>
     </div></div>
 
+    <!-- ═══ TIKTOK VIEW ADS ═══════════════════════ -->
+    <div id="sec-viewads" class="page-section">
+      <div class="sec-head">
+        <div>
+          <div class="sec-title">🎬 TikTok View Ads</div>
+          <div class="sec-sub" id="va-period">2026-03-30 ~ 2026-04-28 · Neosimplix Campaign</div>
+        </div>
+        <label class="btn-primary" style="cursor:pointer;font-size:12px;padding:7px 14px">
+          📂 Excel 업로드
+          <input type="file" id="va-file-input" accept=".xlsx,.xls,.csv" style="display:none" onchange="vaImport(this)">
+        </label>
+      </div>
+
+      <!-- KPI -->
+      <div class="kpi-grid" style="grid-template-columns:repeat(5,1fr);margin-bottom:14px">
+        <div class="kpi-card"><div class="kpi-label">총 광고비</div><div class="kpi-value" id="va-kpi-cost" style="color:var(--pink)">—</div><div id="va-kpi-cost-usd" style="font-size:11px;color:var(--muted)"></div></div>
+        <div class="kpi-card"><div class="kpi-label">총 노출수</div><div class="kpi-value" id="va-kpi-imp" style="color:var(--cyan)">—</div></div>
+        <div class="kpi-card"><div class="kpi-label">총 영상 뷰</div><div class="kpi-value" id="va-kpi-views" style="color:var(--purple)">—</div></div>
+        <div class="kpi-card"><div class="kpi-label">평균 뷰 레이트</div><div class="kpi-value" id="va-kpi-vr" style="color:var(--green)">—</div></div>
+        <div class="kpi-card"><div class="kpi-label">평균 재생 시간</div><div class="kpi-value" id="va-kpi-play" style="color:var(--yellow)">—</div><div style="font-size:11px;color:var(--muted)">초/뷰</div></div>
+      </div>
+
+      <!-- Charts -->
+      <div class="g2" style="margin-bottom:14px">
+        <div class="card">
+          <div class="card-title">캠페인별 광고비 (₩)</div>
+          <div class="ch" style="height:240px"><canvas id="c-va-cost"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-title">영상 시청 완료율 퍼널</div>
+          <div class="card-sub">전체 캠페인 합산 · 2초 → 6초 → 25% → 50% → 75% → 100%</div>
+          <div class="ch" style="height:240px"><canvas id="c-va-funnel"></canvas></div>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="card full">
+        <div class="card-title" style="margin-bottom:12px">캠페인별 상세 성과</div>
+        <div class="tbl-wrap">
+          <table class="data-table">
+            <thead><tr>
+              <th style="text-align:left;min-width:180px">캠페인명</th>
+              <th>상태</th>
+              <th style="text-align:right">광고비 (₩)</th>
+              <th style="text-align:right">광고비 ($)</th>
+              <th style="text-align:right">노출수</th>
+              <th style="text-align:right">CPM (₩)</th>
+              <th style="text-align:right">영상뷰</th>
+              <th style="text-align:right">뷰레이트</th>
+              <th style="text-align:right">2s 뷰</th>
+              <th style="text-align:right">6s 뷰</th>
+              <th style="text-align:right">100% 완료</th>
+              <th style="text-align:right">평균재생(s)</th>
+            </tr></thead>
+            <tbody id="va-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
     <!-- ═══ 런칭 체크리스트 ════════════════════════ -->
     <div id="sec-launch" class="page-section">
       <div class="sec-head">
@@ -2219,6 +2282,7 @@ function renderSection(id) {
   if (id === 'customercrm') initCustCRM();
   if (id === 'team')        initTeam();
   if (id === 'spark')       renderSpark();
+  if (id === 'viewads')     renderViewAds();
   if (id === 'launch')      renderLaunch();
   if (id === 'reseller')    renderReseller();
   if (id === 'revdash')     renderRevDash();
@@ -2879,6 +2943,7 @@ function handleXLSX(input) {
       alData = parsed;
       alFiltered = [...alData];
       alPage = 1;
+      DB.set('al_data', parsed); // IndexedDB에 저장
 
       const active = parsed.filter(c => c.gmv > 0).length;
       const totalGMV = parsed.reduce((s,c) => s+c.gmv, 0);
@@ -3025,6 +3090,36 @@ const lsGet = k => JSON.parse(localStorage.getItem(k)||'[]');
 const lsGetStr = k => localStorage.getItem(k) || '';
 const lsSet = (k,v) => localStorage.setItem(k,JSON.stringify(v));
 const lsSetStr = (k,v) => localStorage.setItem(k, v);
+
+/* ── IndexedDB (대용량 데이터 저장) ─────────────────────── */
+const DB = (() => {
+  let _db = null;
+  const open = () => new Promise((ok, fail) => {
+    if (_db) return ok(_db);
+    const r = indexedDB.open('tts_db_v1', 1);
+    r.onupgradeneeded = e => e.target.result.createObjectStore('kv');
+    r.onsuccess = e => { _db = e.target.result; ok(_db); };
+    r.onerror = () => fail(r.error);
+  });
+  return {
+    set: (key, val) => open().then(db => new Promise((ok, fail) => {
+      const tx = db.transaction('kv', 'readwrite');
+      tx.objectStore('kv').put(val, key);
+      tx.oncomplete = ok; tx.onerror = () => fail(tx.error);
+    })).catch(() => {
+      try { localStorage.setItem('idb_' + key, JSON.stringify(val)); } catch(e) {}
+    }),
+    get: (key) => open().then(db => new Promise((ok, fail) => {
+      const tx = db.transaction('kv', 'readonly');
+      const req = tx.objectStore('kv').get(key);
+      req.onsuccess = () => ok(req.result ?? null);
+      req.onerror = () => fail(req.error);
+    })).catch(() => {
+      const v = localStorage.getItem('idb_' + key);
+      return v ? JSON.parse(v) : null;
+    }),
+  };
+})();
 const fmtUSD = v => '$'+(parseFloat(v)||0).toFixed(2);
 const STATUS_BADGE = {
   none:{l:'미연락',c:'b-gray'}, contacted:{l:'연락함',c:'b-blue'},
@@ -3634,20 +3729,18 @@ function rdSave() {
       if (!freeAggMap[k]) freeAggMap[k] = {date:f.date||'', sku:f.sku||'Other', qty:0};
       freeAggMap[k].qty += (f.qty||0);
     });
-    const slimStr = JSON.stringify(Object.values(aggMap));
-    const freeStr = JSON.stringify(Object.values(freeAggMap));
-    // 용량 초과 방지: rd_free 먼저 제거 후 slim 저장 시도
-    localStorage.removeItem('rd_free');
-    localStorage.setItem('rd_slim', slimStr);
-    try { localStorage.setItem('rd_free', freeStr); } catch(e2) { /* 프리샘플은 생략 */ }
+    const slimData = Object.values(aggMap);
+    const freeData = Object.values(freeAggMap);
+    // IndexedDB에 저장 (용량 제한 없음) + localStorage 백업
+    DB.set('rd_slim', slimData);
+    DB.set('rd_free', freeData);
+    try { localStorage.removeItem('rd_free'); localStorage.setItem('rd_slim', JSON.stringify(slimData)); } catch(e2) {}
     rdUpdateBadge();
     if (localStorage.getItem('rd_sync_url') && localStorage.getItem('rd_auto_sync') === 'on') {
       rdSyncToSheet();
     }
   } catch(e) {
     console.warn('저장 실패:', e.message);
-    const badge = document.getElementById('rd-storage-badge');
-    if (badge) { badge.textContent = '⚠️ 데이터 용량 초과 — 차트는 정상 작동하나 새로고침 시 초기화됩니다'; badge.style.color = '#F59E0B'; }
   }
 }
 
@@ -6878,8 +6971,8 @@ function doLogin() {
   }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  // 구버전 대용량 키 정리 (rd_orders → rd_slim으로 교체됨)
+document.addEventListener('DOMContentLoaded', async () => {
+  // 구버전 대용량 키 정리
   localStorage.removeItem('rd_orders');
   // W4-4 affGMV 수정 (172945.63 → 19535.82)
   try {
@@ -6893,16 +6986,38 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
   } catch(e) {}
-  // 매출 데이터 메모리 선복원
+
+  // 대용량 데이터 복원 (IndexedDB 우선, localStorage 백업)
   try {
-    const s = localStorage.getItem('rd_slim');
-    const f = localStorage.getItem('rd_free');
-    if (s) rdRaw = JSON.parse(s);
-    if (f) rdFreeSamples = JSON.parse(f);
+    // 매출 대시보드
+    const rdSlim = await DB.get('rd_slim');
+    const rdFree = await DB.get('rd_free');
+    if (rdSlim && rdSlim.length) {
+      rdRaw = rdSlim;
+    } else {
+      const s = localStorage.getItem('rd_slim');
+      if (s) rdRaw = JSON.parse(s);
+    }
+    if (rdFree && rdFree.length) {
+      rdFreeSamples = rdFree;
+    } else {
+      const f = localStorage.getItem('rd_free');
+      if (f) rdFreeSamples = JSON.parse(f);
+    }
+    // Affiliate 크리에이터 데이터
+    const alLoaded = await DB.get('al_data');
+    if (alLoaded && alLoaded.length) {
+      alData = alLoaded;
+      alFiltered = [...alLoaded];
+    }
   } catch(e) {
-    localStorage.removeItem('rd_slim');
-    localStorage.removeItem('rd_free');
+    // IndexedDB 실패 시 localStorage 폴백
+    try {
+      const s = localStorage.getItem('rd_slim');
+      if (s) rdRaw = JSON.parse(s);
+    } catch(e2) {}
   }
+
   renderSection('overview');
 });
 
@@ -6983,10 +7098,11 @@ function avHandleCsv(input) {
       })).filter(r => r.creator);
       avRaw = data;
       // Save slim version to localStorage
+      DB.set('av_data', data); // IndexedDB에 저장
       try {
         const slim = data.map(r => [r.creator, r.rev, r.sold, r.views, r.likes, r.date, r.product, r.url].join('|'));
         localStorage.setItem('av_slim', slim.join('\n'));
-      } catch(e) { /* quota — skip cache */ }
+      } catch(e) { /* quota — IndexedDB로 이미 저장됨 */ }
       status.textContent = `✅ ${data.length.toLocaleString()}개 영상 로드 완료`;
       avPage = 1;
       avRenderSection();
@@ -6998,14 +7114,23 @@ function avHandleCsv(input) {
 }
 
 function avLoadCache() {
-  try {
-    const raw = localStorage.getItem('av_slim');
-    if (!raw) return;
-    avRaw = raw.split('\n').filter(Boolean).map(line => {
-      const p = line.split('|');
-      return { creator:p[0], rev:+p[1], sold:+p[2], views:+p[3], likes:+p[4], date:p[5], product:p[6], url:p[7]||'', gmv30:0, comments:0, pid:'' };
-    });
-  } catch(e) {}
+  DB.get('av_data').then(data => {
+    if (data && data.length) {
+      avRaw = data;
+      avRenderSection();
+      return;
+    }
+    // IndexedDB에 없으면 localStorage 폴백
+    try {
+      const raw = localStorage.getItem('av_slim');
+      if (!raw) return;
+      avRaw = raw.split('\n').filter(Boolean).map(line => {
+        const p = line.split('|');
+        return { creator:p[0], rev:+p[1], sold:+p[2], views:+p[3], likes:+p[4], date:p[5], product:p[6], url:p[7]||'', gmv30:0, comments:0, pid:'' };
+      });
+      if (avRaw.length) avRenderSection();
+    } catch(e) {}
+  });
 }
 
 function avRenderSection() {
@@ -7245,9 +7370,209 @@ function avExport() {
   dlCSV(header+rows, `affiliate-videos-${new Date().toISOString().slice(0,10)}.csv`);
 }
 
+/* ════════════════════════════════════════════════
+   TIKTOK VIEW ADS
+════════════════════════════════════════════════ */
+const VA_DEFAULT = [
+  { name:'[Awareness] Dr.Rejuall Ceramide Cream_Conversion_0130', status:'Completed', cost:577950,  imp:90995,  cpm:6351, v2s:89691, v6s:87696, v25:83285, v50:78043, v75:72483, v100:62481, avgPlay:14.28, views:89691, vr:98.57 },
+  { name:'[Awareness] Dr.Rejuall PDRN Cream_Conversion_0130',     status:'Completed', cost:591890,  imp:95002,  cpm:6230, v2s:93677, v6s:91696, v25:87048, v50:81504, v75:75480, v100:64878, avgPlay:14.36, views:93677, vr:98.61 },
+  { name:'[Awareness] Dr.Rejuall PDRN Max_Conversion_0130',       status:'Completed', cost:476350,  imp:76424,  cpm:6233, v2s:75388, v6s:73832, v25:70136, v50:65680, v75:60704, v100:52110, avgPlay:14.33, views:75388, vr:98.64 },
+  { name:'[Awareness] Dr.Rejuall Lip Serum_Conversion_0130',      status:'Completed', cost:507610,  imp:82401,  cpm:6161, v2s:81247, v6s:79495, v25:75524, v50:70721, v75:65385, v100:56030, avgPlay:14.30, views:81247, vr:98.60 },
+  { name:'[Awareness] Dr.Rejuall PDRN Mask_Conversion_0130',      status:'Completed', cost:443120,  imp:70981,  cpm:6243, v2s:70023, v6s:68503, v25:65128, v50:60969, v75:56344, v100:48340, avgPlay:14.34, views:70023, vr:98.65 },
+  { name:'[Awareness] Dr.Rejuall Retino-Mela_Conversion_0130',    status:'Completed', cost:493710,  imp:79434,  cpm:6215, v2s:78348, v6s:76663, v25:72876, v50:68232, v75:63082, v100:54090, avgPlay:14.31, views:78348, vr:98.63 },
+  { name:'[Awareness] Dr.Rejuall Ceramide Cream_0301',            status:'Completed', cost:5021708, imp:763040, cpm:6582, v2s:753981,v6s:734570,v25:691498,v50:641100,v75:585820,v100:492000,avgPlay:14.10, views:753981,vr:98.81 },
+];
+
+let vaData = [];
+
+function vaLoadCache() {
+  DB.get('va_data').then(d => {
+    if (d && d.length) { vaData = d; if (currentSection === 'viewads') renderViewAds(); return; }
+    vaData = VA_DEFAULT;
+    if (currentSection === 'viewads') renderViewAds();
+  }).catch(() => { vaData = VA_DEFAULT; });
+}
+
+function renderViewAds() {
+  const rows = vaData.length ? vaData : VA_DEFAULT;
+  vaRenderKPIs(rows);
+  vaRenderCharts(rows);
+  vaRenderTable(rows);
+}
+
+function vaRenderKPIs(rows) {
+  const totalCost  = rows.reduce((s,r) => s + r.cost, 0);
+  const totalImp   = rows.reduce((s,r) => s + r.imp, 0);
+  const totalViews = rows.reduce((s,r) => s + r.views, 0);
+  const avgVR      = rows.reduce((s,r) => s + r.vr, 0) / rows.length;
+  const avgPlay    = rows.reduce((s,r) => s + r.avgPlay, 0) / rows.length;
+
+  document.getElementById('va-kpi-cost').textContent     = '₩' + totalCost.toLocaleString();
+  document.getElementById('va-kpi-cost-usd').textContent = '$' + Math.round(totalCost / 1400).toLocaleString();
+  document.getElementById('va-kpi-imp').textContent      = totalImp.toLocaleString();
+  document.getElementById('va-kpi-views').textContent    = totalViews.toLocaleString();
+  document.getElementById('va-kpi-vr').textContent       = avgVR.toFixed(2) + '%';
+  document.getElementById('va-kpi-play').textContent     = avgPlay.toFixed(2);
+}
+
+function vaRenderCharts(rows) {
+  const shortNames = rows.map(r => {
+    const m = r.name.match(/Dr\.Rejuall\s+(.+?)(?:_Conversion|_0|$)/i);
+    return m ? m[1].trim() : r.name.slice(0, 20);
+  });
+
+  // 캠페인별 광고비 horizontal bar
+  mkChart('c-va-cost', 'bar', {
+    labels: shortNames,
+    datasets: [{
+      label: '광고비 (₩)',
+      data: rows.map(r => r.cost),
+      backgroundColor: [PINK, CYAN, PURPLE, YELLOW, GREEN, ORANGE, TEAL].slice(0, rows.length),
+    }]
+  }, {
+    indexAxis: 'y',
+    plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => '₩' + ctx.raw.toLocaleString() + '  ($' + Math.round(ctx.raw/1400).toLocaleString() + ')' } } },
+    scales: { x: { ticks: { callback: v => '₩' + (v/1000).toFixed(0) + 'K' } }, y: { ticks: { font: { size: 10 } } } }
+  });
+
+  // 완료율 퍼널
+  const total = rows.reduce((s,r) => s + r.views, 0);
+  const v2s   = rows.reduce((s,r) => s + r.v2s,  0);
+  const v6s   = rows.reduce((s,r) => s + r.v6s,  0);
+  const v25   = rows.reduce((s,r) => s + r.v25,  0);
+  const v50   = rows.reduce((s,r) => s + r.v50,  0);
+  const v75   = rows.reduce((s,r) => s + r.v75,  0);
+  const v100  = rows.reduce((s,r) => s + r.v100, 0);
+  const pct   = v => (v / total * 100).toFixed(1) + '%';
+  mkChart('c-va-funnel', 'bar', {
+    labels: ['2초 뷰', '6초 뷰', '25%', '50%', '75%', '100%'],
+    datasets: [{
+      label: '시청 완료율',
+      data: [v2s/total*100, v6s/total*100, v25/total*100, v50/total*100, v75/total*100, v100/total*100],
+      backgroundColor: [CYAN, BLUE, PURPLE, PINK, ORANGE, GREEN],
+    }]
+  }, {
+    plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ctx.raw.toFixed(1) + '%' } } },
+    scales: { y: { max: 100, ticks: { callback: v => v + '%' } } }
+  });
+}
+
+function vaRenderTable(rows) {
+  const tbody = document.getElementById('va-tbody');
+  if (!tbody) return;
+  tbody.innerHTML = rows.map(r => {
+    const shortName = r.name.replace(/^\[Awareness\]\s*/i, '');
+    const statusBadge = r.status === 'Completed'
+      ? '<span style="color:var(--muted);font-size:11px">완료</span>'
+      : '<span style="color:var(--green);font-size:11px">진행중</span>';
+    return `<tr>
+      <td style="font-size:12px">${shortName}</td>
+      <td style="text-align:center">${statusBadge}</td>
+      <td style="text-align:right">₩${r.cost.toLocaleString()}</td>
+      <td style="text-align:right;color:var(--muted)">$${Math.round(r.cost/1400).toLocaleString()}</td>
+      <td style="text-align:right">${r.imp.toLocaleString()}</td>
+      <td style="text-align:right">₩${r.cpm.toLocaleString()}</td>
+      <td style="text-align:right">${r.views.toLocaleString()}</td>
+      <td style="text-align:right;color:var(--green)">${r.vr.toFixed(2)}%</td>
+      <td style="text-align:right">${r.v2s.toLocaleString()}</td>
+      <td style="text-align:right">${r.v6s.toLocaleString()}</td>
+      <td style="text-align:right">${r.v100.toLocaleString()}</td>
+      <td style="text-align:right">${r.avgPlay.toFixed(2)}</td>
+    </tr>`;
+  }).join('');
+
+  // 합계 행
+  const tot = (key) => rows.reduce((s,r) => s + r[key], 0);
+  const avgVR = (rows.reduce((s,r) => s + r.vr, 0) / rows.length).toFixed(2);
+  const avgP  = (rows.reduce((s,r) => s + r.avgPlay, 0) / rows.length).toFixed(2);
+  tbody.innerHTML += `<tr style="font-weight:700;border-top:2px solid var(--border);background:rgba(255,255,255,0.03)">
+    <td>합계 / 평균</td>
+    <td></td>
+    <td style="text-align:right">₩${tot('cost').toLocaleString()}</td>
+    <td style="text-align:right;color:var(--muted)">$${Math.round(tot('cost')/1400).toLocaleString()}</td>
+    <td style="text-align:right">${tot('imp').toLocaleString()}</td>
+    <td style="text-align:right">—</td>
+    <td style="text-align:right">${tot('views').toLocaleString()}</td>
+    <td style="text-align:right;color:var(--green)">${avgVR}%</td>
+    <td style="text-align:right">${tot('v2s').toLocaleString()}</td>
+    <td style="text-align:right">${tot('v6s').toLocaleString()}</td>
+    <td style="text-align:right">${tot('v100').toLocaleString()}</td>
+    <td style="text-align:right">${avgP}</td>
+  </tr>`;
+}
+
+function vaImport(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const wb = XLSX.read(e.target.result, { type: 'array' });
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const raw = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+
+      // Find header row (contains "Campaign name")
+      let hdrIdx = raw.findIndex(r => r.some(c => String(c).toLowerCase().includes('campaign name')));
+      if (hdrIdx < 0) hdrIdx = 0;
+      const hdr = raw[hdrIdx].map(c => String(c).toLowerCase().trim());
+
+      const col = (name) => hdr.findIndex(h => h.includes(name));
+      const iName   = col('campaign name');
+      const iStatus = col('status');
+      const iCost   = col('cost');
+      const iImp    = col('impression');
+      const iCpm    = col('cpm');
+      const iV2s    = col('2-second');
+      const iV6s    = col('6-second');
+      const iV25    = hdr.findIndex(h => h.includes('25%') || h.includes('video views p25'));
+      const iV50    = hdr.findIndex(h => h.includes('50%') || h.includes('video views p50'));
+      const iV75    = hdr.findIndex(h => h.includes('75%') || h.includes('video views p75'));
+      const iV100   = hdr.findIndex(h => h.includes('100%') || h.includes('video views p100') || h.includes('watched'));
+      const iAvg    = hdr.findIndex(h => h.includes('average video play per user') || h.includes('avg play'));
+      const iViews  = hdr.findIndex(h => h.includes('video views') && !h.includes('%') && !h.includes('2') && !h.includes('6'));
+      const iVR     = hdr.findIndex(h => h.includes('video view rate') || h.includes('view rate'));
+
+      const num = v => parseFloat(String(v).replace(/[^0-9.]/g, '')) || 0;
+
+      const parsed = raw.slice(hdrIdx + 1)
+        .filter(r => {
+          const name = String(r[iName] || '').trim();
+          const cost = num(r[iCost]);
+          return name && cost > 0 && !name.toLowerCase().includes('total');
+        })
+        .map(r => ({
+          name:    String(r[iName]).trim(),
+          status:  String(r[iStatus] || '').trim() || 'Completed',
+          cost:    num(r[iCost]),
+          imp:     num(r[iImp]),
+          cpm:     num(r[iCpm]),
+          v2s:     num(r[iV2s]),
+          v6s:     num(r[iV6s]),
+          v25:     num(r[iV25]),
+          v50:     num(r[iV50]),
+          v75:     num(r[iV75]),
+          v100:    num(r[iV100]),
+          avgPlay: num(r[iAvg]),
+          views:   iViews >= 0 ? num(r[iViews]) : num(r[iV2s]),
+          vr:      iVR >= 0 ? num(r[iVR]) : 0,
+        }));
+
+      if (!parsed.length) { alert('유효한 캠페인 데이터가 없습니다.'); return; }
+      vaData = parsed;
+      DB.set('va_data', vaData);
+      renderViewAds();
+      input.value = '';
+    } catch(err) {
+      alert('Excel 파싱 오류: ' + err.message);
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
 // Setup dropzone
 document.addEventListener('DOMContentLoaded', () => {
   avLoadCache();
+  vaLoadCache();
   const dz = document.getElementById('av-dropzone');
   if (dz) {
     dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag-over'); });
