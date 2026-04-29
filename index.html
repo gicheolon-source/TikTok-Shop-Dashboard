@@ -341,6 +341,9 @@ textarea.form-input{resize:vertical}
     <div class="nav-item active" onclick="nav('overview',this)">
       <span class="nav-icon">&#9685;</span> Overview
     </div>
+    <div class="nav-item" onclick="nav('team',this)">
+      <span class="nav-icon">&#128101;</span> Team Dashboard
+    </div>
     <div class="nav-item" onclick="nav('revdash',this)">
       <span class="nav-icon">&#128201;</span> 매출 대시보드
     </div>
@@ -415,10 +418,6 @@ textarea.form-input{resize:vertical}
     </div>
     <div class="nav-item" onclick="nav('customercrm',this)">
       <span class="nav-icon">&#127775;</span> Customer CRM
-    </div>
-    <div class="sb-section">Team</div>
-    <div class="nav-item" onclick="nav('team',this)">
-      <span class="nav-icon">&#128101;</span> Team Dashboard
     </div>
   </nav>
   <div class="sb-footer">
@@ -2290,6 +2289,35 @@ textarea.form-input{resize:vertical}
           <span style="font-size:11px;color:var(--muted);align-self:center">오늘: <strong id="team-today-date"></strong></span>
         </div>
       </div>
+      <!-- 노션 캘린더 -->
+      <div class="card full" style="margin-bottom:18px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px">
+          <div>
+            <div class="card-title" style="margin-bottom:0">📅 팀 캘린더 (Notion)</div>
+            <div class="card-sub" style="margin-top:2px">팀 일정 · 마일스톤 공유 캘린더</div>
+          </div>
+          <a href="https://www.notion.so/2f06b108aaf4806cb424f99d89702b8f?v=2f06b108aaf480909f3c000c8ac705d0" target="_blank" class="btn-ghost" style="font-size:12px;text-decoration:none">↗ Notion에서 열기</a>
+        </div>
+        <div style="position:relative;width:100%;border-radius:10px;overflow:hidden;border:1px solid var(--border);background:var(--bg)">
+          <iframe
+            src="https://www.notion.so/2f06b108aaf4806cb424f99d89702b8f?v=2f06b108aaf480909f3c000c8ac705d0"
+            style="width:100%;height:600px;border:none;border-radius:10px"
+            allowfullscreen
+            id="notion-cal-iframe"
+            onload="setTimeout(()=>{try{const d=this.contentDocument||this.contentWindow.document;if(!d||!d.body||d.body.innerHTML==='')throw 0;}catch(e){gEl('notion-cal-iframe').style.display='none';gEl('notion-cal-fallback').style.display='flex';}},1500)">
+          </iframe>
+          <div id="notion-cal-fallback" style="display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:60px 20px;text-align:center">
+            <div style="font-size:36px">📅</div>
+            <div style="font-size:14px;font-weight:700">Notion 캘린더를 불러올 수 없습니다</div>
+            <div style="font-size:12px;color:var(--muted);line-height:1.8">
+              Notion 페이지의 공유 설정에서 <strong>"웹에 게시(Publish to web)"</strong>를 활성화하면<br>
+              iframe 임베드가 가능합니다. 그전까지는 아래 버튼으로 직접 열어주세요.
+            </div>
+            <a href="https://www.notion.so/2f06b108aaf4806cb424f99d89702b8f?v=2f06b108aaf480909f3c000c8ac705d0" target="_blank" class="btn-primary" style="text-decoration:none;font-size:13px">↗ Notion 캘린더 열기</a>
+          </div>
+        </div>
+      </div>
+
       <!-- Member Tabs -->
       <div class="crm-tabs" id="team-member-tabs">
         <button class="crm-tab active" onclick="teamMember('okc',this)">👤 온기철</button>
@@ -5189,15 +5217,40 @@ function settleExport(){const d=lsGet('settlement');dlCSV(['Creator,Period,GMV,R
 /* ── TEAM DASHBOARD ────────────────────────────────────── */
 const TEAM_MEMBERS = {
   okc: { name:'온기철', role:'Operations Lead', emoji:'🎯', gradient:'linear-gradient(135deg,#FE2C55,#FF6B8A)', color:'#FE2C55' },
-  ksw: { name:'김세원', role:'Affiliate & Creator', emoji:'🌟', gradient:'linear-gradient(135deg,#7C3AED,#A855F7)', color:'#7C3AED' },
-  wjy: { name:'왕지윤', role:'Marketing & CRM', emoji:'💫', gradient:'linear-gradient(135deg,#06B6D4,#0EA5E9)', color:'#06B6D4' },
+  ksw: { name:'김세원', role:'Affiliate Manager', emoji:'🌟', gradient:'linear-gradient(135deg,#7C3AED,#A855F7)', color:'#7C3AED' },
+  wjy: { name:'왕지윤', role:'Marketing Manager', emoji:'💫', gradient:'linear-gradient(135deg,#06B6D4,#0EA5E9)', color:'#06B6D4' },
 };
 let teamCurrentMember = 'okc';
 
 function initTeam(){
   const el = gEl('team-today-date');
   if(el) el.textContent = new Date().toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric',weekday:'short'});
+  tdSeedKswMissions();
   teamMember('okc', document.querySelector('.crm-tab'));
+}
+
+function tdSeedKswMissions(){
+  const existing = lsGet('td_ksw_missions');
+  if(existing && existing.length > 0) return; // 이미 데이터 있으면 스킵
+  const seed = [
+    {id:'s1',  text:'[1차 수습] CS 채팅 24시간 답변 속도 90% 유지', priority:'high'},
+    {id:'s2',  text:'CS 응대 기준 및 현재 운영 방식 파악 ✅', priority:'low'},
+    {id:'s3',  text:'CS 문의 유형 분석 및 응대 가이드 정리 ✅', priority:'low'},
+    {id:'s4',  text:'CS 응대 템플릿 구축 ✅', priority:'low'},
+    {id:'s5',  text:'CS 응대 이슈 정리 및 대응 가이드 작성 ✅', priority:'low'},
+    {id:'s6',  text:'[1차 수습] 디스코드 커뮤니티 500명 돌파', priority:'high'},
+    {id:'s7',  text:'Affiliate 대상 디스코드 참여 유도 ✅', priority:'low'},
+    {id:'s8',  text:'커뮤니티 참여 혜택 제공 (신제품/가이드/프로모션 공유) ✅', priority:'low'},
+    {id:'s9',  text:'기존 크리에이터 네트워크 활용 멤버 확장 ✅', priority:'low'},
+    {id:'s10', text:'[1차 수습] 틱톡샵 Affiliate (매출 발생) 500명 돌파', priority:'high'},
+    {id:'s11', text:'대량 Creator 아웃리치 — 마이크로 1k~50k 하루 100~500명 DM ✅', priority:'low'},
+    {id:'s12', text:'Top Selling 콘텐츠 분석 및 영상 포맷 템플릿 정리 ✅', priority:'low'},
+    {id:'s13', text:'L3~L5 크리에이터 추가 영입 (1인당 영상 30개 목표) ✅', priority:'low'},
+    {id:'s14', text:'[1차 수습] 온라인 틱톡샵 웨비나 제2회 준비', priority:'mid'},
+    {id:'s15', text:'웨비나: 브랜드 매력·혜택·신제품 소개 콘텐츠 준비 ✅', priority:'low'},
+    {id:'s16', text:'Affiliate 크리에이터 지속적 콘텐츠 생산 유도 체계 구축 ✅', priority:'low'},
+  ];
+  lsSet('td_ksw_missions', seed);
 }
 
 function teamMember(id, el){
@@ -5226,12 +5279,10 @@ function renderTeamMember(id){
 
   const missions = tdGetMissions(id);
   const daily   = tdGetTodos(id,'daily');
-  const weekly  = tdGetTodos(id,'weekly');
   const monthly = tdGetTodos(id,'monthly');
   const memo    = meta.memo || '';
 
   const doneD = daily.filter(t=>t.done).length;
-  const doneW = weekly.filter(t=>t.done).length;
   const doneM = monthly.filter(t=>t.done).length;
 
   panel.innerHTML = `
@@ -5245,7 +5296,7 @@ function renderTeamMember(id){
       </div>
     </div>
     <div style="display:flex;gap:10px">
-      ${[['Daily',doneD,daily.length],['Weekly',doneW,weekly.length],['Monthly',doneM,monthly.length]].map(([l,d,t])=>`
+      ${[['Daily',doneD,daily.length],['Monthly',doneM,monthly.length]].map(([l,d,t])=>`
         <div style="text-align:center;background:rgba(255,255,255,.15);border-radius:10px;padding:8px 14px">
           <div style="font-size:18px;font-weight:900">${d}/${t}</div>
           <div style="font-size:10px;opacity:.8">${l} 완료</div>
@@ -5322,22 +5373,6 @@ function renderTeamMember(id){
         <div class="td-add-row">
           <input class="td-add-input" id="td-daily-input-${id}" placeholder="오늘 할 일 추가..." onkeydown="if(event.key==='Enter')tdAddTodo('${id}','daily')">
           <button class="td-add-btn" onclick="tdAddTodo('${id}','daily')">+</button>
-        </div>
-      </div>
-
-      <!-- Weekly -->
-      <div class="card td-section">
-        <div class="td-section-title" style="color:${m.color}">
-          📅 Weekly To-Do
-          <span style="font-size:10px;font-weight:400;color:var(--muted);margin-left:auto">${doneW}/${weekly.length} 완료</span>
-          <button onclick="tdClearDone('${id}','weekly')" style="font-size:9px;background:none;border:1px solid var(--border);border-radius:6px;padding:2px 8px;cursor:pointer;color:var(--muted)">완료 삭제</button>
-        </div>
-        <div id="td-weekly-list-${id}">
-          ${tdTodoListHTML(id,'weekly',weekly)}
-        </div>
-        <div class="td-add-row">
-          <input class="td-add-input" id="td-weekly-input-${id}" placeholder="이번 주 할 일 추가..." onkeydown="if(event.key==='Enter')tdAddTodo('${id}','weekly')">
-          <button class="td-add-btn" onclick="tdAddTodo('${id}','weekly')">+</button>
         </div>
       </div>
 
