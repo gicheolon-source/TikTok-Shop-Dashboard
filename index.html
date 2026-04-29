@@ -498,36 +498,20 @@ textarea.form-input{resize:vertical}
         </div>
       </div>
 
-      <!-- Mission & Tasks -->
+      <!-- 법인샵 진행 단계 -->
       <div class="g2">
-        <div class="card">
-          <div class="card-title">Mission &amp; Core Goals</div>
-          <div class="card-sub">2026 strategic targets</div>
-          <table>
-            <tbody>
-              <tr><td class="fw7">Mission</td><td>Grow TikTok Shop as main channel outside Amazon</td></tr>
-              <tr><td class="fw7 c-pink">Goal</td><td>Monthly GMV $100K+ (₩1.4억)</td></tr>
-              <tr><td class="fw7">Task 1</td><td>5 hero affiliates each &gt;$5K/month GMV</td></tr>
-              <tr><td class="fw7">Task 2</td><td>Find best product/price combo for TikTok conversion</td></tr>
-              <tr><td class="fw7">Task 3</td><td>Achieve Silver Star Rating</td></tr>
-              <tr><td class="fw7">CS KPI</td><td>24h response rate &gt;90%</td></tr>
-              <tr><td class="fw7">Discord</td><td>500+ community members (currently ~220)</td></tr>
-              <tr><td class="fw7">Affiliate</td><td>500+ active (GMV-generating) affiliates</td></tr>
-            </tbody>
-          </table>
+        <div class="card" id="ov-launch-us">
+          <div class="card-title">🇺🇸 미국 법인샵 진행 단계</div>
+          <div id="ov-launch-us-body">로딩 중...</div>
+          <div style="margin-top:12px">
+            <button class="btn-ghost" style="font-size:12px" onclick="nav('launch',document.querySelector('.nav-item[onclick*=launch]'));setTimeout(()=>launchTab('us',document.querySelector('#launch-tabs .crm-tab')),100)">전체 체크리스트 보기 →</button>
+          </div>
         </div>
-        <div class="card">
-          <div class="card-title">PDRN Cream Unit Economics</div>
-          <div class="card-sub">Selling price $29.90 — cost breakdown</div>
-          <div class="cost-row"><span class="cost-label">Manufacturing</span><span class="cost-val">$1.70<span class="cost-pct">5.7%</span></span></div>
-          <div class="cost-row"><span class="cost-label">TikTok Platform Fee</span><span class="cost-val">$1.79<span class="cost-pct">6%</span></span></div>
-          <div class="cost-row"><span class="cost-label">Influencer Commission</span><span class="cost-val">$5.98<span class="cost-pct">20%</span></span></div>
-          <div class="cost-row"><span class="cost-label">Ad Spend (Shoppable)</span><span class="cost-val">$2.99<span class="cost-pct">10%</span></span></div>
-          <div class="cost-row"><span class="cost-label">Shipping (Local)</span><span class="cost-val">$4.28<span class="cost-pct">14.3%</span></span></div>
-          <div class="cost-row"><span class="cost-label">Shipping (Export KR→US)</span><span class="cost-val">$1.86<span class="cost-pct">6.2%</span></span></div>
-          <div class="cost-row" style="border-top:2px solid var(--border);margin-top:4px">
-            <span class="cost-label fw7">Total Cost</span>
-            <span class="cost-val c-pink">$18.60 &nbsp;<span style="font-size:11px;font-weight:400;color:var(--muted)">(Gross margin ~37.8%)</span></span>
+        <div class="card" id="ov-launch-uk">
+          <div class="card-title">🇬🇧 영국 법인샵 진행 단계</div>
+          <div id="ov-launch-uk-body">로딩 중...</div>
+          <div style="margin-top:12px">
+            <button class="btn-ghost" style="font-size:12px" onclick="nav('launch',document.querySelector('.nav-item[onclick*=launch]'));setTimeout(()=>launchTab('uk',document.querySelectorAll('#launch-tabs .crm-tab')[1]),100)">전체 체크리스트 보기 →</button>
           </div>
         </div>
       </div>
@@ -2449,6 +2433,7 @@ function destroyChart(id) {
    RENDER SECTIONS
 ════════════════════════════════════════════════ */
 function renderSection(id) {
+  if (id === 'overview')      renderOverviewLaunch();
   if (id === 'sales')         renderSales();
   if (id === 'inventory')     renderInventory();
   if (id === 'affiliates')    renderAffiliates();
@@ -3567,6 +3552,48 @@ let launchCurrentTab = 'us';
 
 function renderLaunch(){
   launchTab('us', document.querySelector('#launch-tabs .crm-tab'));
+}
+
+function renderOverviewLaunch(){
+  ['us','uk'].forEach(tab => {
+    const items = tab==='us' ? LAUNCH_US : LAUNCH_UK;
+    const saved = lsGet('launch_'+tab) || {};
+    const statuses = items.map(item => saved[item.no]?.status || item.defaultStatus);
+    const done = statuses.filter(s=>s==='done').length;
+    const inprog = statuses.filter(s=>s==='inprog').length;
+    const total = items.length;
+    const pct = Math.round(done/total*100);
+    const barColor = pct>=80?'var(--green)':pct>=40?'var(--yellow)':'var(--pink)';
+
+    const statusBadge = s => {
+      if(s==='done')   return `<span style="font-size:10px;padding:1px 6px;border-radius:8px;background:#d1fae5;color:#065f46;font-weight:600">완료</span>`;
+      if(s==='inprog') return `<span style="font-size:10px;padding:1px 6px;border-radius:8px;background:#fef3c7;color:#92400e;font-weight:600">진행중</span>`;
+      return `<span style="font-size:10px;padding:1px 6px;border-radius:8px;background:var(--bg);color:var(--muted);font-weight:600">대기</span>`;
+    };
+
+    const rows = items.map((item,i) => `
+      <div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border)">
+        <span style="font-size:11px;color:var(--muted);min-width:18px;text-align:right">${item.no}</span>
+        <span style="font-size:12px;flex:1;line-height:1.4">${item.cat}</span>
+        ${statusBadge(statuses[i])}
+      </div>`).join('');
+
+    const html = `
+      <div style="margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+          <span style="font-size:12px;color:var(--muted)">완료 <b style="color:var(--fg)">${done}</b> / ${total}</span>
+          <span style="font-size:12px;font-weight:700;color:${barColor}">${pct}%</span>
+        </div>
+        <div style="height:8px;border-radius:4px;background:var(--border);overflow:hidden">
+          <div style="height:100%;width:${pct}%;background:${barColor};border-radius:4px;transition:width .4s"></div>
+        </div>
+        ${inprog ? `<div style="margin-top:4px;font-size:11px;color:var(--yellow)">⚡ 진행중 ${inprog}개</div>` : ''}
+      </div>
+      <div style="max-height:220px;overflow-y:auto">${rows}</div>`;
+
+    const el = gEl(`ov-launch-${tab}-body`);
+    if(el) el.innerHTML = html;
+  });
 }
 
 function launchTab(tab, el){
