@@ -374,9 +374,6 @@ textarea.form-input{resize:vertical}
     <div class="nav-item" onclick="nav('affiliatevideos',this)">
       <span class="nav-icon">&#127909;</span> Affiliate Videos
     </div>
-    <div class="nav-item" onclick="nav('viral',this)">
-      <span class="nav-icon">&#128293;</span> 바이럴 영상
-    </div>
     <div class="nav-item" onclick="nav('spark',this)">
       <span class="nav-icon">&#9889;</span> Spark Ads Codes
     </div>
@@ -1218,75 +1215,6 @@ textarea.form-input{resize:vertical}
     </div>
 
 
-    <!-- ═══ 바이럴 영상 트래커 ════════════════════ -->
-    <div id="sec-viral" class="page-section">
-      <div class="sec-head">
-        <div>
-          <div class="sec-title">🔥 바이럴 영상 트래커</div>
-          <div class="sec-sub">Google Sheets 연동 · #kbeauty 100만+ &amp; 닥터리쥬올 바이럴 분석</div>
-        </div>
-        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-          <span id="viral-fetch-status" style="font-size:12px;color:var(--muted)"></span>
-          <button class="btn-primary" id="viral-fetch-btn" onclick="viralFetch()">🔄 시트에서 불러오기</button>
-          <button class="btn-ghost" style="font-size:12px" onclick="viralExportCSV()">⬇ CSV</button>
-          <label class="btn-ghost" style="font-size:12px;cursor:pointer" title="Excel/CSV 업로드">
-            📂 엑셀 업로드
-            <input type="file" id="viral-excel-input" accept=".xlsx,.xls,.csv" style="display:none" onchange="viralImportExcel(this)">
-          </label>
-          <button class="btn-primary" style="font-size:12px" onclick="viralOpenAddModal()">+ URL 추가</button>
-        </div>
-      </div>
-      <div class="crm-tabs" id="viral-tabs" style="margin-bottom:14px">
-        <button class="crm-tab active" onclick="viralTab('kbeauty',this)">#kbeauty 100만+ <span id="viral-tab-cnt-kbeauty" style="font-size:11px;opacity:.7"></span></button>
-        <button class="crm-tab" onclick="viralTab('rejuall',this)">닥터리쥬올 바이럴 <span id="viral-tab-cnt-rejuall" style="font-size:11px;opacity:.7"></span></button>
-      </div>
-      <div class="kpi-grid" style="grid-template-columns:repeat(5,1fr);margin-bottom:14px">
-        <div class="kpi-card"><div class="kpi-label">총 영상/크리에이터</div><div class="kpi-value" id="viral-kpi-total">—</div><div style="font-size:11px;color:var(--muted)" id="viral-kpi-total-sub"></div></div>
-        <div class="kpi-card"><div class="kpi-label">총 조회수</div><div class="kpi-value" id="viral-kpi-views" style="color:var(--cyan)">—</div></div>
-        <div class="kpi-card"><div class="kpi-label">평균 참여율</div><div class="kpi-value" id="viral-kpi-eng" style="color:var(--green)">—</div></div>
-        <div class="kpi-card"><div class="kpi-label">전환 확인 (O)</div><div class="kpi-value" id="viral-kpi-conv" style="color:var(--pink)">—</div></div>
-        <div class="kpi-card"><div class="kpi-label">브랜드 광고 (O)</div><div class="kpi-value" id="viral-kpi-ad" style="color:var(--yellow)">—</div></div>
-      </div>
-      <div class="g21" style="margin-bottom:14px">
-        <div class="card"><div class="card-title">Top 15 크리에이터 (조회수)</div><div class="ch" style="height:320px"><canvas id="c-viral-creators"></canvas></div></div>
-        <div style="display:flex;flex-direction:column;gap:14px">
-          <div class="card"><div class="card-title">브랜드 분포</div><div class="ch" style="height:180px"><canvas id="c-viral-brands"></canvas></div></div>
-          <div class="card"><div class="card-title">월별 업로드 추이</div><div class="ch" style="height:150px"><canvas id="c-viral-trend"></canvas></div></div>
-        </div>
-      </div>
-      <div class="card full">
-        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px">
-          <input class="search-box" id="viral-search" placeholder="크리에이터 검색..." style="max-width:200px" oninput="viralPage=1;viralRenderTable()">
-          <select class="form-input" id="viral-filter-conv" style="padding:6px 8px;font-size:12px;width:100px" onchange="viralPage=1;viralRenderTable()">
-            <option value="">전환 전체</option><option value="O">전환 O</option><option value="X">전환 X</option>
-          </select>
-          <select class="form-input" id="viral-filter-ad" style="padding:6px 8px;font-size:12px;width:100px" onchange="viralPage=1;viralRenderTable()">
-            <option value="">광고 전체</option><option value="O">광고 O</option><option value="X">광고 X</option>
-          </select>
-          <select class="form-input" id="viral-filter-brand" style="padding:6px 8px;font-size:12px;width:130px" onchange="viralPage=1;viralRenderTable()">
-            <option value="">브랜드 전체</option>
-          </select>
-          <select class="form-input" id="viral-sort" style="padding:6px 8px;font-size:12px;width:120px" onchange="viralPage=1;viralRenderTable()">
-            <option value="views">조회수순</option><option value="eng">참여율순</option>
-            <option value="likes">좋아요순</option><option value="date">날짜순</option>
-          </select>
-          <span id="viral-tbl-info" style="font-size:12px;color:var(--muted);margin-left:auto"></span>
-        </div>
-        <div class="tbl-wrap">
-          <table class="data-table">
-            <thead id="viral-thead"><tr>
-              <th style="text-align:left">크리에이터</th><th style="text-align:left">브랜드</th>
-              <th>조회수</th><th>좋아요</th><th>댓글</th><th>공유</th>
-              <th>참여율</th><th style="text-align:left">훅</th><th style="text-align:left">플로우</th>
-              <th>전환</th><th>광고</th><th>업로드일</th><th>링크</th>
-            </tr></thead>
-            <tbody id="viral-tbody"></tbody>
-          </table>
-        </div>
-        <div id="viral-pagination" style="display:flex;gap:4px;justify-content:center;margin-top:12px;flex-wrap:wrap"></div>
-      </div>
-    </div>
-
     <!-- ═══ 14. 정산 트래커 ══════════════════════ -->
     <div id="sec-settlement" class="page-section">
       <div class="sec-head">
@@ -1315,58 +1243,6 @@ textarea.form-input{resize:vertical}
         <div id="settle-empty" style="text-align:center;padding:40px;color:var(--muted);font-size:13px">정산 기록을 추가하세요</div>
       </div>
     </div>
-    <!-- TikTok URL 추가 모달 -->
-    <div class="modal-overlay hidden" id="viral-add-modal">
-      <div class="modal-box" style="max-width:520px">
-        <div class="modal-title">TikTok URL 추가</div>
-        <div style="margin-bottom:14px">
-          <label class="form-label">TikTok URL</label>
-          <div style="display:flex;gap:8px">
-            <input class="form-input" id="viral-add-url" placeholder="https://www.tiktok.com/@username/video/..." style="flex:1">
-            <button class="btn-primary" id="viral-oembed-btn" onclick="viralFetchOembed()">정보 가져오기</button>
-          </div>
-          <div id="viral-oembed-status" style="font-size:12px;margin-top:4px;color:var(--muted)"></div>
-        </div>
-        <div id="viral-oembed-preview" style="display:none;margin-bottom:14px;padding:10px;background:rgba(255,255,255,0.05);border-radius:8px;flex-direction:row;gap:10px;align-items:center">
-          <img id="viral-oembed-thumb" style="width:60px;height:60px;object-fit:cover;border-radius:6px">
-          <div style="overflow:hidden">
-            <div id="viral-oembed-account" style="font-weight:700;color:var(--pink)"></div>
-            <div id="viral-oembed-title" style="font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:360px"></div>
-          </div>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
-          <div><label class="form-label">크리에이터</label><input class="form-input" id="viral-add-account" placeholder="@username"></div>
-          <div><label class="form-label">브랜드</label><input class="form-input" id="viral-add-brand" placeholder="브랜드명"></div>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
-          <div><label class="form-label">조회수</label><input class="form-input" id="viral-add-views" type="number" placeholder="0" min="0"></div>
-          <div><label class="form-label">좋아요</label><input class="form-input" id="viral-add-likes" type="number" placeholder="0" min="0"></div>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
-          <div><label class="form-label">댓글</label><input class="form-input" id="viral-add-comments" type="number" placeholder="0" min="0"></div>
-          <div><label class="form-label">저장/공유</label><input class="form-input" id="viral-add-shares" type="number" placeholder="0" min="0"></div>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
-          <div><label class="form-label">전환</label>
-            <select class="form-input" id="viral-add-conv">
-              <option value="">—</option><option value="O">O</option><option value="X">X</option>
-            </select>
-          </div>
-          <div><label class="form-label">광고</label>
-            <select class="form-input" id="viral-add-ad">
-              <option value="">—</option><option value="O">O</option><option value="X">X</option>
-            </select>
-          </div>
-        </div>
-        <div style="margin-bottom:10px"><label class="form-label">Hook (첫 3초)</label><input class="form-input" id="viral-add-hook" placeholder="예: 이 크림 진짜 미쳤어..."></div>
-        <div style="margin-bottom:14px"><label class="form-label">업로드 날짜</label><input class="form-input" id="viral-add-date" type="date"></div>
-        <div style="display:flex;gap:8px;justify-content:flex-end">
-          <button class="btn-ghost" onclick="closeModal('viral-add-modal')">취소</button>
-          <button class="btn-primary" onclick="viralSaveManual()">저장</button>
-        </div>
-      </div>
-    </div>
-
     <div class="modal-overlay hidden" id="settle-modal"><div class="modal-box">
       <div class="modal-title">정산 추가</div>
       <input type="hidden" id="settle-edit-id">
@@ -3288,24 +3164,20 @@ function sparkParseRows(rows){
 
 /* ── LAUNCH CHECKLIST ───────────────────────────────────── */
 const LAUNCH_US = [
-  {no:1,  cat:'주력 제품 선정 (Hero SKU)',   detail:'제품 이미 선정 완료 (PDRN Cream, Lip Serum, Ceramide, Retino-mela, PDRN Mask)',              defaultStatus:'done'},
-  {no:2,  cat:'번들 구성 & 초기 리뷰 준비',  detail:'TikTok Exclusive 번들 구성 및 가격정책 기획 / 현지 커뮤니티 활용 초기 5점 리뷰 세팅',       defaultStatus:'done'},
-  {no:3,  cat:'컨텐츠 기획 및 촬영',         detail:'북미 감성 + 약사 컨셉 기획 / 다인종 3~4인 모델 섭외 / 제품 사용샷·연출샷·모델샷 촬영',     defaultStatus:'done'},
-  {no:4,  cat:'리스팅 생성 및 수출 준비',    detail:'제품 리스팅 서류&정보 준비 / 제품 상세페이지 제작 / 수출 가능 여부 및 라벨링 검토',         defaultStatus:'done'},
-  {no:5,  cat:'물류 발송',                   detail:'항공으로 빠르게 진행 / 추가 시딩 및 샘플 재고 3PL 확보 및 발송',                            defaultStatus:'done'},
-  {no:6,  cat:'CS 답변',                     detail:'구매자 CS 답변 / Affiliate CS 답변 / 제품별 Q&A 기반 템플릿 운영',                           defaultStatus:'ongoing'},
-  {no:7,  cat:'제품 평점 (Product Rating) 답변', detail:'1~2점 리뷰: 사과 + 환불/재배송 / 4~5점 리뷰: 감사 댓글 / 리뷰 이벤트 기획',            defaultStatus:'ongoing'},
-  {no:8,  cat:'Shop Performance Score',      detail:'SPS 4.0 이상 유지 (현재 4.8) / Fulfillment·CS·Product Satisfaction 관리',                   defaultStatus:'ongoing'},
-  {no:9,  cat:'TTS 브랜드 프로모션',         detail:'Flash Deal / Chat Coupon / Free Shipping / Buy more Save more / 틱톡 시즌 캠페인 참여',       defaultStatus:'ongoing'},
-  {no:10, cat:'Affiliate Program',           detail:'Open Plan + Target Plan (EUKA) / Paid Collab + Outlandish / Open Collab 콘텐츠 업로드',      defaultStatus:'ongoing'},
-  {no:11, cat:'Free Sample Request',         detail:'샘플 수락 기준: 조회수 500+, Post Rate 80%+ / GMV 검토X / 기준 기반 승인 운영',              defaultStatus:'ongoing'},
-  {no:12, cat:'틱톡 알고리즘 연구소',        detail:'틱톡 알고리즘 연구 및 트렌드 분석 지속 운영',                                                defaultStatus:'ongoing'},
-  {no:13, cat:'틱톡샵 내부 Campaign',        detail:'Deals for You, BFCM, Amazon PBDD 등 S급 캠페인 참여 / 매달 캠페인 등록',                     defaultStatus:'ongoing'},
-  {no:14, cat:'Paid 광고 (GMV Max)',         detail:'GMV Max 캠페인 진행 (Outlandish) / Spark Ads Code 활용 (Affiliate + 온드 계정 콘텐츠)',       defaultStatus:'ongoing'},
-  {no:15, cat:'CRM Plan',                   detail:'고객 세그먼트별 CRM 플랜 수립 / 팔로워→첫구매 전환 / 재구매·Win-back 자동화',                 defaultStatus:'ongoing'},
-  {no:16, cat:'Organic 제품 홍보',           detail:'제품 링크 영상 배포 / 브랜드 스토어 페이지 디자인 / @rejuall_official 운영',                  defaultStatus:'ongoing'},
-  {no:17, cat:'TAP Agency 활용',             detail:'TAP Agency 등록 (Seller Initiated) / Outlandish + 추가 에이전시 연동',                        defaultStatus:'ongoing'},
-  {no:18, cat:'Discord Community 운영',      detail:'WhatsApp + Discord 커뮤니티 운영 / 가입자 71명+ / Outlandish 공동 운영',                      defaultStatus:'ongoing'},
+  {no:1,  cat:'미국 법인 설립, EIN 발급 및 신청인 입력',                                  detail:'미국 법인 설립 완료, EIN 발급 및 TikTok Shop 신청인 정보 입력',                                                               defaultStatus:'done'},
+  {no:2,  cat:'제품 리스팅 생성 및 FBT 재고 연동',                                        detail:'TikTok Shop 제품 리스팅 생성 및 FBT(Fulfillment by TikTok) 재고 연동',                                                        defaultStatus:'done'},
+  {no:3,  cat:'광고 컨텐츠 연동 / GMV 연동',                                              detail:'광고 컨텐츠 TikTok Shop 연동 및 GMV Max 캠페인 연동',                                                                         defaultStatus:'done'},
+  {no:4,  cat:'첫 항공 수출 신고 연동 (FBT 항공 발송)',                                   detail:'첫 항공 수출 신고 완료 및 FBT 항공 발송 진행',                                                                                defaultStatus:'done'},
+  {no:5,  cat:'EUKA 및 Target Collab — 이전 파트너 전체 재전달',                          detail:'EUKA 및 Target Collab, 이메일로 이전 파트너들에게 전체 내용 재전달',                                                          defaultStatus:'ongoing'},
+  {no:6,  cat:'CS 자동 응답 봇 설정 (Auto Response)',                                     detail:'CS 채팅 Auto Response 봇 설정 / 제품별 Q&A 기반 템플릿 운영',                                                                 defaultStatus:'ongoing'},
+  {no:7,  cat:'모든 프로모션 및 쿠폰 재설정',                                             detail:'Flash Deal / Chat Coupon / Free Shipping / Buy more Save more / 틱톡 시즌 캠페인 참여',                                        defaultStatus:'ongoing'},
+  {no:8,  cat:'Affiliate Program 재신청 및 White Listing 확장',                           detail:'White Listing 불가 시 재신청, 혹은 매출 증가로 연락 가능한 룸 확장',                                                          defaultStatus:'ongoing'},
+  {no:9,  cat:'이전 TAP 파트너사 재계약 및 컨택 발송',                                   detail:'이전 TAP 파트너사 재계약 협의 및 컨택 이메일 발송',                                                                           defaultStatus:'ongoing'},
+  {no:10, cat:'단기 콘테스트 및 Fixed Fee + Commission Model 진행',                       detail:'단기용 콘테스트 기획 및 Fixed Fee + Commission Model 운영',                                                                   defaultStatus:'ongoing'},
+  {no:11, cat:'틱톡샵 Deal Campaign 신청 (Memorial Day, K-Beauty 등)',                    detail:'Memorial Day, K-Beauty 등 TikTok Shop Deal Campaign 빠르게 신청',                                                             defaultStatus:'ongoing'},
+  {no:12, cat:'FBT 재고 연동 가능 시 진행',                                               detail:'FBT 재고 연동 가능 여부 확인 후 추가 진행',                                                                                   defaultStatus:'ongoing'},
+  {no:13, cat:'Discord Community 및 WhatsApp 재공유·안내',                                detail:'Discord Community 및 WhatsApp에 업데이트 내용 재공유 및 안내 진행',                                                           defaultStatus:'ongoing'},
+  {no:14, cat:'새로운 웨비나 2.0 진행',                                                   detail:'업그레이드된 웨비나 2.0 기획 및 진행',                                                                                        defaultStatus:'ongoing'},
 ];
 
 const LAUNCH_UK = [
