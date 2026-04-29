@@ -1229,6 +1229,10 @@ textarea.form-input{resize:vertical}
           <span id="viral-fetch-status" style="font-size:12px;color:var(--muted)"></span>
           <button class="btn-primary" id="viral-fetch-btn" onclick="viralFetch()">🔄 시트에서 불러오기</button>
           <button class="btn-ghost" style="font-size:12px" onclick="viralExportCSV()">⬇ CSV</button>
+          <label class="btn-ghost" style="font-size:12px;cursor:pointer" title="Excel/CSV 업로드">
+            📂 엑셀 업로드
+            <input type="file" id="viral-excel-input" accept=".xlsx,.xls,.csv" style="display:none" onchange="viralImportExcel(this)">
+          </label>
           <button class="btn-primary" style="font-size:12px" onclick="viralOpenAddModal()">+ URL 추가</button>
         </div>
       </div>
@@ -4465,6 +4469,135 @@ function renderViral() {
     if (m) viralManual = JSON.parse(m);
   } catch(e) {}
   viralRenderDash();
+}
+
+/* ─── Excel Import ─── */
+function viralImportExcel(input) {
+  const file = input.files[0];
+  if (!file) return;
+  input.value = '';
+
+  const status = gEl('viral-fetch-status');
+  if (status) { status.style.color = 'var(--muted)'; status.textContent = '📂 파일 읽는 중...'; }
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      let rows;
+      if (file.name.toLowerCase().endsWith('.csv')) {
+        // Parse CSV
+        const text = e.target.result;
+        rows = text.split('\n').map(line => line.split(',').map(c => c.replace(/^"|"$/g,'').trim()));
+      } else {
+        const wb = XLSX.read(e.target.result, { type: 'array' });
+        const ws = wb.Sheets[wb.SheetNames[0]];
+        rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+      }
+
+      if (!rows || rows.length < 2) {
+        if (status) { status.style.color = 'var(--yellow)'; status.textContent = '⚠️ 데이터가 없습니다.'; }
+        return;
+      }
+
+      // Build column index map from header row (case-insensitive)
+      const header = rows[0].map(h => String(h).toLowerCase().trim());
+      const colIdx = {};
+      const MAPS = {
+        account:  ['account','creator','크리에이터','계정','username'],
+        views:    ['views','조회수','view'],
+        likes:    ['likes','좋아요','like'],
+        comments: ['comments','댓글','comment'],
+        shares:   ['shares','공유','저장','share','saves'],
+        brand:    ['brand','브랜드'],
+        conv:     ['conv','전환','conversion'],
+        ad:       ['ad','광고','advertisement'],
+        hook:     ['hook','훅'],
+        flow:     ['flow','플로우','흐름'],
+        uploaded: ['uploaded','date','날짜','업로드','upload_date'],
+        url:      ['url','링크','link','tiktok_url'],
+        engRate:  ['eng_rate','engrate','참여율','engagement','engagement_rate'],
+        followers:['followers','follower','팔로워'],
+      };
+      for (const [field, aliases] of Object.entries(MAPS)) {
+        const idx = header.findIndex(h => aliases.some(a => h.includes(a)));
+        if (idx !== -1) colIdx[field] = idx;
+      }
+
+      if (colIdx.account === undefined) {
+        if (status) { status.style.color = 'var(--yellow)'; status.textContent = '⚠️ Account/크리에이터 컬럼을 찾을 수 없습니다.'; }
+        return;
+      }
+
+      // Parse data rows
+      const get = (row, field) => {
+        const i = colIdx[field];
+        return i !== undefined ? row[i] : undefined;
+      };
+      const toNum = v => { const n = parseFloat(String(v||'').replace(/,/g,'')); return isNaN(n) ? 0 : n; };
+
+      const parsed = rows.slice(1)
+        .filter(r => r[colIdx.account])
+        .map(r => {
+          const views    = toNum(get(r,'views'));
+          const likes    = toNum(get(r,'likes'));
+          const comments = toNum(get(r,'comments'));
+          const shares   = toNum(get(r,'shares'));
+          const totalEng = likes + comments + shares;
+          const storedEng = toNum(get(r,'engRate'));
+          const engRate  = storedEng > 0 ? storedEng
+                         : views > 0 ? (totalEng / views) * 100 : 0;
+          const conv = String(get(r,'conv')||'').trim();
+          const ad   = String(get(r,'ad')||'').trim();
+          return {
+            account:  String(get(r,'account')||'').trim(),
+            brand:    String(get(r,'brand')||'').trim(),
+            followers:toNum(get(r,'followers')),
+            views, likes, comments, shares, totalEng, engRate,
+            conv:  conv === '1' || conv.toLowerCase() === 'true' ? 'O' : conv || '',
+            ad:    ad   === '1' || ad.toLowerCase()   === 'true' ? 'O' : ad   || '',
+            hook:     String(get(r,'hook')||'').trim(),
+            flow:     String(get(r,'flow')||'').trim(),
+            uploaded: String(get(r,'uploaded')||'').trim(),
+            url:      String(get(r,'url')||'').trim(),
+          };
+        });
+
+      if (!parsed.length) {
+        if (status) { status.style.color = 'var(--yellow)'; status.textContent = '⚠️ 파싱된 데이터가 없습니다.'; }
+        return;
+      }
+
+      // Update active tab
+      if (viralActiveTab === 'kbeauty') {
+        viralStore.kbeauty = parsed;
+      } else {
+        // rejuall format: account, brand, videos, views
+        viralStore.rejuall = parsed.map(r => ({
+          account: r.account, brand: r.brand,
+          videos: toNum(get(rows.slice(1).find(row => String(row[colIdx.account]||'').trim() === r.account), 'views')),
+          views: r.views,
+        }));
+      }
+
+      try { localStorage.setItem('viral_store', JSON.stringify(viralStore)); } catch(e) {}
+      viralPage = 1;
+      viralRenderDash();
+
+      if (status) {
+        status.style.color = 'var(--green)';
+        status.textContent = `✅ ${parsed.length.toLocaleString()}개 행 업로드 완료`;
+        setTimeout(() => { if(status) status.textContent = ''; }, 4000);
+      }
+    } catch(err) {
+      if (status) { status.style.color = '#ef4444'; status.textContent = '❌ 파일 파싱 오류: ' + err.message; }
+    }
+  };
+
+  if (file.name.toLowerCase().endsWith('.csv')) {
+    reader.readAsText(file, 'UTF-8');
+  } else {
+    reader.readAsArrayBuffer(file);
+  }
 }
 
 /* ─── Manual URL Add ─── */
