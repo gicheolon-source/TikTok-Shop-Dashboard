@@ -5217,8 +5217,8 @@ function settleExport(){const d=lsGet('settlement');dlCSV(['Creator,Period,GMV,R
 /* ── TEAM DASHBOARD ────────────────────────────────────── */
 const TEAM_MEMBERS = {
   okc: { name:'온기철', role:'Operations Lead', emoji:'🎯', gradient:'linear-gradient(135deg,#FE2C55,#FF6B8A)', color:'#FE2C55' },
-  ksw: { name:'김세원', role:'Affiliate Manager', emoji:'🌟', gradient:'linear-gradient(135deg,#7C3AED,#A855F7)', color:'#7C3AED' },
-  wjy: { name:'왕지윤', role:'Marketing Manager', emoji:'💫', gradient:'linear-gradient(135deg,#06B6D4,#0EA5E9)', color:'#06B6D4' },
+  ksw: { name:'김세원', role:'Manager', emoji:'🌟', gradient:'linear-gradient(135deg,#7C3AED,#A855F7)', color:'#7C3AED' },
+  wjy: { name:'왕지윤', role:'Manager', emoji:'💫', gradient:'linear-gradient(135deg,#06B6D4,#0EA5E9)', color:'#06B6D4' },
 };
 let teamCurrentMember = 'okc';
 
@@ -5226,7 +5226,42 @@ function initTeam(){
   const el = gEl('team-today-date');
   if(el) el.textContent = new Date().toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric',weekday:'short'});
   tdSeedKswMissions();
+  tdSeedWjyMissions();
   teamMember('okc', document.querySelector('.crm-tab'));
+}
+
+function tdSeedWjyMissions(){
+  const existing = lsGet('td_wjy_missions');
+  if(existing && existing.length > 0) return;
+  const seed = [
+    {id:'w1',  text:'[1차 수습] 틱톡샵 신규 상품 리스팅 업로드', priority:'high'},
+    {id:'w2',  text:'이커머스 상품 리스팅 기본 구성 파악 ✅', priority:'low'},
+    {id:'w3',  text:'TikTok Shop Seller Center 신규 리스팅 업로드 ✅', priority:'low'},
+    {id:'w4',  text:'기존 리스팅 분석 → 최적화 리스팅 작성 ✅', priority:'low'},
+    {id:'w5',  text:'[1차 수습] 틱톡샵 샘플 시딩 진행', priority:'high'},
+    {id:'w6',  text:'샘플 시딩 운영 방식 파악 (요청/발송/팔로우업) ✅', priority:'low'},
+    {id:'w7',  text:'샘플 시딩 운영 및 크리에이터 콘텐츠 팔로우업 ✅', priority:'low'},
+    {id:'w8',  text:'[1차 수습] 틱톡샵 상품 이미지/영상 제작', priority:'high'},
+    {id:'w9',  text:'상품 이미지 최적화 (고해상도·A/B 테스트) ✅', priority:'low'},
+    {id:'w10', text:'상품 영상 촬영·편집·업로드 (1080×1920 세로형) ✅', priority:'low'},
+    {id:'w11', text:'[1차 수습] 신규 상품 리스팅 기획 (Ceramide / Retino-Mela)', priority:'high'},
+    {id:'w12', text:'경쟁사 리스팅 분석 및 가격·마진 분석 ✅', priority:'low'},
+    {id:'w13', text:'상품명·설명·이미지·영상 기획 ✅', priority:'low'},
+    {id:'w14', text:'[1차 수습] 틱톡샵 상품 프로모션 운영', priority:'high'},
+    {id:'w15', text:'Flash Sale / Discount / Bundle 프로모션 운영 방식 파악 ✅', priority:'low'},
+    {id:'w16', text:'틱톡샵 프로모션 및 Offer Voucher 실습 ✅', priority:'low'},
+    {id:'w17', text:'[1차 수습] 닥터리쥬올 TikTok 계정 운영 및 컨텐츠 제작', priority:'high'},
+    {id:'w18', text:'TikTok 계정 도달률·인게이지먼트·조회수 분석 ✅', priority:'low'},
+    {id:'w19', text:'TikTok 컨텐츠 기획 (소재 리서치·스크립트) ✅', priority:'low'},
+    {id:'w20', text:'TikTok 영상 제작 및 업로드 (주 1편) ✅', priority:'low'},
+    {id:'w21', text:'[1차 수습] 인스타그램 계정 운영', priority:'mid'},
+    {id:'w22', text:'인스타그램 도달률·인게이지먼트 분석 및 개선 방향 파악 ✅', priority:'low'},
+    {id:'w23', text:'인스타그램 컨텐츠 기획·제작·업로드 ✅', priority:'low'},
+    {id:'w24', text:'[1차 수습] 인스타그램 Paid 마케팅 집행 (Meta Ads)', priority:'mid'},
+    {id:'w25', text:'Meta Ads 광고 세팅 및 집행 방법 파악 ✅', priority:'low'},
+    {id:'w26', text:'인스타그램 광고 집행 및 성과 분석 ✅', priority:'low'},
+  ];
+  lsSet('td_wjy_missions', seed);
 }
 
 function tdSeedKswMissions(){
@@ -5363,7 +5398,7 @@ function renderTeamMember(id){
       <!-- Daily -->
       <div class="card td-section">
         <div class="td-section-title" style="color:${m.color}">
-          ☀️ Daily To-Do
+          ☀️ Daily To-Do <span style="font-size:11px;font-weight:400;opacity:.7">${new Date().toLocaleDateString('ko-KR',{month:'long',day:'numeric',weekday:'short'})}</span>
           <span style="font-size:10px;font-weight:400;color:var(--muted);margin-left:auto">${doneD}/${daily.length} 완료</span>
           <button onclick="tdClearDone('${id}','daily')" style="font-size:9px;background:none;border:1px solid var(--border);border-radius:6px;padding:2px 8px;cursor:pointer;color:var(--muted)">완료 삭제</button>
         </div>
@@ -5379,7 +5414,7 @@ function renderTeamMember(id){
       <!-- Monthly -->
       <div class="card td-section">
         <div class="td-section-title" style="color:${m.color}">
-          🗓️ Monthly To-Do
+          🗓️ Monthly To-Do <span style="font-size:11px;font-weight:400;opacity:.7">${new Date().toLocaleDateString('ko-KR',{year:'numeric',month:'long'})}</span>
           <span style="font-size:10px;font-weight:400;color:var(--muted);margin-left:auto">${doneM}/${monthly.length} 완료</span>
           <button onclick="tdClearDone('${id}','monthly')" style="font-size:9px;background:none;border:1px solid var(--border);border-radius:6px;padding:2px 8px;cursor:pointer;color:var(--muted)">완료 삭제</button>
         </div>
