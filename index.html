@@ -348,7 +348,7 @@ textarea.form-input{resize:vertical}
       <span class="nav-icon">&#128201;</span> 매출 대시보드
     </div>
     <div class="nav-item" onclick="nav('partnerdb',this)">
-      <span class="nav-icon">&#128200;</span> Partner Dashboard
+      <span class="nav-icon">&#128200;</span> Affiliate Overview Dashboard
     </div>
     <div class="nav-item" onclick="nav('sales',this)">
       <span class="nav-icon">&#128200;</span> Sales &amp; Revenue
@@ -2249,7 +2249,7 @@ textarea.form-input{resize:vertical}
     <div id="sec-partnerdb" class="page-section">
       <div class="sec-head">
         <div>
-          <div class="sec-title">📊 Partner Dashboard</div>
+          <div class="sec-title">📊 Affiliate Overview Dashboard</div>
           <div class="sec-sub">Euka TikTok Shop Shared Dashboard · 실시간 데이터</div>
         </div>
         <div style="display:flex;gap:8px;align-items:center">
@@ -2274,7 +2274,7 @@ textarea.form-input{resize:vertical}
           <div style="font-size:18px;font-weight:700;color:var(--text)">임베딩이 차단된 대시보드예요</div>
           <div style="font-size:13px;color:var(--muted);text-align:center;max-width:360px">보안 정책으로 인해 이 대시보드는 외부에서 iframe으로 불러올 수 없어요.<br>아래 버튼을 눌러 새 탭에서 직접 확인해주세요.</div>
           <a href="https://www.tiktokshoppartner.us/dashboard/0c72da7bd6a48c87" target="_blank" class="btn-primary" style="text-decoration:none;font-size:15px;padding:12px 28px">
-            &#8599; Partner Dashboard 열기
+            &#8599; Affiliate Overview Dashboard 열기
           </a>
           <div style="font-size:11px;color:var(--muted)">https://www.tiktokshoppartner.us/dashboard/0c72da7bd6a48c87</div>
         </div>
@@ -2468,7 +2468,7 @@ const UK_MONTHLY = [
 const PAGE_TITLES = {
   overview:'Overview', sales:'Sales & Revenue', inventory:'Inventory',
   affiliates:'Affiliates', competitors:'Competitors', promotions:'Promotions',
-  uk:'UK Market', affiliatelist:'Affiliate List', affiliatevideos:'Affiliate Videos', cs:'CS 봇', customercrm:'Customer CRM 전략', team:'Team Dashboard', spark:'Spark Ads Codes', launch:'런칭 체크리스트', reseller:'리셀러 검토', revdash:'매출 대시보드', partnerdb:'Partner Dashboard',
+  uk:'UK Market', affiliatelist:'Affiliate List', affiliatevideos:'Affiliate Videos', cs:'CS 봇', customercrm:'Customer CRM 전략', team:'Team Dashboard', spark:'Spark Ads Codes', launch:'런칭 체크리스트', reseller:'리셀러 검토', revdash:'매출 대시보드', partnerdb:'Affiliate Overview Dashboard',
   findcreator:'크리에이터 발굴', crm:'Creator CRM', seeding:'샘플 시딩 트래커', live:'LIVE 스트림 트래커',
   viral:'바이럴 영상 트래커', brief:'콘텐츠 브리프 생성기',
   settlement:'정산 트래커', report:'주간 리포트'
@@ -3844,9 +3844,10 @@ function rdUpdateBadge() {
 }
 
 function rdSave() {
-  localStorage.removeItem('rd_orders'); // 구버전 대용량 키 항상 제거
+  // 구버전 대용량 키 항상 제거
+  ['rd_orders','rd_ids'].forEach(k => localStorage.removeItem(k));
   try {
-    // date+SKU 기준 집계 압축 (1700행 → ~200행)
+    // date+SKU 기준 집계 압축
     const aggMap = {};
     rdRaw.forEach(o => {
       const k = (o.date||'') + '|' + (o.sku||'Other');
@@ -3861,22 +3862,20 @@ function rdSave() {
       if (!freeAggMap[k]) freeAggMap[k] = {date:f.date||'', sku:f.sku||'Other', qty:0};
       freeAggMap[k].qty += (f.qty||0);
     });
-    // orderId 목록 저장 (중복 방지용)
-    const existingIds = (localStorage.getItem('rd_ids')||'').split(',').filter(Boolean);
-    const newIds = rdRaw.map(o=>o.orderId).filter(Boolean);
-    const allIds = [...new Set([...existingIds, ...newIds])];
-    localStorage.setItem('rd_slim', JSON.stringify(Object.values(aggMap)));
-    localStorage.setItem('rd_free', JSON.stringify(Object.values(freeAggMap)));
-    localStorage.setItem('rd_ids', allIds.join(','));
+    const slimStr = JSON.stringify(Object.values(aggMap));
+    const freeStr = JSON.stringify(Object.values(freeAggMap));
+    // 용량 초과 방지: rd_free 먼저 제거 후 slim 저장 시도
+    localStorage.removeItem('rd_free');
+    localStorage.setItem('rd_slim', slimStr);
+    try { localStorage.setItem('rd_free', freeStr); } catch(e2) { /* 프리샘플은 생략 */ }
     rdUpdateBadge();
-    // 자동 구글 시트 동기화 (URL 설정 시)
     if (localStorage.getItem('rd_sync_url') && localStorage.getItem('rd_auto_sync') === 'on') {
       rdSyncToSheet();
     }
   } catch(e) {
-    console.warn('자동저장 실패:', e.message);
+    console.warn('저장 실패:', e.message);
     const badge = document.getElementById('rd-storage-badge');
-    if (badge) { badge.textContent = '❌ 저장 실패: ' + e.message; badge.style.color = '#FE2C55'; }
+    if (badge) { badge.textContent = '⚠️ 데이터 용량 초과 — 차트는 정상 작동하나 새로고침 시 초기화됩니다'; badge.style.color = '#F59E0B'; }
   }
 }
 
