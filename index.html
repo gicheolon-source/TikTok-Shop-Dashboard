@@ -5390,21 +5390,30 @@ function renderTeamMember(id){
         <div style="position:relative;border-radius:12px;overflow:hidden;margin:-16px -16px 14px;padding:18px 16px 14px;background:${isUK?'linear-gradient(135deg,#012169,#C8102E)':'linear-gradient(135deg,#002868,#BF0A30)'}">
           <div style="position:absolute;top:50%;right:14px;transform:translateY(-50%);font-size:52px;opacity:.35;line-height:1">${currFlag}</div>
           <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.7);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">이번 달 ${currLabel}</div>
-          <div style="font-size:22px;font-weight:900;color:#fff">${monthlyActual?fmtCurr(monthlyActual):'${currSym}0'}</div>
-          <div style="font-size:11px;color:rgba(255,255,255,.6);margin-top:2px">${monthlyActual?fmtKRW(monthlyActual):''}</div>
+          <div style="font-size:22px;font-weight:900;color:#fff">${monthlyActual ? fmtCurr(monthlyActual) : currSym+'0'}</div>
+          <div style="font-size:11px;color:rgba(255,255,255,.6);margin-top:2px">${monthlyActual ? fmtKRW(monthlyActual) : '₩0'}</div>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px">
           <div>
             <label style="font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;display:block;margin-bottom:3px">목표 (${currSym})</label>
             <input class="form-input" type="number" value="${monthlyTarget||''}" placeholder="0" id="td-target-${id}"
               onchange="tdSaveMeta('${id}',{...tdGetMeta('${id}'),monthlyTarget:parseFloat(this.value)||0});renderTeamMember('${id}')">
-            <div style="font-size:10px;color:var(--muted);margin-top:3px">${fmtKRW(monthlyTarget)}</div>
           </div>
           <div>
             <label style="font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;display:block;margin-bottom:3px">현재 누적 (${currSym})</label>
             <input class="form-input" type="number" value="${monthlyActual||''}" placeholder="0" id="td-actual-${id}"
               onchange="tdSaveMeta('${id}',{...tdGetMeta('${id}'),monthlyActual:parseFloat(this.value)||0});renderTeamMember('${id}')">
-            <div style="font-size:10px;color:var(--muted);margin-top:3px">${fmtKRW(monthlyActual)}</div>
+          </div>
+        </div>
+        <!-- 원화 환산 -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+          <div style="background:var(--bg);border-radius:8px;padding:6px 10px;border:1px solid var(--border)">
+            <div style="font-size:9px;color:var(--muted);font-weight:700;margin-bottom:2px">목표 (₩)</div>
+            <div style="font-size:13px;font-weight:700;color:var(--fg)">${monthlyTarget ? '₩'+(monthlyTarget*currRate).toLocaleString() : '₩0'}</div>
+          </div>
+          <div style="background:var(--bg);border-radius:8px;padding:6px 10px;border:1px solid var(--border)">
+            <div style="font-size:9px;color:var(--muted);font-weight:700;margin-bottom:2px">현재 누적 (₩)</div>
+            <div style="font-size:13px;font-weight:700;color:${fillColor}">${monthlyActual ? '₩'+(monthlyActual*currRate).toLocaleString() : '₩0'}</div>
           </div>
         </div>
         <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
