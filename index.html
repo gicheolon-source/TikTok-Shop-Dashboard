@@ -314,6 +314,60 @@ textarea.form-input{resize:vertical}
 .login-err{color:#FF6B6B;font-size:12px;margin-top:10px;min-height:18px}
 .login-hint{color:#444;font-size:10px;margin-top:16px}
 </style>
+
+<!-- ═══ FIREBASE FIRESTORE SYNC ═══════════════════════ -->
+<script type="module">
+import { initializeApp }                              from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc, getDocs, collection } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+
+const _cfg = {
+  apiKey:            "AIzaSyCxU5UQ_B2uytJPJ2UDh1MllBNKpGInF_g",
+  authDomain:        "tts-dashboard-5b16e.firebaseapp.com",
+  projectId:         "tts-dashboard-5b16e",
+  storageBucket:     "tts-dashboard-5b16e.firebasestorage.app",
+  messagingSenderId: "348023047864",
+  appId:             "1:348023047864:web:c9696aea52298563bad64d",
+};
+
+const _app = initializeApp(_cfg);
+const _fdb = getFirestore(_app);
+const _COL = 'tts_kv';
+
+function fsUI(dot, txt, color) {
+  const d = document.getElementById('fs-status-dot');
+  const t = document.getElementById('fs-status-txt');
+  if (d) d.style.background = color;
+  if (t) t.textContent = txt;
+}
+
+// 다른 컴퓨터에서 저장한 데이터를 이 컴퓨터 localStorage 로 내려받기
+window.fsReady = (async () => {
+  fsUI('…', 'Firebase 연결 중…', '#F59E0B');
+  try {
+    const snaps = await getDocs(collection(_fdb, _COL));
+    snaps.forEach(s => {
+      try { localStorage.setItem(s.id, JSON.stringify(s.data().v)); } catch(e) {}
+    });
+    fsUI('ok', '☁️ 클라우드 동기화됨', '#22C55E');
+    console.log('[Firebase] 동기화 완료 ·', snaps.size, '개 키');
+  } catch(e) {
+    fsUI('err', '⚠️ 동기화 실패', '#EF4444');
+    console.warn('[Firebase] 동기화 실패:', e.message);
+  }
+})();
+
+// lsSet 이 호출될 때 Firestore 에도 저장
+window.fsSet = (key, val) => {
+  const json = JSON.stringify(val);
+  if (json.length > 900_000) return; // 1MB 제한 초과 시 스킵
+  setDoc(doc(_fdb, _COL, key), { v: val })
+    .then(() => fsUI('ok', '☁️ 저장됨', '#22C55E'))
+    .catch(e => {
+      fsUI('err', '⚠️ 저장 실패', '#EF4444');
+      console.warn('[Firebase] 쓰기 실패:', key, e.message);
+    });
+};
+</script>
 </head>
 <body>
 
@@ -411,6 +465,10 @@ textarea.form-input{resize:vertical}
   <div class="topbar">
     <div class="tb-title" id="topbarTitle">Overview</div>
     <div class="tb-right">
+      <div class="tb-pill" id="fs-status-pill" style="gap:6px">
+        <span id="fs-status-dot" style="width:7px;height:7px;border-radius:50%;background:#888;flex-shrink:0;display:inline-block"></span>
+        <span id="fs-status-txt">Firebase 연결 중...</span>
+      </div>
       <div class="tb-pill"><span class="dot-live"></span> Live · Google Sheets</div>
       <div class="tb-pill">&#127987; T3 Tier · $65K–$200K</div>
     </div>
@@ -1742,9 +1800,11 @@ textarea.form-input{resize:vertical}
           <table class="data-table">
             <thead><tr>
               <th style="text-align:left;min-width:180px">캠페인명</th>
-              <th>상태</th>
+              <th style="text-align:center">영상</th>
+              <th style="text-align:center">상태</th>
               <th style="text-align:right">광고비 (₩)</th>
               <th style="text-align:right">광고비 ($)</th>
+              <th style="text-align:right;color:var(--yellow)">CPV (₩)</th>
               <th style="text-align:right">노출수</th>
               <th style="text-align:right">CPM (₩)</th>
               <th style="text-align:right">영상뷰</th>
@@ -3088,7 +3148,7 @@ function dlCSV(csv,name){const a=document.createElement('a');a.href='data:text/c
 /* ── HELPERS ───────────────────────────────────────────── */
 const lsGet = k => JSON.parse(localStorage.getItem(k)||'[]');
 const lsGetStr = k => localStorage.getItem(k) || '';
-const lsSet = (k,v) => localStorage.setItem(k,JSON.stringify(v));
+const lsSet = (k,v) => { localStorage.setItem(k,JSON.stringify(v)); if(window.fsSet) window.fsSet(k,v); };
 const lsSetStr = (k,v) => localStorage.setItem(k, v);
 
 /* ── IndexedDB (대용량 데이터 저장) ─────────────────────── */
@@ -6972,6 +7032,9 @@ function doLogin() {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
+  // Firestore 에서 다른 컴퓨터 데이터 내려받기 (완료될 때까지 대기)
+  if (window.fsReady) await window.fsReady;
+
   // 구버전 대용량 키 정리
   localStorage.removeItem('rd_orders');
   // W4-4 affGMV 수정 (172945.63 → 19535.82)
@@ -7374,13 +7437,13 @@ function avExport() {
    TIKTOK VIEW ADS
 ════════════════════════════════════════════════ */
 const VA_DEFAULT = [
-  { name:'[Awareness] Dr.Rejuall Ceramide Cream_Conversion_0130', status:'Completed', cost:577950,  imp:90995,  cpm:6351, v2s:89691, v6s:87696, v25:83285, v50:78043, v75:72483, v100:62481, avgPlay:14.28, views:89691, vr:98.57 },
-  { name:'[Awareness] Dr.Rejuall PDRN Cream_Conversion_0130',     status:'Completed', cost:591890,  imp:95002,  cpm:6230, v2s:93677, v6s:91696, v25:87048, v50:81504, v75:75480, v100:64878, avgPlay:14.36, views:93677, vr:98.61 },
-  { name:'[Awareness] Dr.Rejuall PDRN Max_Conversion_0130',       status:'Completed', cost:476350,  imp:76424,  cpm:6233, v2s:75388, v6s:73832, v25:70136, v50:65680, v75:60704, v100:52110, avgPlay:14.33, views:75388, vr:98.64 },
-  { name:'[Awareness] Dr.Rejuall Lip Serum_Conversion_0130',      status:'Completed', cost:507610,  imp:82401,  cpm:6161, v2s:81247, v6s:79495, v25:75524, v50:70721, v75:65385, v100:56030, avgPlay:14.30, views:81247, vr:98.60 },
-  { name:'[Awareness] Dr.Rejuall PDRN Mask_Conversion_0130',      status:'Completed', cost:443120,  imp:70981,  cpm:6243, v2s:70023, v6s:68503, v25:65128, v50:60969, v75:56344, v100:48340, avgPlay:14.34, views:70023, vr:98.65 },
-  { name:'[Awareness] Dr.Rejuall Retino-Mela_Conversion_0130',    status:'Completed', cost:493710,  imp:79434,  cpm:6215, v2s:78348, v6s:76663, v25:72876, v50:68232, v75:63082, v100:54090, avgPlay:14.31, views:78348, vr:98.63 },
-  { name:'[Awareness] Dr.Rejuall Ceramide Cream_0301',            status:'Completed', cost:5021708, imp:763040, cpm:6582, v2s:753981,v6s:734570,v25:691498,v50:641100,v75:585820,v100:492000,avgPlay:14.10, views:753981,vr:98.81 },
+  { name:'[Awareness] Dr.Rejuall Ceramide Cream_Conversion_0130', displayName:'Ceramide Cream — 인지도 (1월)', url:'', status:'Completed', cost:577950,  imp:90995,  cpm:6351, v2s:89691, v6s:87696, v25:83285, v50:78043, v75:72483, v100:62481, avgPlay:14.28, views:89691, vr:98.57 },
+  { name:'[Awareness] Dr.Rejuall PDRN Cream_Conversion_0130',     displayName:'PDRN Cream — 인지도 (1월)',    url:'', status:'Completed', cost:591890,  imp:95002,  cpm:6230, v2s:93677, v6s:91696, v25:87048, v50:81504, v75:75480, v100:64878, avgPlay:14.36, views:93677, vr:98.61 },
+  { name:'[Awareness] Dr.Rejuall PDRN Max_Conversion_0130',       displayName:'PDRN Max — 인지도 (1월)',      url:'', status:'Completed', cost:476350,  imp:76424,  cpm:6233, v2s:75388, v6s:73832, v25:70136, v50:65680, v75:60704, v100:52110, avgPlay:14.33, views:75388, vr:98.64 },
+  { name:'[Awareness] Dr.Rejuall Lip Serum_Conversion_0130',      displayName:'Lip Serum — 인지도 (1월)',     url:'', status:'Completed', cost:507610,  imp:82401,  cpm:6161, v2s:81247, v6s:79495, v25:75524, v50:70721, v75:65385, v100:56030, avgPlay:14.30, views:81247, vr:98.60 },
+  { name:'[Awareness] Dr.Rejuall PDRN Mask_Conversion_0130',      displayName:'PDRN Mask — 인지도 (1월)',     url:'', status:'Completed', cost:443120,  imp:70981,  cpm:6243, v2s:70023, v6s:68503, v25:65128, v50:60969, v75:56344, v100:48340, avgPlay:14.34, views:70023, vr:98.65 },
+  { name:'[Awareness] Dr.Rejuall Retino-Mela_Conversion_0130',    displayName:'Retino-Mela — 인지도 (1월)',   url:'', status:'Completed', cost:493710,  imp:79434,  cpm:6215, v2s:78348, v6s:76663, v25:72876, v50:68232, v75:63082, v100:54090, avgPlay:14.31, views:78348, vr:98.63 },
+  { name:'[Awareness] Dr.Rejuall Ceramide Cream_0301',            displayName:'Ceramide Cream — 인지도 (3월)', url:'', status:'Completed', cost:5021708, imp:763040, cpm:6582, v2s:753981,v6s:734570,v25:691498,v50:641100,v75:585820,v100:492000,avgPlay:14.10, views:753981,vr:98.81 },
 ];
 
 let vaData = [];
@@ -7460,16 +7523,27 @@ function vaRenderCharts(rows) {
 function vaRenderTable(rows) {
   const tbody = document.getElementById('va-tbody');
   if (!tbody) return;
-  tbody.innerHTML = rows.map(r => {
-    const shortName = r.name.replace(/^\[Awareness\]\s*/i, '');
+  tbody.innerHTML = rows.map((r, idx) => {
+    const label = r.displayName || r.name.replace(/^\[Awareness\]\s*/i, '');
     const statusBadge = r.status === 'Completed'
       ? '<span style="color:var(--muted);font-size:11px">완료</span>'
       : '<span style="color:var(--green);font-size:11px">진행중</span>';
+    const cpv = r.views > 0 ? Math.round(r.cost / r.views) : 0;
+    const urlBtn = r.url
+      ? `<a href="${r.url}" target="_blank" rel="noopener" style="color:var(--cyan);font-size:16px;text-decoration:none" title="${r.url}">🔗</a>`
+      : `<span style="color:var(--muted);font-size:11px">—</span>`;
     return `<tr>
-      <td style="font-size:12px">${shortName}</td>
+      <td style="font-size:12px;max-width:200px">
+        <div style="display:flex;align-items:center;gap:6px">
+          <span title="${r.name}">${label}</span>
+          <button onclick="vaEditRow(${idx})" style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:12px;padding:0;flex-shrink:0" title="편집">✏️</button>
+        </div>
+      </td>
+      <td style="text-align:center">${urlBtn}</td>
       <td style="text-align:center">${statusBadge}</td>
       <td style="text-align:right">₩${r.cost.toLocaleString()}</td>
       <td style="text-align:right;color:var(--muted)">$${Math.round(r.cost/1400).toLocaleString()}</td>
+      <td style="text-align:right;color:var(--yellow)">₩${cpv.toLocaleString()}</td>
       <td style="text-align:right">${r.imp.toLocaleString()}</td>
       <td style="text-align:right">₩${r.cpm.toLocaleString()}</td>
       <td style="text-align:right">${r.views.toLocaleString()}</td>
@@ -7485,20 +7559,59 @@ function vaRenderTable(rows) {
   const tot = (key) => rows.reduce((s,r) => s + r[key], 0);
   const avgVR = (rows.reduce((s,r) => s + r.vr, 0) / rows.length).toFixed(2);
   const avgP  = (rows.reduce((s,r) => s + r.avgPlay, 0) / rows.length).toFixed(2);
+  const totalCost = tot('cost'), totalViews = tot('views');
+  const totalCpv = totalViews > 0 ? Math.round(totalCost / totalViews) : 0;
   tbody.innerHTML += `<tr style="font-weight:700;border-top:2px solid var(--border);background:rgba(255,255,255,0.03)">
     <td>합계 / 평균</td>
     <td></td>
-    <td style="text-align:right">₩${tot('cost').toLocaleString()}</td>
-    <td style="text-align:right;color:var(--muted)">$${Math.round(tot('cost')/1400).toLocaleString()}</td>
+    <td></td>
+    <td style="text-align:right">₩${totalCost.toLocaleString()}</td>
+    <td style="text-align:right;color:var(--muted)">$${Math.round(totalCost/1400).toLocaleString()}</td>
+    <td style="text-align:right;color:var(--yellow)">₩${totalCpv.toLocaleString()}</td>
     <td style="text-align:right">${tot('imp').toLocaleString()}</td>
     <td style="text-align:right">—</td>
-    <td style="text-align:right">${tot('views').toLocaleString()}</td>
+    <td style="text-align:right">${totalViews.toLocaleString()}</td>
     <td style="text-align:right;color:var(--green)">${avgVR}%</td>
     <td style="text-align:right">${tot('v2s').toLocaleString()}</td>
     <td style="text-align:right">${tot('v6s').toLocaleString()}</td>
     <td style="text-align:right">${tot('v100').toLocaleString()}</td>
     <td style="text-align:right">${avgP}</td>
   </tr>`;
+}
+
+function vaEditRow(idx) {
+  const r = vaData[idx] || (vaData = [...VA_DEFAULT], VA_DEFAULT[idx]);
+  const modal = document.createElement('div');
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;display:flex;align-items:center;justify-content:center';
+  modal.innerHTML = `
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;width:480px;max-width:95vw">
+      <div style="font-weight:700;font-size:16px;margin-bottom:16px">캠페인 편집</div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:12px;word-break:break-all">${r.name}</div>
+      <label style="display:block;font-size:12px;color:var(--muted);margin-bottom:4px">표시 이름</label>
+      <input id="va-edit-dname" value="${(r.displayName||'').replace(/"/g,'&quot;')}"
+        style="width:100%;box-sizing:border-box;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:8px 10px;color:var(--text);font-size:13px;margin-bottom:12px">
+      <label style="display:block;font-size:12px;color:var(--muted);margin-bottom:4px">광고 영상 URL (TikTok)</label>
+      <input id="va-edit-url" value="${(r.url||'').replace(/"/g,'&quot;')}" placeholder="https://www.tiktok.com/..."
+        style="width:100%;box-sizing:border-box;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:8px 10px;color:var(--text);font-size:13px;margin-bottom:20px">
+      <div style="display:flex;gap:8px;justify-content:flex-end">
+        <button onclick="this.closest('div[style]').remove()" style="background:none;border:1px solid var(--border);border-radius:6px;padding:7px 16px;color:var(--text);cursor:pointer;font-size:13px">취소</button>
+        <button onclick="vaSaveEdit(${idx},this)" style="background:var(--pink);border:none;border-radius:6px;padding:7px 16px;color:#fff;cursor:pointer;font-size:13px;font-weight:600">저장</button>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+  modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+}
+
+function vaSaveEdit(idx, btn) {
+  const modal = btn.closest('div[style*="position:fixed"]');
+  const dname = document.getElementById('va-edit-dname').value.trim();
+  const url   = document.getElementById('va-edit-url').value.trim();
+  if (!vaData.length) vaData = VA_DEFAULT.map(r => ({...r}));
+  vaData[idx].displayName = dname;
+  vaData[idx].url = url;
+  DB.set('va_data', vaData);
+  modal.remove();
+  vaRenderTable(vaData);
 }
 
 function vaImport(input) {
@@ -7540,22 +7653,28 @@ function vaImport(input) {
           const cost = num(r[iCost]);
           return name && cost > 0 && !name.toLowerCase().includes('total');
         })
-        .map(r => ({
-          name:    String(r[iName]).trim(),
-          status:  String(r[iStatus] || '').trim() || 'Completed',
-          cost:    num(r[iCost]),
-          imp:     num(r[iImp]),
-          cpm:     num(r[iCpm]),
-          v2s:     num(r[iV2s]),
-          v6s:     num(r[iV6s]),
-          v25:     num(r[iV25]),
-          v50:     num(r[iV50]),
-          v75:     num(r[iV75]),
-          v100:    num(r[iV100]),
-          avgPlay: num(r[iAvg]),
-          views:   iViews >= 0 ? num(r[iViews]) : num(r[iV2s]),
-          vr:      iVR >= 0 ? num(r[iVR]) : 0,
-        }));
+        .map(r => {
+          const rName = String(r[iName]).trim();
+          const existing = vaData.find(d => d.name === rName);
+          return {
+            name:        rName,
+            displayName: existing ? (existing.displayName || '') : '',
+            url:         existing ? (existing.url || '') : '',
+            status:      String(r[iStatus] || '').trim() || 'Completed',
+            cost:        num(r[iCost]),
+            imp:         num(r[iImp]),
+            cpm:         num(r[iCpm]),
+            v2s:         num(r[iV2s]),
+            v6s:         num(r[iV6s]),
+            v25:         num(r[iV25]),
+            v50:         num(r[iV50]),
+            v75:         num(r[iV75]),
+            v100:        num(r[iV100]),
+            avgPlay:     num(r[iAvg]),
+            views:       iViews >= 0 ? num(r[iViews]) : num(r[iV2s]),
+            vr:          iVR >= 0 ? num(r[iVR]) : 0,
+          };
+        });
 
       if (!parsed.length) { alert('유효한 캠페인 데이터가 없습니다.'); return; }
       vaData = parsed;
