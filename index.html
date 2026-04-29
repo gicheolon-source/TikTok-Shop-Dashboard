@@ -6387,32 +6387,14 @@ function generateReport(){
     </div>
   </div>
 
-  <!-- SECTION 5: Top Hooks -->
-  <div class="report-section-label">▌ SECTION 4 &nbsp; Weekly Top Hooks &amp; Selling Points</div>
-  <div class="g2" style="margin-bottom:14px">
-    <div class="card">
-      <div class="card-title">Top Hooks</div>
-      <div class="card-sub">바이럴 영상 트래커 기준</div>
-      ${viral.length?`<div class="tbl-wrap"><table><thead><tr><th>Hook</th><th>Creator</th><th>Views</th></tr></thead><tbody>${topHooks}</tbody></table></div>`:'<div style="padding:20px;text-align:center;color:var(--muted);font-size:12px">바이럴 영상 트래커에 데이터를 입력하세요</div>'}
-    </div>
-    <div class="card">
-      <div class="card-title">이번 주 바이럴 현황</div>
-      <div class="card-sub">바이럴 영상 트래커 기준</div>
-      ${[['바이럴 영상 수',viral.length+'개'],['총 조회수',viral.reduce((s,x)=>s+(x.views||0),0)>=1000?(viral.reduce((s,x)=>s+(x.views||0),0)/1000).toFixed(0)+'K':viral.reduce((s,x)=>s+(x.views||0),0)+''],['바이럴 GMV 기여',fmtUSD(viral.reduce((s,x)=>s+(x.gmv||0),0))],['LIVE 방송 횟수',live.length+'회'],['LIVE GMV',fmtUSD(live.reduce((s,x)=>s+(x.gmv||0),0))],['시딩 발송',seed.length+'건']].map(([k,v])=>`
-        <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px">
-          <span style="color:var(--muted)">${k}</span><span class="fw7">${v}</span>
-        </div>`).join('')}
-    </div>
-  </div>
-
-  <!-- SECTION 6: 이슈 & 액션 아이템 -->
-  <div class="report-section-label">▌ SECTION 5 &nbsp; 주요 이슈 &amp; 다음 주 액션 아이템</div>
+  <!-- SECTION 5: 이슈 & 액션 아이템 -->
+  <div class="report-section-label">▌ SECTION 4 &nbsp; 주요 이슈 &amp; 다음 주 액션 아이템</div>
   <div class="card full" style="margin-bottom:14px">
     ${issues||actions?issues+actions:`<div style="padding:16px;color:var(--muted);font-size:13px">데이터 입력 버튼에서 이슈와 액션 아이템을 입력하세요</div>`}
   </div>
 
-  <!-- SECTION 7: 주차별 누적 -->
-  <div class="report-section-label">▌ SECTION 6 &nbsp; 주차별 누적 데이터</div>
+  <!-- SECTION 6: 주차별 누적 -->
+  <div class="report-section-label">▌ SECTION 5 &nbsp; 주차별 누적 데이터</div>
   <div class="card full">
     <div class="tbl-toolbar">
       <div class="card-title">전체 주차 매출 기록</div>
@@ -6899,6 +6881,18 @@ function doLogin() {
 document.addEventListener('DOMContentLoaded', () => {
   // 구버전 대용량 키 정리 (rd_orders → rd_slim으로 교체됨)
   localStorage.removeItem('rd_orders');
+  // W4-4 affGMV 수정 (172945.63 → 19535.82)
+  try {
+    const wh = lsGet('weekly_history');
+    if (wh && wh.length) {
+      const idx = wh.findIndex(r => r.w === 'W4-4');
+      if (idx !== -1 && wh[idx].affGMV !== 19535.82) {
+        wh[idx].affGMV = 19535.82;
+        wh[idx].affPct = wh[idx].gmv ? +(19535.82 / wh[idx].gmv * 100).toFixed(1) : wh[idx].affPct;
+        lsSet('weekly_history', wh);
+      }
+    }
+  } catch(e) {}
   // 매출 데이터 메모리 선복원
   try {
     const s = localStorage.getItem('rd_slim');
