@@ -5328,9 +5328,36 @@ function teamMember(id, el){
   renderTeamMember(id);
 }
 
-function tdKey(memberId, type){ return `td_${memberId}_${type}`; }
+// 날짜 뷰 상태
+const tdViewDate  = {}; // {okc:'2026-04-29', ...}
+const tdViewMonth = {}; // {okc:'2026-04', ...}
+function tdTodayStr()  { return new Date().toISOString().slice(0,10); }
+function tdThisMonth() { return new Date().toISOString().slice(0,7); }
+function tdGetViewDate(id)  { return tdViewDate[id]  || tdTodayStr(); }
+function tdGetViewMonth(id) { return tdViewMonth[id] || tdThisMonth(); }
+
+function tdKey(memberId, type){
+  if(type==='daily')   return `td_${memberId}_daily_${tdGetViewDate(memberId)}`;
+  if(type==='monthly') return `td_${memberId}_monthly_${tdGetViewMonth(memberId)}`;
+  return `td_${memberId}_${type}`;
+}
 function tdGetTodos(memberId, type){ return lsGet(tdKey(memberId,type)); }
 function tdSaveTodos(memberId, type, arr){ lsSet(tdKey(memberId,type), arr); }
+
+function tdNavDate(memberId, delta){
+  const d = new Date(tdGetViewDate(memberId));
+  d.setDate(d.getDate() + delta);
+  tdViewDate[memberId] = d.toISOString().slice(0,10);
+  renderTeamMember(memberId);
+}
+function tdNavMonth(memberId, delta){
+  const [y,m] = tdGetViewMonth(memberId).split('-').map(Number);
+  const d = new Date(y, m-1+delta, 1);
+  tdViewMonth[memberId] = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+  renderTeamMember(memberId);
+}
+function tdGoToday(memberId)     { tdViewDate[memberId]=tdTodayStr(); renderTeamMember(memberId); }
+function tdGoThisMonth(memberId) { tdViewMonth[memberId]=tdThisMonth(); renderTeamMember(memberId); }
 function tdGetMissions(memberId){ return lsGet(tdKey(memberId,'missions')); }
 function tdSaveMissions(memberId, arr){ lsSet(tdKey(memberId,'missions'), arr); }
 function tdGetMeta(memberId){ return JSON.parse(localStorage.getItem(tdKey(memberId,'meta'))||'{}'); }
@@ -5360,6 +5387,20 @@ function renderTeamMember(id){
 
   const doneD = daily.filter(t=>t.done).length;
   const doneM = monthly.filter(t=>t.done).length;
+
+  const viewDate  = tdGetViewDate(id);
+  const viewMonth = tdGetViewMonth(id);
+  const isToday     = viewDate  === tdTodayStr();
+  const isThisMonth = viewMonth === tdThisMonth();
+
+  // 날짜 표시 포맷
+  const dateLabel = new Date(viewDate+'T00:00:00').toLocaleDateString('ko-KR',{month:'long',day:'numeric',weekday:'short'});
+  const monthLabel = new Date(viewMonth+'-01T00:00:00').toLocaleDateString('ko-KR',{year:'numeric',month:'long'});
+
+  // 네비 버튼 공통 스타일
+  const navBtn = `style="background:none;border:1px solid var(--border);border-radius:6px;padding:2px 8px;cursor:pointer;font-size:11px;color:var(--muted)"`;
+  const todayBtn = isToday ? '' : `<button ${navBtn} onclick="tdGoToday('${id}')">오늘</button>`;
+  const thisMonthBtn = isThisMonth ? '' : `<button ${navBtn} onclick="tdGoThisMonth('${id}')">이번 달</button>`;
 
   panel.innerHTML = `
   <!-- 멤버 헤더 -->
@@ -5456,9 +5497,17 @@ function renderTeamMember(id){
       <!-- Daily -->
       <div class="card td-section">
         <div class="td-section-title" style="color:${m.color}">
-          ☀️ Daily To-Do <span style="font-size:11px;font-weight:400;opacity:.7">${new Date().toLocaleDateString('ko-KR',{month:'long',day:'numeric',weekday:'short'})}</span>
-          <span style="font-size:10px;font-weight:400;color:var(--muted);margin-left:auto">${doneD}/${daily.length} 완료</span>
-          <button onclick="tdClearDone('${id}','daily')" style="font-size:9px;background:none;border:1px solid var(--border);border-radius:6px;padding:2px 8px;cursor:pointer;color:var(--muted)">완료 삭제</button>
+          <div style="display:flex;align-items:center;gap:6px;width:100%;flex-wrap:wrap">
+            <span>☀️ Daily To-Do</span>
+            <div style="display:flex;align-items:center;gap:4px;margin-left:4px">
+              <button ${navBtn} onclick="tdNavDate('${id}',-1)">‹</button>
+              <span style="font-size:11px;font-weight:600;min-width:100px;text-align:center;color:${isToday?m.color:'var(--muted)'}">${dateLabel}${isToday?' ✦':''}</span>
+              <button ${navBtn} onclick="tdNavDate('${id}',1)">›</button>
+              ${todayBtn}
+            </div>
+            <span style="font-size:10px;font-weight:400;color:var(--muted);margin-left:auto">${doneD}/${daily.length} 완료</span>
+            <button onclick="tdClearDone('${id}','daily')" style="font-size:9px;background:none;border:1px solid var(--border);border-radius:6px;padding:2px 8px;cursor:pointer;color:var(--muted)">완료 삭제</button>
+          </div>
         </div>
         <div id="td-daily-list-${id}">
           ${tdTodoListHTML(id,'daily',daily)}
@@ -5472,9 +5521,17 @@ function renderTeamMember(id){
       <!-- Monthly -->
       <div class="card td-section">
         <div class="td-section-title" style="color:${m.color}">
-          🗓️ Monthly To-Do <span style="font-size:11px;font-weight:400;opacity:.7">${new Date().toLocaleDateString('ko-KR',{year:'numeric',month:'long'})}</span>
-          <span style="font-size:10px;font-weight:400;color:var(--muted);margin-left:auto">${doneM}/${monthly.length} 완료</span>
-          <button onclick="tdClearDone('${id}','monthly')" style="font-size:9px;background:none;border:1px solid var(--border);border-radius:6px;padding:2px 8px;cursor:pointer;color:var(--muted)">완료 삭제</button>
+          <div style="display:flex;align-items:center;gap:6px;width:100%;flex-wrap:wrap">
+            <span>🗓️ Monthly To-Do</span>
+            <div style="display:flex;align-items:center;gap:4px;margin-left:4px">
+              <button ${navBtn} onclick="tdNavMonth('${id}',-1)">‹</button>
+              <span style="font-size:11px;font-weight:600;min-width:80px;text-align:center;color:${isThisMonth?m.color:'var(--muted)'}">${monthLabel}${isThisMonth?' ✦':''}</span>
+              <button ${navBtn} onclick="tdNavMonth('${id}',1)">›</button>
+              ${thisMonthBtn}
+            </div>
+            <span style="font-size:10px;font-weight:400;color:var(--muted);margin-left:auto">${doneM}/${monthly.length} 완료</span>
+            <button onclick="tdClearDone('${id}','monthly')" style="font-size:9px;background:none;border:1px solid var(--border);border-radius:6px;padding:2px 8px;cursor:pointer;color:var(--muted)">완료 삭제</button>
+          </div>
         </div>
         <div id="td-monthly-list-${id}">
           ${tdTodoListHTML(id,'monthly',monthly)}
