@@ -2359,21 +2359,6 @@ textarea.form-input{resize:vertical}
       </div>
       <div id="team-member-panel"></div>
 
-      <!-- 구글 캘린더 -->
-      <div class="card full" style="margin-top:18px;padding:0;overflow:hidden">
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--border)">
-          <div>
-            <div class="card-title" style="margin-bottom:0">📅 팀 캘린더</div>
-            <div class="card-sub" style="margin-top:2px">TikTok Shop US·UK 팀 일정 · 마일스톤</div>
-          </div>
-          <a href="https://calendar.google.com/calendar/embed?src=c_0f35587c0cd11a3dc5422954dbe863ea04e2dddd6864140e0895af3a4fb39ff2%40group.calendar.google.com&ctz=Asia%2FSeoul" target="_blank" class="btn-ghost" style="font-size:12px;text-decoration:none;flex-shrink:0">↗ 새 탭에서 열기</a>
-        </div>
-        <iframe
-          src="https://calendar.google.com/calendar/embed?src=c_0f35587c0cd11a3dc5422954dbe863ea04e2dddd6864140e0895af3a4fb39ff2%40group.calendar.google.com&ctz=Asia%2FSeoul"
-          style="width:100%;height:700px;border:none;display:block"
-          frameborder="0" scrolling="no">
-        </iframe>
-      </div>
     </div>
 
   </div><!-- /pages -->
@@ -5495,14 +5480,33 @@ function tdTodoListHTML(memberId, type, todos){
 function tdMissionsHTML(memberId, missions, color){
   if(!missions.length) return `<div style="text-align:center;padding:12px;color:var(--muted);font-size:12px">핵심과제를 추가하세요</div>`;
   const priStyle = {high:{bg:'#FFF0F3',color:'#C0152E',label:'긴급'},mid:{bg:'#FEF3C7',color:'#92400E',label:'중요'},low:{bg:'#D1FAE5',color:'#065F46',label:'일반'}};
+  const stStyle = {
+    todo:   {bg:'var(--bg)',   border:'var(--border)',  color:'var(--muted)', label:'대기'},
+    inprog: {bg:'#FEF9C3',    border:'#FDE047',        color:'#854D0E',      label:'진행중'},
+    done:   {bg:'#DCFCE7',    border:'#4ADE80',        color:'#166534',      label:'완료'},
+  };
   return missions.map((m,i)=>{
     const ps = priStyle[m.priority||'mid'];
-    return `<div class="td-mission-item">
-      <span class="td-mission-badge" style="background:${ps.bg};color:${ps.color}">${ps.label}</span>
-      <span style="font-size:13px;flex:1">${esc(m.text)}</span>
+    const st = stStyle[m.status||'todo'];
+    return `<div class="td-mission-item" style="${m.status==='done'?'opacity:.6':''}">
+      <span class="td-mission-badge" style="background:${ps.bg};color:${ps.color};flex-shrink:0">${ps.label}</span>
+      <span style="font-size:13px;flex:1;${m.status==='done'?'text-decoration:line-through':''}">${esc(m.text)}</span>
+      <button onclick="tdCycleMissionStatus('${memberId}',${i})"
+        style="font-size:10px;font-weight:700;padding:2px 9px;border-radius:8px;border:1px solid ${st.border};background:${st.bg};color:${st.color};cursor:pointer;white-space:nowrap;flex-shrink:0">
+        ${st.label}
+      </button>
       <button class="td-todo-del" onclick="tdDeleteMission('${memberId}',${i})">✕</button>
     </div>`;
   }).join('');
+}
+
+function tdCycleMissionStatus(memberId, idx){
+  const missions = tdGetMissions(memberId);
+  if(!missions[idx]) return;
+  const cycle = {todo:'inprog', inprog:'done', done:'todo'};
+  missions[idx].status = cycle[missions[idx].status||'todo'];
+  tdSaveMissions(memberId, missions);
+  renderTeamMember(memberId);
 }
 
 function tdAddTodo(memberId, type){
