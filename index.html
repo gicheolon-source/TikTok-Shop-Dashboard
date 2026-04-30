@@ -195,6 +195,11 @@ textarea.form-input{resize:vertical}
 .td-todo-item{display:flex;align-items:flex-start;gap:10px;padding:9px 12px;border-radius:8px;background:#fff;border:1px solid var(--border);margin-bottom:6px;transition:all .15s}
 .td-todo-item.done{opacity:.5;background:var(--bg)}
 .td-todo-item.done .td-todo-text{text-decoration:line-through;color:var(--muted)}
+.td-todo-item.td-dragging{opacity:.35;border:2px dashed var(--pink)!important;background:#FFF0F3}
+.td-todo-item.td-drag-over{border-top:2px solid var(--pink);margin-top:-2px}
+.td-drag-handle{color:var(--muted);cursor:grab;font-size:13px;flex-shrink:0;user-select:none;line-height:1;padding-top:2px;opacity:.5}
+.td-drag-handle:hover{opacity:1;color:var(--pink)}
+.td-drag-handle:active{cursor:grabbing}
 .td-todo-check{width:18px;height:18px;border-radius:50%;border:2px solid var(--border);cursor:pointer;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:all .15s}
 .td-todo-check.checked{background:var(--green);border-color:var(--green)}
 .td-todo-text{font-size:13px;flex:1;word-break:break-word}
@@ -3791,10 +3796,11 @@ function rdSave() {
     });
     const slimData = Object.values(aggMap);
     const freeData = Object.values(freeAggMap);
-    // IndexedDB에 저장 (용량 제한 없음) + localStorage 백업
+    // localStorage + Firebase 동기화 (lsSet), IndexedDB 백업 (DB.set)
+    lsSet('rd_slim', slimData);
+    lsSet('rd_free', freeData);
     DB.set('rd_slim', slimData);
     DB.set('rd_free', freeData);
-    try { localStorage.removeItem('rd_free'); localStorage.setItem('rd_slim', JSON.stringify(slimData)); } catch(e2) {}
     rdUpdateBadge();
     if (localStorage.getItem('rd_sync_url') && localStorage.getItem('rd_auto_sync') === 'on') {
       rdSyncToSheet();
@@ -3806,14 +3812,10 @@ function rdSave() {
 
 function renderRevDash() {
   if (!rdRaw.length) {
-    try {
-      const s = localStorage.getItem('rd_slim');
-      const f = localStorage.getItem('rd_free');
-      if (s) rdRaw = JSON.parse(s);
-      if (f) rdFreeSamples = JSON.parse(f);
-    } catch(e) {
-      console.error('데이터 복원 실패:', e);
-    }
+    const slim = lsGet('rd_slim');
+    const free = lsGet('rd_free');
+    if (slim && slim.length) rdRaw = slim;
+    if (free && free.length) rdFreeSamples = free;
   }
   rdUpdateBadge();
   if (rdRaw.length) rdShow();
@@ -5697,10 +5699,44 @@ function renderTeamMember(id){
   </div>`;
 }
 
+let _tdDragSrc = null;
+function tdDragStart(e, memberId, type, idx){
+  _tdDragSrc = {memberId, type, idx};
+  e.dataTransfer.effectAllowed = 'move';
+  setTimeout(()=>{ const el=document.getElementById('td-item-'+memberId+'-'+type+'-'+idx); if(el) el.classList.add('td-dragging'); },0);
+}
+function tdDragEnd(e, memberId, type, idx){
+  const el=document.getElementById('td-item-'+memberId+'-'+type+'-'+idx); if(el) el.classList.remove('td-dragging');
+  document.querySelectorAll('.td-todo-item').forEach(el=>el.classList.remove('td-drag-over'));
+}
+function tdDragOver(e, memberId, type, idx){
+  e.preventDefault(); e.dataTransfer.dropEffect='move';
+  document.querySelectorAll('.td-todo-item').forEach(el=>el.classList.remove('td-drag-over'));
+  const el=document.getElementById('td-item-'+memberId+'-'+type+'-'+idx); if(el) el.classList.add('td-drag-over');
+}
+function tdDrop(e, memberId, type, idx){
+  e.preventDefault();
+  document.querySelectorAll('.td-todo-item').forEach(el=>el.classList.remove('td-drag-over'));
+  if(!_tdDragSrc || _tdDragSrc.memberId!==memberId || _tdDragSrc.type!==type || _tdDragSrc.idx===idx) { _tdDragSrc=null; return; }
+  const todos = tdGetTodos(memberId, type);
+  const [moved] = todos.splice(_tdDragSrc.idx, 1);
+  todos.splice(idx, 0, moved);
+  tdSaveTodos(memberId, type, todos);
+  const listEl = document.getElementById('td-'+type+'-list-'+memberId);
+  if(listEl) listEl.innerHTML = tdTodoListHTML(memberId, type, todos);
+  _tdDragSrc = null;
+}
+
 function tdTodoListHTML(memberId, type, todos){
   if(!todos.length) return `<div style="text-align:center;padding:16px;color:var(--muted);font-size:12px">할 일을 추가하세요</div>`;
   return todos.map((t,i)=>`
-    <div class="td-todo-item${t.done?' done':''}" id="td-item-${memberId}-${type}-${i}">
+    <div class="td-todo-item${t.done?' done':''}" id="td-item-${memberId}-${type}-${i}"
+      draggable="true"
+      ondragstart="tdDragStart(event,'${memberId}','${type}',${i})"
+      ondragend="tdDragEnd(event,'${memberId}','${type}',${i})"
+      ondragover="tdDragOver(event,'${memberId}','${type}',${i})"
+      ondrop="tdDrop(event,'${memberId}','${type}',${i})">
+      <span class="td-drag-handle" title="드래그해서 순서 변경">⠿</span>
       <div class="td-todo-check${t.done?' checked':''}" onclick="tdToggle('${memberId}','${type}',${i})">
         ${t.done?'<svg width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg>':''}
       </div>
@@ -7050,35 +7086,45 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   } catch(e) {}
 
-  // 대용량 데이터 복원 (IndexedDB 우선, localStorage 백업)
+  // 데이터 복원 (lsGet 우선 → IndexedDB 폴백)
   try {
     // 매출 대시보드
-    const rdSlim = await DB.get('rd_slim');
-    const rdFree = await DB.get('rd_free');
-    if (rdSlim && rdSlim.length) {
-      rdRaw = rdSlim;
+    const lsSlim = lsGet('rd_slim');
+    const lsFree = lsGet('rd_free');
+    if (lsSlim && lsSlim.length) {
+      rdRaw = lsSlim;
+      rdFreeSamples = lsFree && lsFree.length ? lsFree : [];
     } else {
-      const s = localStorage.getItem('rd_slim');
-      if (s) rdRaw = JSON.parse(s);
-    }
-    if (rdFree && rdFree.length) {
-      rdFreeSamples = rdFree;
-    } else {
-      const f = localStorage.getItem('rd_free');
-      if (f) rdFreeSamples = JSON.parse(f);
+      const rdSlim = await DB.get('rd_slim');
+      const rdFree = await DB.get('rd_free');
+      if (rdSlim && rdSlim.length) { rdRaw = rdSlim; lsSet('rd_slim', rdSlim); }
+      if (rdFree && rdFree.length) { rdFreeSamples = rdFree; lsSet('rd_free', rdFree); }
     }
     // Affiliate 크리에이터 데이터
-    const alLoaded = await DB.get('al_data');
-    if (alLoaded && alLoaded.length) {
-      alData = alLoaded;
-      alFiltered = [...alLoaded];
+    const lsAl = lsGet('al_data');
+    if (lsAl && lsAl.length) {
+      alData = lsAl; alFiltered = [...lsAl];
+    } else {
+      const alLoaded = await DB.get('al_data');
+      if (alLoaded && alLoaded.length) {
+        alData = alLoaded; alFiltered = [...alLoaded];
+        lsSet('al_data', alLoaded);
+      }
+    }
+    // Affiliate Videos 데이터
+    const lsAv = lsGet('av_data');
+    if (lsAv && lsAv.length) {
+      avRaw = lsAv;
+    } else {
+      const avLoaded = await DB.get('av_data');
+      if (avLoaded && avLoaded.length) {
+        avRaw = avLoaded;
+        lsSet('av_data', avLoaded);
+      }
     }
   } catch(e) {
-    // IndexedDB 실패 시 localStorage 폴백
-    try {
-      const s = localStorage.getItem('rd_slim');
-      if (s) rdRaw = JSON.parse(s);
-    } catch(e2) {}
+    // 최후 폴백
+    const s = lsGet('rd_slim'); if (s && s.length) rdRaw = s;
   }
 
   renderSection('overview');
@@ -7160,12 +7206,8 @@ function avHandleCsv(input) {
         transcript:(r[17]||'').trim(),
       })).filter(r => r.creator);
       avRaw = data;
-      // Save slim version to localStorage
-      DB.set('av_data', data); // IndexedDB에 저장
-      try {
-        const slim = data.map(r => [r.creator, r.rev, r.sold, r.views, r.likes, r.date, r.product, r.url].join('|'));
-        localStorage.setItem('av_slim', slim.join('\n'));
-      } catch(e) { /* quota — IndexedDB로 이미 저장됨 */ }
+      lsSet('av_data', data);  // localStorage + Firebase 동기화
+      DB.set('av_data', data); // IndexedDB 백업
       status.textContent = `✅ ${data.length.toLocaleString()}개 영상 로드 완료`;
       avPage = 1;
       avRenderSection();
@@ -7177,23 +7219,20 @@ function avHandleCsv(input) {
 }
 
 function avLoadCache() {
-  DB.get('av_data').then(data => {
-    if (data && data.length) {
-      avRaw = data;
-      avRenderSection();
-      return;
-    }
-    // IndexedDB에 없으면 localStorage 폴백
-    try {
-      const raw = localStorage.getItem('av_slim');
-      if (!raw) return;
-      avRaw = raw.split('\n').filter(Boolean).map(line => {
-        const p = line.split('|');
-        return { creator:p[0], rev:+p[1], sold:+p[2], views:+p[3], likes:+p[4], date:p[5], product:p[6], url:p[7]||'', gmv30:0, comments:0, pid:'' };
-      });
-      if (avRaw.length) avRenderSection();
-    } catch(e) {}
-  });
+  // 1순위: lsGet (localStorage / Firebase 동기화됨)
+  if (!avRaw.length) {
+    const cached = lsGet('av_data');
+    if (cached && cached.length) { avRaw = cached; return; }
+  }
+  // 2순위: IndexedDB (비동기)
+  if (!avRaw.length) {
+    DB.get('av_data').then(data => {
+      if (data && data.length) {
+        avRaw = data;
+        lsSet('av_data', data); // 다음 로드부터 lsGet에서 바로 읽히도록
+      }
+    }).catch(() => {});
+  }
 }
 
 function avRenderSection() {
