@@ -205,6 +205,7 @@ textarea.form-input{resize:vertical}
 .td-todo-text{font-size:13px;flex:1;word-break:break-word}
 .td-todo-del{background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:0 2px;line-height:1;flex-shrink:0}
 .td-todo-del:hover{color:var(--pink)}
+.td-todo-edit-input{flex:1;border:none;border-bottom:2px solid var(--pink);background:transparent;color:var(--text);font-size:13px;outline:none;padding:0 2px;word-break:break-word;min-width:0}
 .td-add-row{display:flex;gap:6px;margin-top:6px}
 .td-add-input{flex:1;border:1px dashed var(--border);border-radius:8px;padding:8px 12px;font-size:12px;outline:none;background:var(--bg);color:var(--text)}
 .td-add-input:focus{border-color:var(--pink);background:#fff}
@@ -5418,35 +5419,25 @@ function initTeam(){
 }
 
 function tdSeedWjyMissions(){
-  const existing = lsGet('td_wjy_missions');
-  if(existing && existing.length > 0) return;
+  if(localStorage.getItem('td_wjy_missions_ver') === 'v2') return;
+  localStorage.removeItem('td_wjy_missions');
+  localStorage.setItem('td_wjy_missions_ver', 'v2');
   const seed = [
-    {id:'w1',  text:'[1차 수습] 틱톡샵 신규 상품 리스팅 업로드', priority:'high'},
-    {id:'w2',  text:'이커머스 상품 리스팅 기본 구성 파악 ✅', priority:'low'},
-    {id:'w3',  text:'TikTok Shop Seller Center 신규 리스팅 업로드 ✅', priority:'low'},
-    {id:'w4',  text:'기존 리스팅 분석 → 최적화 리스팅 작성 ✅', priority:'low'},
-    {id:'w5',  text:'[1차 수습] 틱톡샵 샘플 시딩 진행', priority:'high'},
-    {id:'w6',  text:'샘플 시딩 운영 방식 파악 (요청/발송/팔로우업) ✅', priority:'low'},
-    {id:'w7',  text:'샘플 시딩 운영 및 크리에이터 콘텐츠 팔로우업 ✅', priority:'low'},
-    {id:'w8',  text:'[1차 수습] 틱톡샵 상품 이미지/영상 제작', priority:'high'},
-    {id:'w9',  text:'상품 이미지 최적화 (고해상도·A/B 테스트) ✅', priority:'low'},
-    {id:'w10', text:'상품 영상 촬영·편집·업로드 (1080×1920 세로형) ✅', priority:'low'},
-    {id:'w11', text:'[1차 수습] 신규 상품 리스팅 기획 (Ceramide / Retino-Mela)', priority:'high'},
-    {id:'w12', text:'경쟁사 리스팅 분석 및 가격·마진 분석 ✅', priority:'low'},
-    {id:'w13', text:'상품명·설명·이미지·영상 기획 ✅', priority:'low'},
-    {id:'w14', text:'[1차 수습] 틱톡샵 상품 프로모션 운영', priority:'high'},
-    {id:'w15', text:'Flash Sale / Discount / Bundle 프로모션 운영 방식 파악 ✅', priority:'low'},
-    {id:'w16', text:'틱톡샵 프로모션 및 Offer Voucher 실습 ✅', priority:'low'},
-    {id:'w17', text:'[1차 수습] 닥터리쥬올 TikTok 계정 운영 및 컨텐츠 제작', priority:'high'},
-    {id:'w18', text:'TikTok 계정 도달률·인게이지먼트·조회수 분석 ✅', priority:'low'},
-    {id:'w19', text:'TikTok 컨텐츠 기획 (소재 리서치·스크립트) ✅', priority:'low'},
-    {id:'w20', text:'TikTok 영상 제작 및 업로드 (주 1편) ✅', priority:'low'},
-    {id:'w21', text:'[1차 수습] 인스타그램 계정 운영', priority:'mid'},
-    {id:'w22', text:'인스타그램 도달률·인게이지먼트 분석 및 개선 방향 파악 ✅', priority:'low'},
-    {id:'w23', text:'인스타그램 컨텐츠 기획·제작·업로드 ✅', priority:'low'},
-    {id:'w24', text:'[1차 수습] 인스타그램 Paid 마케팅 집행 (Meta Ads)', priority:'mid'},
-    {id:'w25', text:'Meta Ads 광고 세팅 및 집행 방법 파악 ✅', priority:'low'},
-    {id:'w26', text:'인스타그램 광고 집행 및 성과 분석 ✅', priority:'low'},
+    {id:'w1',  text:'영국 틱톡샵 CS Respond Rate 90% 이상 유지', priority:'high', status:'todo'},
+    {id:'w2',  text:'기존 US 틱톡샵 FAQ 분석 및 해당 데이터 기반 초기 CS 템플릿 세팅', priority:'high', status:'todo'},
+    {id:'w3',  text:'타 국가 및 플랫폼 기반 제품 FAQ 분석 및 TikTok Shop CS 가이드 구체화', priority:'mid', status:'todo'},
+    {id:'w4',  text:'영국 틱톡샵 5월 매출 2천만원 달성', priority:'high', status:'todo'},
+    {id:'w5',  text:'TikTok Shop Launching Event 진행', priority:'high', status:'todo'},
+    {id:'w6',  text:'[GMV Max] TikTok Shop US 및 기존 유/무가 시딩 콘텐츠 기반 1차 광고 소스 확보', priority:'mid', status:'todo'},
+    {id:'w7',  text:'[Affiliate] TikTok KR 및 AM을 통한 상위 어필리에이트 리스트 확보 및 Target 인비 발송', priority:'mid', status:'todo'},
+    {id:'w8',  text:'[Affiliate] 기존 UK 시딩 인원 메일 발송 및 온드 계정 Affiliate Recruiting Content 포스팅을 통한 Open Collab 크리에이터 확보', priority:'mid', status:'todo'},
+    {id:'w9',  text:'Weekly Deal 및 6월 major 행사 준비', priority:'mid', status:'todo'},
+    {id:'w10', text:'플랫폼 및 affiliate 커미션 기반 최적의 promotion 가격 설정 및 재고 확보', priority:'mid', status:'todo'},
+    {id:'w11', text:'행사 기간 Affiliate GMV 확보를 위한 Challenge 진행', priority:'mid', status:'todo'},
+    {id:'w12', text:'Weekly Deal 및 Summer Sale 관련 온드 계정 티징 콘텐츠 기획', priority:'low', status:'todo'},
+    {id:'w13', text:'Affiliate 콘텐츠 (광고 콘텐츠 포함) 500개 이상 확보', priority:'high', status:'todo'},
+    {id:'w14', text:'Discord UK 커뮤니티 활성화', priority:'mid', status:'todo'},
+    {id:'w15', text:'VIP 어필리에이트 관리', priority:'mid', status:'todo'},
   ];
   lsSet('td_wjy_missions', seed);
 }
@@ -5727,6 +5718,33 @@ function tdDrop(e, memberId, type, idx){
   _tdDragSrc = null;
 }
 
+function tdStartEdit(memberId, type, idx){
+  const itemEl = document.getElementById('td-item-'+memberId+'-'+type+'-'+idx);
+  if(!itemEl) return;
+  const textEl = itemEl.querySelector('.td-todo-text');
+  if(!textEl || itemEl.querySelector('.td-todo-edit-input')) return;
+  const current = textEl.textContent;
+  const input = document.createElement('input');
+  input.className = 'td-todo-edit-input';
+  input.value = current;
+  input.setAttribute('draggable','false');
+  input.onclick = e => e.stopPropagation();
+  input.ondragstart = e => e.stopPropagation();
+  const save = () => {
+    const val = input.value.trim();
+    if(val && val !== current){
+      const todos = tdGetTodos(memberId, type);
+      if(todos[idx]) { todos[idx].text = val; tdSaveTodos(memberId, type, todos); }
+    }
+    const listEl = document.getElementById('td-'+type+'-list-'+memberId);
+    if(listEl) listEl.innerHTML = tdTodoListHTML(memberId, type, tdGetTodos(memberId, type));
+  };
+  input.onblur = save;
+  input.onkeydown = e => { if(e.key==='Enter'){ e.preventDefault(); input.blur(); } if(e.key==='Escape'){ input.value=current; input.blur(); } };
+  textEl.replaceWith(input);
+  input.focus(); input.select();
+}
+
 function tdTodoListHTML(memberId, type, todos){
   if(!todos.length) return `<div style="text-align:center;padding:16px;color:var(--muted);font-size:12px">할 일을 추가하세요</div>`;
   return todos.map((t,i)=>`
@@ -5740,10 +5758,42 @@ function tdTodoListHTML(memberId, type, todos){
       <div class="td-todo-check${t.done?' checked':''}" onclick="tdToggle('${memberId}','${type}',${i})">
         ${t.done?'<svg width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg>':''}
       </div>
-      <span class="td-todo-text">${esc(t.text)}</span>
+      <span class="td-todo-text" ondblclick="tdStartEdit('${memberId}','${type}',${i})" title="더블클릭해서 수정">${esc(t.text)}</span>
       ${t.priority?`<span class="b" style="font-size:9px;flex-shrink:0">${t.priority==='high'?'🔴':t.priority==='mid'?'🟡':'🟢'}</span>`:''}
       <button class="td-todo-del" onclick="tdDelete('${memberId}','${type}',${i})">✕</button>
     </div>`).join('');
+}
+
+function tdStartMissionEdit(memberId, idx){
+  const itemEl = document.getElementById('td-mission-'+memberId+'-'+idx);
+  if(!itemEl) return;
+  const textEl = itemEl.querySelector('.td-mission-text');
+  if(!textEl || itemEl.querySelector('.td-todo-edit-input')) return;
+  const current = textEl.textContent;
+  const input = document.createElement('input');
+  input.className = 'td-todo-edit-input';
+  input.value = current;
+  const save = () => {
+    const val = input.value.trim();
+    if(val && val !== current){
+      const missions = tdGetMissions(memberId);
+      if(missions[idx]) { missions[idx].text = val; tdSaveMissions(memberId, missions); }
+    }
+    renderTeamMember(memberId);
+  };
+  input.onblur = save;
+  input.onkeydown = e => { if(e.key==='Enter'){ e.preventDefault(); input.blur(); } if(e.key==='Escape'){ input.value=current; input.blur(); } };
+  textEl.replaceWith(input);
+  input.focus(); input.select();
+}
+
+function tdCycleMissionPriority(memberId, idx){
+  const missions = tdGetMissions(memberId);
+  if(!missions[idx]) return;
+  const cycle = {high:'mid', mid:'low', low:'high'};
+  missions[idx].priority = cycle[missions[idx].priority||'mid'];
+  tdSaveMissions(memberId, missions);
+  renderTeamMember(memberId);
 }
 
 function tdMissionsHTML(memberId, missions, color){
@@ -5757,9 +5807,11 @@ function tdMissionsHTML(memberId, missions, color){
   return missions.map((m,i)=>{
     const ps = priStyle[m.priority||'mid'];
     const st = stStyle[m.status||'todo'];
-    return `<div class="td-mission-item" style="${m.status==='done'?'opacity:.6':''}">
-      <span class="td-mission-badge" style="background:${ps.bg};color:${ps.color};flex-shrink:0">${ps.label}</span>
-      <span style="font-size:13px;flex:1;${m.status==='done'?'text-decoration:line-through':''}">${esc(m.text)}</span>
+    return `<div class="td-mission-item" id="td-mission-${memberId}-${i}" style="${m.status==='done'?'opacity:.6':''}">
+      <span class="td-mission-badge" title="클릭해서 우선순위 변경" onclick="tdCycleMissionPriority('${memberId}',${i})"
+        style="background:${ps.bg};color:${ps.color};flex-shrink:0;cursor:pointer;user-select:none">${ps.label}</span>
+      <span class="td-mission-text" ondblclick="tdStartMissionEdit('${memberId}',${i})" title="더블클릭해서 수정"
+        style="font-size:13px;flex:1;cursor:text;${m.status==='done'?'text-decoration:line-through':''}">${esc(m.text)}</span>
       <button onclick="tdCycleMissionStatus('${memberId}',${i})"
         style="font-size:10px;font-weight:700;padding:2px 9px;border-radius:8px;border:1px solid ${st.border};background:${st.bg};color:${st.color};cursor:pointer;white-space:nowrap;flex-shrink:0">
         ${st.label}
