@@ -5525,6 +5525,47 @@ function renderTeamMember(id){
   const pct = monthlyTarget ? Math.min(100, +(monthlyActual/monthlyTarget*100).toFixed(1)) : 0;
   const fillColor = pct>=100?'#10B981':pct>=70?'#F59E0B':'#FE2C55';
 
+  // 온기철(okc) — US + UK 둘 다 표시
+  const hasBoth = id === 'okc';
+  const ukTarget = meta.monthlyTargetUK || 0;
+  const ukActual = meta.monthlyActualUK || 0;
+  const ukPct    = ukTarget ? Math.min(100, +(ukActual/ukTarget*100).toFixed(1)) : 0;
+  const ukFill   = ukPct>=100?'#10B981':ukPct>=70?'#F59E0B':'#FE2C55';
+  const mkCard = (sym,rate,flag,lbl,tgt,act,p,fc,mkT,mkA) => {
+    const fmt = v => sym==='$'?'$'+v.toLocaleString():'£'+v.toLocaleString();
+    const bg  = sym==='£'?'linear-gradient(135deg,#012169,#C8102E)':'linear-gradient(135deg,#002868,#BF0A30)';
+    return '<div class="card td-section" style="overflow:hidden">'
+      +'<div style="position:relative;border-radius:12px;overflow:hidden;margin:-16px -16px 14px;padding:16px 14px 12px;background:'+bg+'">'
+      +'<div style="position:absolute;top:50%;right:12px;transform:translateY(-50%);font-size:'+(hasBoth?36:52)+'px;opacity:.3;line-height:1">'+flag+'</div>'
+      +'<div style="font-size:10px;font-weight:700;color:rgba(255,255,255,.7);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px">이번 달 '+lbl+'</div>'
+      +'<div style="font-size:'+(hasBoth?18:22)+'px;font-weight:900;color:#fff">'+(act?fmt(act):sym+'0')+'</div>'
+      +'<div style="font-size:10px;color:rgba(255,255,255,.6);margin-top:2px">'+(act?'≈ ₩'+Math.round(act*rate).toLocaleString():'₩0')+'</div>'
+      +'</div>'
+      +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px">'
+      +'<div><label style="font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;display:block;margin-bottom:3px">목표 ('+sym+')</label>'
+      +'<input class="form-input" type="number" value="'+(tgt||'')+'" placeholder="0" onchange="tdSaveMeta(\''+id+'\',{...tdGetMeta(\''+id+'\'),'+mkT+':parseFloat(this.value)||0});renderTeamMember(\''+id+'\')"></div>'
+      +'<div><label style="font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;display:block;margin-bottom:3px">현재 ('+sym+')</label>'
+      +'<input class="form-input" type="number" value="'+(act||'')+'" placeholder="0" onchange="tdSaveMeta(\''+id+'\',{...tdGetMeta(\''+id+'\'),'+mkA+':parseFloat(this.value)||0});renderTeamMember(\''+id+'\')"></div>'
+      +'</div>'
+      +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">'
+      +'<div style="background:var(--bg);border-radius:8px;padding:6px 8px;border:1px solid var(--border)"><div style="font-size:9px;color:var(--muted);font-weight:700;margin-bottom:2px">목표 (₩)</div>'
+      +'<div style="font-size:12px;font-weight:700;color:var(--fg)">'+(tgt?'₩'+Math.round(tgt*rate).toLocaleString():'₩0')+'</div></div>'
+      +'<div style="background:var(--bg);border-radius:8px;padding:6px 8px;border:1px solid var(--border)"><div style="font-size:9px;color:var(--muted);font-weight:700;margin-bottom:2px">누적 (₩)</div>'
+      +'<div style="font-size:12px;font-weight:700;color:'+fc+'">'+(act?'₩'+Math.round(act*rate).toLocaleString():'₩0')+'</div></div>'
+      +'</div>'
+      +'<div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span style="color:var(--muted)">달성률</span><span class="fw7" style="color:'+fc+'">'+p+'%</span></div>'
+      +'<div class="td-progress-bar"><div class="td-progress-fill" style="width:'+p+'%;background:'+fc+'"></div></div>'
+      +'<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:4px">'
+      +'<span>현재 '+(act?fmt(act):sym+'0')+'</span><span>목표 '+(tgt?fmt(tgt):'미설정')+'</span></div>'
+      +'</div>';
+  };
+  const salesHTML = hasBoth
+    ? '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'
+      +mkCard('$',1400,'🇺🇸','미국 틱톡샵 매출 목표',monthlyTarget,monthlyActual,pct,fillColor,'monthlyTarget','monthlyActual')
+      +mkCard('£',1900,'🇬🇧','영국 틱톡샵 매출 목표',ukTarget,ukActual,ukPct,ukFill,'monthlyTargetUK','monthlyActualUK')
+      +'</div>'
+    : mkCard(currSym,currRate,currFlag,currLabel,monthlyTarget,monthlyActual,pct,fillColor,'monthlyTarget','monthlyActual');
+
   const missions = tdGetMissions(id);
   const daily   = tdGetTodos(id,'daily');
   const monthly = tdGetTodos(id,'monthly');
@@ -5570,49 +5611,7 @@ function renderTeamMember(id){
     <!-- LEFT COLUMN -->
     <div>
       <!-- 이번 달 매출 목표 -->
-      <div class="card td-section" style="overflow:hidden">
-        <!-- 국기 배경 -->
-        <div style="position:relative;border-radius:12px;overflow:hidden;margin:-16px -16px 14px;padding:18px 16px 14px;background:${isUK?'linear-gradient(135deg,#012169,#C8102E)':'linear-gradient(135deg,#002868,#BF0A30)'}">
-          <div style="position:absolute;top:50%;right:14px;transform:translateY(-50%);font-size:52px;opacity:.35;line-height:1">${currFlag}</div>
-          <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.7);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">이번 달 ${currLabel}</div>
-          <div style="font-size:22px;font-weight:900;color:#fff">${monthlyActual ? fmtCurr(monthlyActual) : currSym+'0'}</div>
-          <div style="font-size:11px;color:rgba(255,255,255,.6);margin-top:2px">${monthlyActual ? fmtKRW(monthlyActual) : '₩0'}</div>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px">
-          <div>
-            <label style="font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;display:block;margin-bottom:3px">목표 (${currSym})</label>
-            <input class="form-input" type="number" value="${monthlyTarget||''}" placeholder="0" id="td-target-${id}"
-              onchange="tdSaveMeta('${id}',{...tdGetMeta('${id}'),monthlyTarget:parseFloat(this.value)||0});renderTeamMember('${id}')">
-          </div>
-          <div>
-            <label style="font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;display:block;margin-bottom:3px">현재 누적 (${currSym})</label>
-            <input class="form-input" type="number" value="${monthlyActual||''}" placeholder="0" id="td-actual-${id}"
-              onchange="tdSaveMeta('${id}',{...tdGetMeta('${id}'),monthlyActual:parseFloat(this.value)||0});renderTeamMember('${id}')">
-          </div>
-        </div>
-        <!-- 원화 환산 -->
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
-          <div style="background:var(--bg);border-radius:8px;padding:6px 10px;border:1px solid var(--border)">
-            <div style="font-size:9px;color:var(--muted);font-weight:700;margin-bottom:2px">목표 (₩)</div>
-            <div style="font-size:13px;font-weight:700;color:var(--fg)">${monthlyTarget ? '₩'+(monthlyTarget*currRate).toLocaleString() : '₩0'}</div>
-          </div>
-          <div style="background:var(--bg);border-radius:8px;padding:6px 10px;border:1px solid var(--border)">
-            <div style="font-size:9px;color:var(--muted);font-weight:700;margin-bottom:2px">현재 누적 (₩)</div>
-            <div style="font-size:13px;font-weight:700;color:${fillColor}">${monthlyActual ? '₩'+(monthlyActual*currRate).toLocaleString() : '₩0'}</div>
-          </div>
-        </div>
-        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
-          <span style="color:var(--muted)">달성률</span>
-          <span class="fw7" style="color:${fillColor}">${pct}%</span>
-        </div>
-        <div class="td-progress-bar">
-          <div class="td-progress-fill" style="width:${pct}%;background:${fillColor}"></div>
-        </div>
-        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:4px">
-          <span>현재 ${monthlyActual?fmtCurr(monthlyActual):currSym+'0'}</span>
-          <span>목표 ${monthlyTarget?fmtCurr(monthlyTarget):'미설정'}</span>
-        </div>
-      </div>
+      ${salesHTML}
 
       <!-- 핵심과제 -->
       <div class="card td-section">
