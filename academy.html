@@ -302,8 +302,286 @@ const COURSES = [
   ]},
 ];
 
-const TOTAL = COURSES.reduce((s,c)=>s+c.articles.length,0);
+// ── Dr.Reju-All Custom Courses ──
+const DR_COURSES = [
+  { id:'drA', emoji:'🌿', cat:'Brand & Product Essentials', color:'#FE2C55', custom:true, articles:[
+    { id:'drA1', title:'Welcome to Dr.Reju-All Affiliate Program', custom:true },
+    { id:'drA2', title:'Our Product Lineup — 6 Hero SKUs', custom:true },
+    { id:'drA3', title:'Key Ingredients & Selling Points per Product', custom:true },
+    { id:'drA4', title:'Commission Structure & How to Earn', custom:true },
+  ]},
+  { id:'drB', emoji:'🎬', cat:'Content Creation Guide', color:'#F97316', custom:true, articles:[
+    { id:'drB1', title:'Hook Strategy for K-Beauty Content', custom:true },
+    { id:'drB2', title:'Before & After Content That Converts', custom:true },
+    { id:'drB3', title:'Ingredient Education Content', custom:true },
+    { id:'drB4', title:'Skincare Routine Video Format', custom:true },
+    { id:'drB5', title:'Content Do\'s & Don\'ts', custom:true },
+  ]},
+  { id:'drC', emoji:'🌍', cat:'US & UK Market Guide', color:'#06B6D4', custom:true, articles:[
+    { id:'drC1', title:'US Market — Consumer Behavior & Trends', custom:true },
+    { id:'drC2', title:'UK Market — Consumer Behavior & Trends', custom:true },
+    { id:'drC3', title:'Seasonal Promotion Strategy', custom:true },
+  ]},
+  { id:'drD', emoji:'🤝', cat:'Affiliate Operations', color:'#10B981', custom:true, articles:[
+    { id:'drD1', title:'How to Request Samples & Start Collaboration', custom:true },
+    { id:'drD2', title:'TikTok Shop Link & Commission Setup', custom:true },
+    { id:'drD3', title:'Joining Affiliate Challenges', custom:true },
+    { id:'drD4', title:'Performance Metrics & Goals', custom:true },
+  ]},
+];
+
+const ALL_COURSES = [...DR_COURSES, ...COURSES];
+
+const DR_CONTENT = {
+  drA1:{
+    heading:'Welcome to Dr.Reju-All Affiliate Program',
+    sections:[
+      {type:'body', text:'Dr.Reju-All is a Korean derma-cosmetic brand rooted in clinical skincare science. Our products are formulated with PDRN (Polydeoxyribonucleotide) — a regenerative ingredient used in medical aesthetics — combined with key K-Beauty actives like Ceramide and Retinol.'},
+      {type:'heading', text:'Why Partner with Us?'},
+      {type:'list', items:['Industry-leading commission rates (up to 20%)', 'Free samples provided to qualified affiliates', 'Dedicated affiliate support team (EUKA platform)', 'Growing brand with strong US & UK TikTok Shop presence', 'Hero products with proven sell-through rates']},
+      {type:'heading', text:'What You Get as an Affiliate'},
+      {type:'list', items:['Product samples for content creation', 'Brand asset kit (logos, banners, product images)', 'Access to Dr.Reju-All affiliate challenges with bonus rewards', 'Personal affiliate link with real-time commission tracking', 'Priority access to new product launches']},
+      {type:'heading', text:'Getting Started'},
+      {type:'body', text:'Complete all lessons in this Academy, then reach out to your Dr.Reju-All affiliate manager to claim your welcome sample kit and activate your commission link.'},
+    ]
+  },
+  drA2:{
+    heading:'Our Product Lineup — 6 Hero SKUs',
+    sections:[
+      {type:'body', text:'Dr.Reju-All currently offers 6 core products on TikTok Shop US & UK. Each product targets a specific skin concern and has a distinct audience profile.'},
+      {type:'heading', text:'🧴 Ceramide Cream'},
+      {type:'list', items:['Best seller — #1 reorder rate (8.6%)', 'Target: dry/sensitive skin, 25–45 age range', 'Key claim: Deep barrier repair with 3 types of Ceramide', 'Price: $38 | Commission: ~$7.60']},
+      {type:'heading', text:'💊 PDRN Cream'},
+      {type:'list', items:['Science-forward positioning — ideal for educated skincare audience', 'Reorder rate: 8.4%', 'Key claim: Salmon PDRN for cellular regeneration & anti-aging', 'Price: $42 | Commission: ~$8.40']},
+      {type:'heading', text:'💋 Lip Serum'},
+      {type:'list', items:['Highest impulse-buy rate — great for short-form content', 'Reorder rate: 7.5%', 'Key claim: Plumping + hydration with Hyaluronic Acid + Ceramide', 'Price: $24 | Commission: ~$4.80']},
+      {type:'heading', text:'⚡ PDRN Max'},
+      {type:'list', items:['Premium tier — targets advanced skincare consumers', 'Reorder rate: 6.4%', 'Key claim: High-concentration PDRN 20ml for intensive regeneration', 'Price: $68 | Commission: ~$13.60']},
+      {type:'heading', text:'✨ Retino-Mela'},
+      {type:'list', items:['Anti-pigmentation hero — works well for before/after content', 'Reorder rate: 6.3%', 'Key claim: Retinol + Niacinamide for brightening & spot correction', 'Price: $44 | Commission: ~$8.80']},
+      {type:'heading', text:'🎭 PDRN Mask'},
+      {type:'list', items:['Great for unboxing & trial content', 'Reorder rate: 5.2%', 'Key claim: Intensive PDRN sheet mask for post-procedure recovery', 'Price: $32 (5-pack) | Commission: ~$6.40']},
+    ]
+  },
+  drA3:{
+    heading:'Key Ingredients & Selling Points per Product',
+    sections:[
+      {type:'heading', text:'What is PDRN?'},
+      {type:'body', text:'PDRN (Polydeoxyribonucleotide) is a regenerative ingredient extracted from salmon DNA and widely used in Korean medical aesthetics (dermal fillers, post-laser recovery). It promotes cellular repair, boosts collagen synthesis, and reduces inflammation.'},
+      {type:'body', text:'In content, you can describe it as: "the same ingredient dermatologists use for skin recovery — now in your skincare routine."'},
+      {type:'heading', text:'Ceramide — The Barrier Booster'},
+      {type:'list', items:['Naturally found in the skin\'s outer layer', 'Depleted by harsh weather, over-cleansing, and aging', 'Restores moisture lock and reduces sensitivity', 'Best hook: "My skin was constantly flaky until I tried this..."']},
+      {type:'heading', text:'Retinol + Niacinamide Combo (Retino-Mela)'},
+      {type:'list', items:['Retinol: speeds up cell turnover, fades dark spots', 'Niacinamide: brightens, minimizes pores, reduces redness', 'Best hook: "3 weeks — look at this difference..." (before/after format)']},
+      {type:'heading', text:'Top Selling Points to Use in Content'},
+      {type:'list', items:['Korean clinical-grade formulation (dermatologist-developed)', 'No parabens, no artificial fragrance', 'Cruelty-free & dermatologically tested', 'Ships from US warehouse (fast delivery for US buyers)', 'TikTok Shop exclusive pricing with affiliate discount']},
+    ]
+  },
+  drA4:{
+    heading:'Commission Structure & How to Earn',
+    sections:[
+      {type:'heading', text:'Commission Tiers'},
+      {type:'list', items:['Standard Affiliate: Up to 15% commission per sale', 'L3 Creator (10K+ followers): Up to 18% commission', 'L4 Creator (100K+ followers): Up to 20% commission + bonus rewards', 'Key Affiliate (Dr.Reju-All Ambassador): 20% + guaranteed sample supply + challenge bonuses']},
+      {type:'heading', text:'How Commission Works on TikTok Shop'},
+      {type:'body', text:'When a viewer clicks your product link in your TikTok video or LIVE and completes a purchase within 7 days (attribution window), you earn the commission % on the product sale price (before shipping/tax).'},
+      {type:'heading', text:'Bonus Opportunities'},
+      {type:'list', items:['Monthly affiliate challenges: bonus cash rewards for top GMV creators', 'Seasonal campaigns: extra 2–5% commission during major sale events (e.g., Black Friday, Summer Sale)', 'Content quality bonus: additional rewards for videos achieving 1M+ views', 'New product launch bonus: first 20 affiliates to post about a new SKU get double commission for 2 weeks']},
+      {type:'heading', text:'Getting Paid'},
+      {type:'body', text:'Commissions are paid through TikTok Shop\'s built-in creator marketplace. Payments are processed bi-weekly directly to your connected bank account or PayPal. Minimum payout threshold: $10.'},
+    ]
+  },
+  drB1:{
+    heading:'Hook Strategy for K-Beauty Content',
+    sections:[
+      {type:'body', text:'The first 1–3 seconds of your video determine whether viewers swipe away or stay. For K-Beauty products, emotional + curiosity-based hooks outperform generic product demos.'},
+      {type:'heading', text:'Hook Formula #1 — The Problem Hook'},
+      {type:'body', text:'"My skin was [specific problem] for [time period] until I found this Korean skincare secret..."'},
+      {type:'list', items:['"My skin was peeling every morning for 3 years until I found this..."', '"I spent $400 on skincare and nothing worked — then I tried a $38 Korean cream..."', '"Dermatologists in Korea use THIS ingredient for post-procedure recovery..."']},
+      {type:'heading', text:'Hook Formula #2 — The Curiosity Hook'},
+      {type:'list', items:['"The K-Beauty ingredient your moisturizer is missing..."', '"Why Korean skincare is different from everything else you\'ve tried..."', '"I was today years old when I learned what PDRN actually does to your skin..."']},
+      {type:'heading', text:'Hook Formula #3 — The Before/After Tease'},
+      {type:'body', text:'Start with the "after" result close-up, then say "Let me show you how I got here in 3 weeks" — this creates anticipation and keeps viewers watching.'},
+      {type:'heading', text:'Platform-Specific Tips'},
+      {type:'list', items:['Keep hooks under 3 seconds for TikTok algorithm boost', 'Use text overlay to reinforce the verbal hook', 'Eye contact with camera in the first second increases watch time', 'Natural lighting shows skin texture best — avoid heavy filters on before/after content']},
+    ]
+  },
+  drB2:{
+    heading:'Before & After Content That Converts',
+    sections:[
+      {type:'body', text:'Before & after content consistently drives the highest conversion rate for skincare on TikTok Shop. Here\'s how to create it effectively for Dr.Reju-All products.'},
+      {type:'heading', text:'Setting Up Your Before Shot'},
+      {type:'list', items:['Shoot in the same lighting for both before and after (natural window light works best)', 'No makeup, clean skin, same angle and distance', 'Show specific concern clearly: texture, dark spots, dryness, fine lines', 'Timestamp your before photo/video (adds credibility)']},
+      {type:'heading', text:'Timeline Recommendations per Product'},
+      {type:'list', items:['Ceramide Cream: visible hydration in 3–5 days, barrier improvement in 2–3 weeks', 'PDRN Cream: plumping effect in 1 week, overall texture improvement in 3–4 weeks', 'Retino-Mela: brightening visible in 2–3 weeks, spot fading in 4–6 weeks', 'Lip Serum: visible plumping within 15 minutes of application (great for immediate reaction content)', 'PDRN Mask: "glass skin" effect visible right after use']},
+      {type:'heading', text:'Best Performing Formats'},
+      {type:'list', items:['Side-by-side split screen (before left, after right)', 'Time-lapse with daily application clips cut together', '"Day 1 vs Day 30" slider reveal', 'Close-up texture comparison with ring light']},
+      {type:'heading', text:'Disclosure Requirements'},
+      {type:'body', text:'Always disclose that you are a paid affiliate. Use "#ad #tiktokmademebuyit #affiliate" in your caption, or verbally state it in your video. TikTok Shop also auto-labels affiliate content — don\'t try to hide it, as transparency actually builds trust.'},
+    ]
+  },
+  drB3:{
+    heading:'Ingredient Education Content',
+    sections:[
+      {type:'body', text:'Education-style content ("skintellectual" content) performs exceptionally well for K-Beauty because the audience actively wants to learn. This format positions you as a trusted expert, not just a promoter.'},
+      {type:'heading', text:'Content Angle: "What is PDRN?"'},
+      {type:'body', text:'Script outline: (1) "You\'ve heard of retinol and hyaluronic acid — but have you heard of PDRN?" (2) Explain in simple terms: "It\'s a regenerative ingredient originally used in medical aesthetics — now in skincare." (3) Show the product: "Dr.Reju-All uses high-concentration PDRN in every formula." (4) CTA: "Link in bio to try it."'},
+      {type:'heading', text:'Content Angle: "Why K-Beauty Is Different"'},
+      {type:'list', items:['Korean skincare focuses on skin barrier first — not instant results', '10-step skincare culture = layering philosophy (lightweight to heavy)', 'Dermatologist-developed formulations tested on Korean skin types', 'Lower fragrance, higher active ingredient concentration vs Western brands']},
+      {type:'heading', text:'Content Angle: "Ingredient Stacking"'},
+      {type:'body', text:'Show how Dr.Reju-All products work together: Ceramide Cream (AM) + PDRN Cream (PM) + Retino-Mela (2–3x/week). This encourages multiple product purchases and higher cart value.'},
+      {type:'heading', text:'Tips for Educational Content'},
+      {type:'list', items:['Keep it under 60 seconds — get to the point fast', 'Use simple language — avoid jargon without explanation', 'On-screen text for key facts (ingredient names, %)', 'Link to product in the first comment for easy access']},
+    ]
+  },
+  drB4:{
+    heading:'Skincare Routine Video Format',
+    sections:[
+      {type:'body', text:'Routine videos are the highest "add to cart" driver on TikTok Shop skincare. Viewers see the product in real-life use and can envision it in their own routine.'},
+      {type:'heading', text:'AM Routine Format (2 min or under)'},
+      {type:'list', items:['Open with your "wake up" shot (no filter, natural skin)', 'Step 1: Gentle cleanser (any brand OK)', 'Step 2: PDRN Cream or Ceramide Cream — apply and explain why', 'Step 3: SPF (any brand)', 'Close with glowing skin result + "Products linked below"']},
+      {type:'heading', text:'PM Routine Format'},
+      {type:'list', items:['Double cleanse (oil cleanser → water cleanser)', 'Retino-Mela (2–3x/week in PM only) — explain the retinol timing', 'PDRN Cream as moisturizer', 'PDRN Mask as weekly intensive treatment', 'Close with "This is the routine that changed my skin in 30 days"']},
+      {type:'heading', text:'Lazy Girl / Minimal Routine Format'},
+      {type:'body', text:'"I only use 2 products and my skin has never looked better." — Show just Ceramide Cream + Lip Serum. This minimalist angle appeals to routine-overwhelmed viewers and is highly shareable.'},
+      {type:'heading', text:'Posting Strategy'},
+      {type:'list', items:['Post AM routine at 6–8am or 7–9pm (peak engagement)', 'Series format: "My 30-day routine journey" — posts Day 1, Day 7, Day 14, Day 30', 'Reply to comments with routine-specific follow-up videos (boosts algorithm)']},
+    ]
+  },
+  drB5:{
+    heading:'Content Do\'s & Don\'ts',
+    sections:[
+      {type:'heading', text:'✅ DO'},
+      {type:'list', items:['Disclose affiliate relationship (#ad or verbally)', 'Show the product physically in your video', 'Make specific, evidence-based claims ("contains 3% PDRN" — not "cures acne")', 'Use natural lighting for skincare content', 'Respond to comments within 24 hours', 'Post consistently (3–5x/week minimum for algorithm growth)', 'Tag Dr.Reju-All official TikTok account in your post', 'Share genuine reactions — authenticity converts better than scripted content']},
+      {type:'heading', text:'❌ DON\'T'},
+      {type:'list', items:['Make medical claims ("treats eczema", "cures rosacea") — this violates TikTok policy', 'Use heavily filtered or FaceTuned before/after photos — misleading', 'Post product photos only — video consistently outperforms static', 'Copy another creator\'s script verbatim — duplicate content is penalized', 'Bash competitor products by name — stay positive and product-focused', 'Ignore negative comments — address them professionally', 'Post and disappear — engage with your audience for 30 min after posting']},
+      {type:'heading', text:'⚠️ Medical Claim Examples to Avoid'},
+      {type:'list', items:['"This cured my..." → Say: "This helped improve my..."', '"Clinically proven to..." (unless you have the actual study) → Say: "Formulated with ingredients studied for..."', '"Dermatologist recommended" → Only use if you have written endorsement']},
+    ]
+  },
+  drC1:{
+    heading:'US Market — Consumer Behavior & Trends',
+    sections:[
+      {type:'body', text:'The US TikTok Shop skincare market is the largest and most competitive. Understanding US consumer behavior helps you tailor your content for maximum conversion.'},
+      {type:'heading', text:'US Buyer Profile'},
+      {type:'list', items:['Age: 25–40 primary buyer (Gen Z + Millennial overlap)', 'Motivated by: results, value for money, ingredient transparency', 'Average skincare spend: $80–150/month', 'K-Beauty awareness: high — actively seeks Korean brands as premium alternatives', 'Decision speed: fast — TikTok Shop impulse buys within 24 hours of discovery']},
+      {type:'heading', text:'What Works in the US Market'},
+      {type:'list', items:['Science-backed claims ("PDRN is used by Korean dermatologists")', 'Price comparison to high-end US brands ("This does what La Mer does — for $38")', 'Fast results emphasis ("I saw results in 3 days")', 'Minimalist routine angle ("Only 2 products, that\'s it")', 'Inclusive skin tone representation in content']},
+      {type:'heading', text:'Peak Selling Periods (US)'},
+      {type:'list', items:['January: New Year skincare resolutions', 'February: Valentine\'s Day gifting', 'May–June: Summer skin prep', 'November: Black Friday / Cyber Monday (biggest month)', 'December: Holiday gifting']},
+      {type:'heading', text:'Hashtags for US Audience'},
+      {type:'list', items:['#KBeauty #KoreanSkincare #SkincareRoutine #TikTokShop #GlassSkin #SkintellectualTikTok #CleanBeauty #HydrationCheck']},
+    ]
+  },
+  drC2:{
+    heading:'UK Market — Consumer Behavior & Trends',
+    sections:[
+      {type:'body', text:'The UK TikTok Shop is newly launched for Dr.Reju-All. The UK beauty consumer has distinct preferences compared to the US — adjust your content accordingly.'},
+      {type:'heading', text:'UK Buyer Profile'},
+      {type:'list', items:['Age: 22–38 primary buyer', 'Motivated by: value for money, sustainability cues, ingredient purity', 'Skeptical of over-hyped claims — prefer understated, authentic content', 'K-Beauty awareness: growing — less saturated than US, which means more opportunity', 'Currency: GBP — price point around £24–£52 for Dr.Reju-All range']},
+      {type:'heading', text:'What Works in the UK Market'},
+      {type:'list', items:['Honest, British-style humor and understatement ("It\'s actually really good, no cap")', 'Sustainability and clean ingredient focus', 'University/student budget-friendly angles ("Get Korean skincare without paying Korean spa prices")', 'Dermatologist or aesthetician creator collabs perform very well', 'Slower-paced, more detailed product reviews vs quick US-style content']},
+      {type:'heading', text:'Key Differences vs US Content'},
+      {type:'list', items:['UK audience prefers longer consideration — plant a seed, don\'t hard sell', 'Cultural references: reference UK-relevant things (British weather, humidity, central heating effects on skin)', 'Avoid Americanisms — use UK English ("moisturiser" not "moisturizer")', 'UK TikTok peaks: 7–9am, 12–1pm, 7–10pm (slightly earlier than US)']},
+      {type:'heading', text:'Peak Selling Periods (UK)'},
+      {type:'list', items:['January: "New Year, New Skin" campaigns', 'March–April: Spring refresh', 'Late May: Early summer prep', 'November: Black Friday (growing in UK)', 'December: Christmas gifting']},
+    ]
+  },
+  drC3:{
+    heading:'Seasonal Promotion Strategy',
+    sections:[
+      {type:'body', text:'Aligning your content with Dr.Reju-All\'s promotional calendar maximizes your earning potential. Higher commissions and bonuses are available during key campaign periods.'},
+      {type:'heading', text:'2026 Campaign Calendar'},
+      {type:'list', items:['May 2026: UK Grand Opening Campaign — boosted commissions for UK-targeted content', 'June 2026: Beauty on TikTok Summer Event — US focus, challenge participation', 'July–August 2026: Summer Skin Series — focus on lightweight hydration, SPF bundling', 'November 2026: Black Friday / Cyber Monday — largest bonus pool of the year', 'December 2026: Holiday Gifting Campaign — bundle content, gift guide format']},
+      {type:'heading', text:'Affiliate Challenge Participation'},
+      {type:'body', text:'Dr.Reju-All runs monthly affiliate challenges. During challenges, top GMV creators earn cash bonuses on top of standard commission. To participate: (1) Check the challenge brief from your affiliate manager, (2) Post qualifying content during the campaign period, (3) Tag the campaign hashtag, (4) GMV is tracked automatically through your affiliate link.'},
+      {type:'heading', text:'Content Calendar Template'},
+      {type:'list', items:['Week 1: Educational content (ingredient focus)', 'Week 2: Routine video (products in use)', 'Week 3: Before/after or transformation content', 'Week 4: Community post (Q&A, comment reply video, or review response)']},
+    ]
+  },
+  drD1:{
+    heading:'How to Request Samples & Start Collaboration',
+    sections:[
+      {type:'body', text:'Getting product samples is the first step to creating authentic content for Dr.Reju-All.'},
+      {type:'heading', text:'Who Qualifies for Samples?'},
+      {type:'list', items:['L2 and above TikTok creators (1K+ followers) with active posting history', 'Creators with skincare/beauty content niche', 'Creators who have completed this Academy (completion = priority status)', 'US & UK based creators (international requests on case-by-case basis)']},
+      {type:'heading', text:'How to Request'},
+      {type:'list', items:['Step 1: Apply through the Dr.Reju-All Affiliate Program on TikTok Shop Creator Marketplace', 'Step 2: Send a collaboration request via the EUKA platform (your affiliate manager will share the link)', 'Step 3: Complete your profile — include your TikTok handle, follower count, and content niche', 'Step 4: Select which products you want to feature (max 2 SKUs per initial request)', 'Step 5: Await approval (typically 2–5 business days)']},
+      {type:'heading', text:'After Receiving Your Sample'},
+      {type:'list', items:['Post your first content within 14 days of receiving the sample', 'Notify your affiliate manager when your post goes live', 'Share your video analytics (views, CTR, add-to-cart rate) after 7 days', 'Consistent performers get additional samples and higher-tier product access']},
+      {type:'heading', text:'Sample Policy'},
+      {type:'body', text:'Samples are provided for content creation purposes only. You are expected to post at minimum 1 video per product received. Creators who receive samples but do not post within 30 days may be removed from the program.'},
+    ]
+  },
+  drD2:{
+    heading:'TikTok Shop Link & Commission Setup',
+    sections:[
+      {type:'body', text:'Setting up your affiliate links correctly ensures you get credited for every sale you drive.'},
+      {type:'heading', text:'Step-by-Step: Adding Dr.Reju-All Products to Your Showcase'},
+      {type:'list', items:['1. Open TikTok App → Profile → Creator Tools → TikTok Shop → Product Showcase', '2. Search "Dr.Reju-All" in the product search', '3. Click "+" to add each product to your showcase', '4. Set your showcase category to "Skincare" or "K-Beauty"', '5. Your affiliate link is now active — it appears automatically when you tag the product in a video']},
+      {type:'heading', text:'Tagging Products in Videos'},
+      {type:'list', items:['When uploading a video, tap "Add Link" → "Product" → Search Dr.Reju-All', 'You can tag up to 20 products per video', 'Tagged products appear as a shopping cart icon in your video', 'LIVE videos: Add product to your LIVE cart before going live']},
+      {type:'heading', text:'Tracking Your Performance'},
+      {type:'list', items:['TikTok Creator Center → Shop → Commission: view real-time sales & commissions', 'Key metrics to monitor: Impressions, Clicks, Add-to-Cart Rate, Conversion Rate, GMV', 'Target conversion rate for Dr.Reju-All products: 2–4% (industry average for skincare)']},
+      {type:'heading', text:'Payout Timeline'},
+      {type:'list', items:['Orders are confirmed after 7-day return window closes', 'Commission calculated on final order value (after returns)', 'Payout processed bi-weekly (every 2 weeks)', 'Direct deposit to bank account or PayPal — minimum $10 threshold']},
+    ]
+  },
+  drD3:{
+    heading:'Joining Affiliate Challenges',
+    sections:[
+      {type:'body', text:'Dr.Reju-All affiliate challenges run monthly and offer significant bonus rewards on top of standard commission.'},
+      {type:'heading', text:'How Challenges Work'},
+      {type:'body', text:'Each challenge has a specific goal (e.g., "Top 10 GMV creators in May get $500 bonus cash"), a campaign hashtag, qualifying content requirements, and a fixed campaign period (usually 2–4 weeks).'},
+      {type:'heading', text:'Current Challenge Structure'},
+      {type:'list', items:['Monthly US Challenge: Top 3 GMV → $500 / $300 / $150 cash bonus', 'Monthly UK Challenge: Top 3 GMV → £300 / £200 / £100 cash bonus', 'Video Views Challenge: First creator to hit 1M views on a Dr.Reju-All tagged video → $200 bonus', 'New Affiliate Welcome Challenge: First video within 14 days of joining → guaranteed $25 welcome bonus']},
+      {type:'heading', text:'How to Qualify'},
+      {type:'list', items:['Post content during the challenge period (dates shared by your affiliate manager)', 'Include the campaign hashtag in your video caption', 'Tag the Dr.Reju-All product in the video', 'Content must comply with TikTok community guidelines', 'No minimum follower count required — all affiliates eligible']},
+      {type:'heading', text:'Tips to Win Challenges'},
+      {type:'list', items:['Post 3–5 videos during the campaign period (more content = more chances for viral hits)', 'Use trending sounds to boost reach during the challenge window', 'Engage with comments aggressively in the first 2 hours after posting', 'Coordinate posting times with peak US or UK TikTok activity (7–9pm local time)']},
+    ]
+  },
+  drD4:{
+    heading:'Performance Metrics & Goals',
+    sections:[
+      {type:'body', text:'Understanding your metrics helps you optimize content and grow your commission income consistently.'},
+      {type:'heading', text:'Key Metrics to Track'},
+      {type:'list', items:['Views: Aim for 10K+ per skincare video as baseline', 'Click-Through Rate (CTR): Industry average 1–3% — Dr.Reju-All target: 3%+', 'Add-to-Cart Rate: 5–10% of clicks = good performance', 'Conversion Rate: 2–4% of clicks = strong (skincare avg)', 'GMV (Gross Merchandise Value): Total sales driven by your content']},
+      {type:'heading', text:'Creator Tier Goals at Dr.Reju-All'},
+      {type:'list', items:['Starter: First $100 GMV → unlock higher sample access', 'Rising: $500+ GMV/month → priority support + challenge eligibility', 'Core: $1,000+ GMV/month → L3 commission tier + exclusive product previews', 'Hero: $3,000+ GMV/month → Ambassador status + 20% commission + monthly bonus pool', 'Elite: $10,000+ GMV/month → Co-branded content opportunity + US/UK market trip invitation']},
+      {type:'heading', text:'Improving Your Conversion Rate'},
+      {type:'list', items:['Always include a clear CTA: "Link in bio" or "Click the product below"', 'Reply to "where can I get this?" comments — it signals buying intent to the algorithm', 'Post your best performing content during peak hours (test your audience analytics)', 'Duet or stitch with high-performing Dr.Reju-All content (inherits some of its momentum)']},
+      {type:'heading', text:'Monthly Self-Review Checklist'},
+      {type:'list', items:['Total videos posted this month: ___', 'Best performing video (views, CTR, conversions): ___', 'Total GMV generated: ___', 'Commission earned: ___', 'Engagement rate trend (up/down vs last month): ___', 'Content types that worked best: ___', 'Next month focus area: ___']},
+    ]
+  },
+};
+
+const TOTAL = ALL_COURSES.reduce((s,c)=>s+c.articles.length,0);
 let currentCourse = null; // null = all view
+
+// ── Custom lesson modal ──
+function openCustomLesson(id, title){
+  const bg = document.getElementById('vmodal-bg');
+  const body = document.getElementById('vmodal-body');
+  const tEl = document.getElementById('vmodal-title');
+  const fb = document.getElementById('vmodal-fallback');
+  const content = DR_CONTENT[id];
+  tEl.textContent = title;
+  fb.href = '#'; fb.style.display = 'none';
+  bg.classList.add('open');
+  if(!content){ body.innerHTML = '<div class="vmodal-loading">No content found.</div>'; return; }
+  let html = '';
+  content.sections.forEach(s => {
+    if(s.type === 'heading') html += `<h3 style="font-size:15px;font-weight:800;color:#f87171;margin:20px 0 8px;letter-spacing:.3px">${s.text}</h3>`;
+    else if(s.type === 'body') html += `<p style="font-size:13px;color:rgba(255,255,255,.78);line-height:1.7;margin-bottom:10px">${s.text}</p>`;
+    else if(s.type === 'list'){
+      html += '<ul style="margin:4px 0 14px 18px">';
+      s.items.forEach(i => { html += `<li style="font-size:13px;color:rgba(255,255,255,.75);line-height:1.65;margin-bottom:6px">${i}</li>`; });
+      html += '</ul>';
+    }
+  });
+  body.innerHTML = html;
+}
 
 // ── Storage ──
 function getDone(){ try{ return JSON.parse(localStorage.getItem('acad_done')||'[]'); }catch(e){ return []; } }
@@ -337,19 +615,23 @@ function openVideo(id, title){
   body.innerHTML = '<div class="vmodal-loading"><span class="vmodal-spinner">⟳</span><br>Loading article content...</div>';
   bg.classList.add('open');
 
-  fetch('/api/article-content?id='+id)
-    .then(r=>r.json())
-    .then(data=>{
+  // Call both APIs in parallel — video-proxy for reliable video, article-content for text+images
+  Promise.all([
+    fetch('/api/article-content?id='+id).then(r=>r.json()).catch(()=>({})),
+    fetch('/api/video-proxy?id='+id).then(r=>r.json()).catch(()=>({}))
+  ]).then(([data, vdata])=>{
       if(data.title) tEl.textContent = data.title;
+      // Prefer video-proxy URL, fallback to article-content URL
+      const videoUrl = vdata.url || data.videoUrl || null;
       let html = '';
 
       // Video player
-      if(data.videoUrl){
+      if(videoUrl){
         html += '<video controls autoplay preload="metadata" style="width:100%;border-radius:12px;background:#000;max-height:400px;margin-bottom:20px">'
-               +'<source src="'+data.videoUrl+'" type="video/mp4">Your browser does not support video.</video>';
+               +'<source src="'+videoUrl+'" type="video/mp4">Your browser does not support video.</video>';
       } else {
         html += '<div style="background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.2);border-radius:10px;padding:14px 16px;margin-bottom:20px;display:flex;align-items:center;gap:10px">'
-               +'<span style="font-size:22px">🎬</span><span style="font-size:13px;color:var(--muted)">No video available for this article. Use the button below to watch on TikTok Academy.</span></div>';
+               +'<span style="font-size:22px">🎬</span><span style="font-size:13px;color:var(--muted)">No video available. Use the button below to watch on TikTok Academy.</span></div>';
       }
 
       // Text sections
@@ -412,15 +694,29 @@ function updateStats(){
 function updateSidebar(){
   const done = getDone();
   const sb = document.getElementById('sidebar-courses');
-  sb.innerHTML = COURSES.map(c=>{
+  let html = '';
+  // Dr.Reju-All courses first
+  html += '<div style="padding:10px 20px 4px;font-size:10px;font-weight:800;color:#f87171;text-transform:uppercase;letter-spacing:1px">🌿 Dr.Reju-All Exclusive</div>';
+  DR_COURSES.forEach(c=>{
     const catDone = c.articles.filter(a=>done.includes(a.id)).length;
     const active  = currentCourse && currentCourse.id === c.id ? 'active' : '';
-    return `<div class="sb-item ${active}" onclick="showCourse('${c.id}',this)">
+    html += `<div class="sb-item ${active}" onclick="showCourse('${c.id}',this)">
       <span>${c.emoji}</span>
       <span style="flex:1;font-size:12px">${c.cat}</span>
       <span class="sb-item-progress" style="${catDone===c.articles.length?'background:rgba(16,185,129,.2);color:#10B981':''}">${catDone}/${c.articles.length}</span>
     </div>`;
-  }).join('');
+  });
+  html += '<div style="padding:10px 20px 4px;margin-top:6px;border-top:1px solid var(--border);font-size:10px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:1px">📚 TikTok Academy</div>';
+  COURSES.forEach(c=>{
+    const catDone = c.articles.filter(a=>done.includes(a.id)).length;
+    const active  = currentCourse && currentCourse.id === c.id ? 'active' : '';
+    html += `<div class="sb-item ${active}" onclick="showCourse('${c.id}',this)">
+      <span>${c.emoji}</span>
+      <span style="flex:1;font-size:12px">${c.cat}</span>
+      <span class="sb-item-progress" style="${catDone===c.articles.length?'background:rgba(16,185,129,.2);color:#10B981':''}">${catDone}/${c.articles.length}</span>
+    </div>`;
+  });
+  sb.innerHTML = html;
 }
 
 // ── Views ──
@@ -431,7 +727,7 @@ function showAll(el){
   renderAll();
 }
 function showCourse(id, el){
-  currentCourse = COURSES.find(c=>c.id===id);
+  currentCourse = ALL_COURSES.find(c=>c.id===id);
   document.querySelectorAll('.sb-item').forEach(x=>x.classList.remove('active'));
   el.classList.add('active');
   updateSidebar();
@@ -441,11 +737,43 @@ function showCourse(id, el){
 function renderAll(){
   const done = getDone();
   const panel = document.getElementById('main-panel');
-  let html = '<div class="all-grid">';
+  let html = '';
+
+  // Dr.Reju-All section
+  html += '<div style="font-size:13px;font-weight:800;color:#f87171;margin-bottom:14px;letter-spacing:.5px">🌿 DR.REJU-ALL EXCLUSIVE COURSES</div>';
+  html += '<div class="all-grid" style="margin-bottom:32px">';
+  DR_COURSES.forEach(c=>{
+    const catDone = c.articles.filter(a=>done.includes(a.id)).length;
+    const catPct  = Math.round(catDone/c.articles.length*100);
+    html += `<div class="mini-card" onclick="showCourse('${c.id}',null)" style="border-color:${c.color}33">
+      <div class="mini-card-head" style="border-color:${c.color}33;background:${c.color}08">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <div style="font-size:15px;font-weight:800;color:${c.color}">${c.emoji} ${c.cat}</div>
+          <span style="font-size:13px;font-weight:800;color:${catPct===100?'#10B981':'var(--muted)'}">${catDone}/${c.articles.length}</span>
+        </div>
+        <div style="background:rgba(255,255,255,.08);border-radius:4px;height:4px;overflow:hidden">
+          <div style="height:100%;background:${c.color};width:${catPct}%;border-radius:4px"></div>
+        </div>
+      </div>
+      <div class="mini-card-body">
+        ${c.articles.slice(0,4).map(a=>`
+          <div class="mini-article ${done.includes(a.id)?'done':''}">
+            <div class="mini-dot" style="background:${done.includes(a.id)?c.color:'rgba(255,255,255,.15)'}"></div>
+            <span>${a.title}</span>
+          </div>`).join('')}
+        ${c.articles.length>4?`<div class="mini-article" style="color:${c.color};font-weight:700;margin-top:4px">+ ${c.articles.length-4} more lessons →</div>`:''}
+      </div>
+    </div>`;
+  });
+  html += '</div>';
+
+  // TikTok Academy section
+  html += '<div style="font-size:13px;font-weight:800;color:var(--muted);margin-bottom:14px;letter-spacing:.5px;border-top:1px solid var(--border);padding-top:24px">📚 TIKTOK SHOP ACADEMY</div>';
+  html += '<div class="all-grid">';
   COURSES.forEach(c=>{
     const catDone = c.articles.filter(a=>done.includes(a.id)).length;
     const catPct  = Math.round(catDone/c.articles.length*100);
-    html += `<div class="mini-card" onclick="showCourse('${c.id}',document.querySelector('.sb-item:nth-child(${COURSES.indexOf(c)+2})'))">
+    html += `<div class="mini-card" onclick="showCourse('${c.id}',null)">
       <div class="mini-card-head" style="border-color:${c.color}22">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
           <div style="font-size:15px;font-weight:800;color:${c.color}">${c.emoji} ${c.cat}</div>
@@ -480,7 +808,7 @@ function renderCourse(c){
     <div class="course-icon">${c.emoji}</div>
     <div>
       <div class="course-title">${c.cat}</div>
-      <div class="course-sub">${c.articles.length} lessons · TikTok Shop Academy</div>
+      <div class="course-sub">${c.articles.length} lessons · ${c.custom?'Dr.Reju-All Exclusive':'TikTok Shop Academy'}</div>
     </div>
     <div class="course-pct" style="color:${catPct===100?'#10B981':catPct>=50?'#F59E0B':'#FE2C55'}">${catPct}%</div>
   </div>
@@ -502,8 +830,11 @@ function renderCourse(c){
       </div>
       <div class="article-num">${String(i+1).padStart(2,'0')}</div>
       <div class="article-title">${a.title}</div>
-      <button class="btn-watch" onclick="openVideo('${a.id}','${a.title.replace(/'/g,"\\'")}')">▶ Watch</button>
-      <button class="btn-open" onclick="openArticle('${a.id}')">Open ↗</button>
+      ${a.custom
+        ? `<button class="btn-watch" style="background:rgba(248,113,113,.12);border-color:rgba(248,113,113,.3);color:#fca5a5" onclick="openCustomLesson('${a.id}','${a.title.replace(/'/g,"\\'")}')">📖 Read</button>`
+        : `<button class="btn-watch" onclick="openVideo('${a.id}','${a.title.replace(/'/g,"\\'")}')">▶ Watch</button>
+      <button class="btn-open" onclick="openArticle('${a.id}')">Open ↗</button>`
+      }
     </div>`;
   });
 
@@ -512,7 +843,7 @@ function renderCourse(c){
 }
 
 function completeAll(courseId){
-  const c = COURSES.find(x=>x.id===courseId);
+  const c = ALL_COURSES.find(x=>x.id===courseId);
   if(!c) return;
   let done = getDone();
   const allDone = c.articles.every(a=>done.includes(a.id));
