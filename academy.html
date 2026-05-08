@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Affiliate 101 Academy · Dr.Reju-All</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#080810;--surface:#0f0f1a;--card:#141422;--border:rgba(255,255,255,.08);
+  --fg:#f0f0ff;--muted:rgba(255,255,255,.38);--accent:#7C3AED;--accent2:#FE2C55;
+  --green:#10B981;--yellow:#F59E0B;--orange:#F97316;--pink:#EC4899;--cyan:#06B6D4;--teal:#14B8A6;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--fg);min-height:100vh;display:flex;flex-direction:column}
+
+/* ── HERO ── */
+.hero{
+  background:linear-gradient(135deg,#0d0020 0%,#1a0035 40%,#0d0020 100%);
+  border-bottom:1px solid rgba(124,58,237,.3);
+  padding:48px 40px 40px;position:relative;overflow:hidden;
+}
+.hero::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 60% 80% at 70% 50%,rgba(124,58,237,.18),transparent),
+             radial-gradient(ellipse 40% 60% at 10% 80%,rgba(254,44,85,.12),transparent);
+  pointer-events:none;
+}
+.hero-brand{font-size:11px;font-weight:800;letter-spacing:2px;color:var(--accent);text-transform:uppercase;margin-bottom:12px}
+.hero-title{font-size:42px;font-weight:900;line-height:1.1;margin-bottom:8px;
+  background:linear-gradient(135deg,#fff 0%,rgba(255,255,255,.7) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero-sub{font-size:15px;color:rgba(255,255,255,.5);margin-bottom:28px}
+.hero-stats{display:flex;gap:24px;flex-wrap:wrap}
+.hero-stat{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:12px 20px;backdrop-filter:blur(10px)}
+.hero-stat-val{font-size:26px;font-weight:900;line-height:1}
+.hero-stat-lbl{font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin-top:3px}
+.hero-badge{position:absolute;top:24px;right:40px;font-size:11px;font-weight:700;
+  background:rgba(124,58,237,.2);border:1px solid rgba(124,58,237,.4);border-radius:20px;
+  padding:6px 14px;color:#c4b5fd;letter-spacing:.5px}
+
+/* ── OVERALL PROGRESS BAR ── */
+.progress-wrap{padding:20px 40px;background:var(--surface);border-bottom:1px solid var(--border)}
+.progress-label{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:8px}
+.progress-track{height:8px;background:rgba(255,255,255,.08);border-radius:8px;overflow:hidden}
+.progress-fill{height:100%;border-radius:8px;background:linear-gradient(90deg,#7C3AED,#FE2C55);transition:width .5s cubic-bezier(.4,0,.2,1)}
+
+/* ── LAYOUT ── */
+.layout{display:flex;flex:1;min-height:0}
+.sidebar{
+  width:260px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);
+  overflow-y:auto;position:sticky;top:0;max-height:calc(100vh - 200px);
+}
+.sidebar::-webkit-scrollbar{width:4px}
+.sidebar::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:4px}
+.sb-header{padding:16px 20px 8px;font-size:10px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+.sb-item{
+  display:flex;align-items:center;gap:10px;padding:10px 20px;cursor:pointer;
+  font-size:13px;font-weight:600;color:rgba(255,255,255,.6);border-left:3px solid transparent;
+  transition:all .15s;
+}
+.sb-item:hover{background:rgba(255,255,255,.05);color:var(--fg)}
+.sb-item.active{color:var(--fg);border-left-color:var(--accent);background:rgba(124,58,237,.08)}
+.sb-item-progress{margin-left:auto;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;background:rgba(255,255,255,.08)}
+
+/* ── MAIN ── */
+.main{flex:1;padding:32px 40px;overflow-y:auto;max-height:calc(100vh - 200px)}
+.main::-webkit-scrollbar{width:4px}
+.main::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:4px}
+
+/* ── COURSE SECTION ── */
+.course-header{
+  display:flex;align-items:center;gap:14px;margin-bottom:20px;
+  padding-bottom:16px;border-bottom:1px solid var(--border);
+}
+.course-icon{font-size:28px;line-height:1}
+.course-title{font-size:22px;font-weight:900}
+.course-sub{font-size:12px;color:var(--muted);margin-top:3px}
+.course-pct{margin-left:auto;font-size:32px;font-weight:900}
+
+.course-progress{height:6px;background:rgba(255,255,255,.08);border-radius:6px;overflow:hidden;margin-bottom:24px}
+.course-progress-fill{height:100%;border-radius:6px;transition:width .4s}
+
+/* ── ARTICLE CARD ── */
+.article-list{display:flex;flex-direction:column;gap:8px}
+.article-item{
+  display:flex;align-items:center;gap:14px;
+  background:var(--card);border:1px solid var(--border);border-radius:12px;
+  padding:14px 16px;transition:all .15s;
+}
+.article-item:hover{border-color:rgba(255,255,255,.16);background:rgba(255,255,255,.03)}
+.article-item.done{opacity:.5}
+.article-check{
+  width:24px;height:24px;border-radius:50%;border:2px solid var(--border);
+  cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  font-size:13px;transition:all .2s;
+}
+.article-check:hover{transform:scale(1.1)}
+.article-num{font-size:11px;font-weight:700;color:var(--muted);min-width:20px}
+.article-title{flex:1;font-size:14px;font-weight:600;line-height:1.4}
+.article-item.done .article-title{text-decoration:line-through;color:var(--muted);font-weight:400}
+.btn-open{
+  background:none;border:1px solid var(--border);border-radius:8px;
+  padding:6px 14px;cursor:pointer;font-size:12px;font-weight:700;color:var(--muted);
+  white-space:nowrap;transition:all .15s;flex-shrink:0;
+}
+.btn-open:hover{color:var(--fg);border-color:rgba(255,255,255,.3);background:rgba(255,255,255,.05)}
+.btn-watch{
+  background:rgba(124,58,237,.15);border:1px solid rgba(124,58,237,.35);border-radius:8px;
+  padding:6px 14px;cursor:pointer;font-size:12px;font-weight:700;color:#c4b5fd;
+  white-space:nowrap;transition:all .15s;flex-shrink:0;
+}
+.btn-watch:hover{background:rgba(124,58,237,.3);border-color:rgba(124,58,237,.6)}
+
+/* ── VIDEO MODAL ── */
+.vmodal-bg{
+  position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;
+  display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px);
+  opacity:0;transition:opacity .2s;pointer-events:none;
+}
+.vmodal-bg.open{opacity:1;pointer-events:all}
+.vmodal{
+  background:#0f0f1a;border:1px solid rgba(124,58,237,.3);border-radius:18px;
+  width:min(820px,95vw);padding:24px;position:relative;
+}
+.vmodal-title{font-size:16px;font-weight:800;margin-bottom:16px;padding-right:32px;line-height:1.4}
+.vmodal video{width:100%;border-radius:12px;background:#000;max-height:460px}
+.vmodal-close{
+  position:absolute;top:18px;right:18px;background:rgba(255,255,255,.1);border:none;
+  border-radius:50%;width:32px;height:32px;cursor:pointer;font-size:18px;color:var(--muted);
+  display:flex;align-items:center;justify-content:center;transition:all .15s;
+}
+.vmodal-close:hover{background:rgba(255,255,255,.2);color:var(--fg)}
+.vmodal-loading{text-align:center;padding:60px 20px;color:var(--muted)}
+.vmodal-spinner{font-size:32px;animation:spin 1s linear infinite;display:block;margin-bottom:12px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── COURSE TABS ── */
+.course-tabs{display:none}
+
+/* ── ALL VIEW ── */
+.all-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px}
+.mini-card{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;cursor:pointer;transition:all .15s}
+.mini-card:hover{border-color:rgba(255,255,255,.2);transform:translateY(-2px)}
+.mini-card-head{padding:14px 16px 12px;border-bottom:1px solid var(--border)}
+.mini-card-body{padding:12px 16px}
+.mini-article{display:flex;align-items:center;gap:8px;padding:4px 0;font-size:12px;color:var(--muted)}
+.mini-article.done{color:rgba(255,255,255,.25)}
+.mini-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+
+/* ── COMPLETE ALL BTN ── */
+.btn-complete-all{
+  background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;
+  padding:6px 14px;cursor:pointer;font-size:11px;font-weight:700;color:var(--muted);
+  transition:all .15s;
+}
+.btn-complete-all:hover{background:rgba(255,255,255,.1);color:var(--fg)}
+</style>
+</head>
+<body>
+
+<!-- VIDEO MODAL -->
+<div class="vmodal-bg" id="vmodal-bg" onclick="if(event.target===this)closeVideo()">
+  <div class="vmodal">
+    <div class="vmodal-title" id="vmodal-title">Loading...</div>
+    <button class="vmodal-close" onclick="closeVideo()">✕</button>
+    <div id="vmodal-body">
+      <div class="vmodal-loading"><span class="vmodal-spinner">⟳</span>영상 불러오는 중...</div>
+    </div>
+    <div style="margin-top:14px;display:flex;justify-content:flex-end">
+      <a id="vmodal-fallback" href="#" target="_blank"
+        style="font-size:12px;color:var(--muted);text-decoration:none;border:1px solid var(--border);border-radius:8px;padding:6px 14px">
+        TikTok Academy에서 열기 ↗
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">Powered by TikTok Shop Academy</div>
+  <img src="Dr.Reju-All_Logo_email.jpg" alt="Dr.Reju-All" style="height:48px;object-fit:contain;margin-bottom:16px;filter:brightness(1.1)">
+  <div class="hero-title">Affiliate 101 Academy</div>
+  <div class="hero-sub">Master TikTok Shop affiliate marketing — from first content to 100K+ views</div>
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <div class="hero-stat-val" id="stat-total">53</div>
+      <div class="hero-stat-lbl">Total Lessons</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-val" id="stat-done" style="color:var(--green)">0</div>
+      <div class="hero-stat-lbl">Completed</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-val" id="stat-pct">0%</div>
+      <div class="hero-stat-lbl">Progress</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-val" id="stat-remain" style="color:var(--yellow)">53</div>
+      <div class="hero-stat-lbl">Remaining</div>
+    </div>
+  </div>
+</div>
+
+<!-- OVERALL PROGRESS -->
+<div class="progress-wrap">
+  <div class="progress-label">
+    <span>Overall Progress</span>
+    <span id="progress-label-right">0 / 53 lessons completed</span>
+  </div>
+  <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+</div>
+
+<!-- LAYOUT -->
+<div class="layout">
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="sb-header">Courses</div>
+    <div class="sb-item active" onclick="showAll(this)" id="sb-all">
+      <span>📚</span> All Courses
+      <span class="sb-item-progress" id="sb-prog-all">0/53</span>
+    </div>
+    <div id="sidebar-courses"></div>
+    <div style="padding:16px 20px;border-top:1px solid var(--border);margin-top:8px">
+      <button onclick="resetAll()" style="width:100%;background:rgba(254,44,85,.1);border:1px solid rgba(254,44,85,.2);border-radius:8px;padding:8px;cursor:pointer;font-size:12px;font-weight:700;color:var(--accent2)">Reset Progress</button>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="main" id="main-panel"></main>
+</div>
+
+<script>
+const COURSES = [
+  { id:'sss', emoji:'📱', cat:'Swipe, Shop, Sell', color:'#FE2C55', articles:[
+    { id:'8149952795297578', title:'Drive Sales as a Creator on TikTok Shop' },
+    { id:'8718706103224110', title:'Introduction to Promoting Products on TikTok Shop' },
+    { id:'8735996364867374', title:'Consistency and Your Signature Style' },
+    { id:'8735996365457198', title:'Content Pillars' },
+    { id:'8745654088648491', title:'Creating a Content Strategy' },
+    { id:'8745654088730411', title:'Understanding Your Customers' },
+    { id:'8765099267786539', title:'Building + Nurturing a Loyal Community' },
+    { id:'2012404309444398', title:'Promoting Your Products' },
+    { id:'2012404309772078', title:'Choosing the Right Tool: Shoppable Videos' },
+    { id:'1988373398275882', title:'Debunking Common Myths' },
+  ]},
+  { id:'f14', emoji:'🚀', cat:'First 14 Days as a Creator', color:'#FF9500', articles:[
+    { id:'7785076719601454', title:'Policy Basics' },
+    { id:'7804495782512426', title:'Short Shoppable Videos' },
+    { id:'7809109885929259', title:'I Got the Sample. Now What?' },
+    { id:'7809109886011179', title:'Product Demos' },
+    { id:'7809109886060331', title:'Storytelling' },
+    { id:'7809109886109483', title:'Tutorials' },
+    { id:'7796438264743722', title:'Posting Your TikTok Shop Video' },
+  ]},
+  { id:'policy', emoji:'📋', cat:'Become a Policy Pro', color:'#10B981', articles:[
+    { id:'72523215669005',    title:'Get Started' },
+    { id:'8917916020770573',  title:'Manage Your Account' },
+    { id:'7794751162126',    title:'Create Content' },
+    { id:'522044710389534',  title:'How to Use Disclaimers Properly' },
+    { id:'6903598869677837', title:'AI-Generated Content: Permitted & Prohibited Practices' },
+  ]},
+  { id:'tts', emoji:'🛒', cat:'TikTok Shop Overview', color:'#6366F1', articles:[
+    { id:'84434503206657',   title:'Creating LIVE Shopping' },
+    { id:'84434503026433',   title:'Creating Shoppable Video' },
+    { id:'4401155330393899', title:'Content Styles for Your Creative Process' },
+    { id:'3538110404118314', title:'Content Quality Guidelines' },
+  ]},
+  { id:'recharge', emoji:'⚡', cat:'#Recharge', color:'#F59E0B', articles:[
+    { id:'2488222777771819', title:'How to Choose the "Right" Product' },
+    { id:'2488222777952043', title:'How to Manage Samples' },
+  ]},
+  { id:'excellence', emoji:'✨', cat:'Content Excellence', color:'#14B8A6', articles:[
+    { id:'3547281110648618', title:'Sound & Vision: Level Up Your Videos' },
+    { id:'3547281111025450', title:'Product Focus & Content Relevance' },
+    { id:'3547281111402282', title:'Product Knowledge' },
+    { id:'3547281111746346', title:'Keep it Real' },
+    { id:'3551405818677035', title:'Cultivate Originality' },
+    { id:'3551405819692843', title:'Keep it Engaging' },
+    { id:'3538110403266346', title:'Content Quality Guidelines (Advanced)' },
+  ]},
+  { id:'lab', emoji:'🎯', cat:'Content Quality Lab', color:'#EC4899', articles:[
+    { id:'2785973613659947', title:'Start Here!' },
+    { id:'575032298653486',  title:'Overview of Most Common Quality Issues' },
+    { id:'570368428525354',  title:'Low Quality Production' },
+    { id:'551152115599150',  title:'Not Safe for Work Content' },
+    { id:'565946717964075',  title:'Pre-Recorded Content in Live' },
+    { id:'570368427919146',  title:'Pirated and Unoriginal Content' },
+    { id:'514984285849390',  title:'Irrelevant Product Promotion' },
+    { id:'573307552909098',  title:'Exaggerated and False Claims' },
+    { id:'547767349036843',  title:'Description Not Detailed' },
+    { id:'547767350085419',  title:'No Physical Product Displayed' },
+    { id:'573307553580842',  title:'5 Most Common Issues: Shoppable Videos' },
+    { id:'573307554072362',  title:'5 Most Common Issues: Live Videos' },
+  ]},
+  { id:'loop', emoji:'📰', cat:'THE LOOP Newsletter', color:'#8B5CF6', articles:[
+    { id:'7925382742640415', title:'THE LOOP: #DestinationShop' },
+    { id:'7947767805495053', title:'THE LOOP: December Edition' },
+    { id:'3547698293901111', title:'THE LOOP: November Edition' },
+    { id:'8974080364971789', title:'THE LOOP: October Edition' },
+    { id:'4405262607058743', title:'THE LOOP: September Edition' },
+    { id:'5186417179019021', title:'THE LOOP: August Edition' },
+  ]},
+];
+
+const TOTAL = COURSES.reduce((s,c)=>s+c.articles.length,0);
+let currentCourse = null; // null = all view
+
+// ── Storage ──
+function getDone(){ try{ return JSON.parse(localStorage.getItem('acad_done')||'[]'); }catch(e){ return []; } }
+function setDone(arr){ localStorage.setItem('acad_done', JSON.stringify(arr)); }
+function toggle(id){
+  let d = getDone();
+  d = d.includes(id) ? d.filter(x=>x!==id) : [...d,id];
+  setDone(d);
+  updateStats();
+  if(currentCourse) renderCourse(currentCourse);
+  else renderAll();
+  updateSidebar();
+}
+function resetAll(){
+  if(!confirm('Reset all progress?')) return;
+  setDone([]);
+  updateStats(); updateSidebar();
+  if(currentCourse) renderCourse(currentCourse);
+  else renderAll();
+}
+function openArticle(id){ window.open('https://seller-us.tiktok.com/university/essay?knowledge_id='+id,'_blank'); }
+
+// ── Video Modal ──
+function openVideo(id, title){
+  const bg = document.getElementById('vmodal-bg');
+  const body = document.getElementById('vmodal-body');
+  const tEl = document.getElementById('vmodal-title');
+  const fb = document.getElementById('vmodal-fallback');
+  tEl.textContent = title;
+  fb.href = 'https://seller-us.tiktok.com/university/essay?knowledge_id='+id;
+  body.innerHTML = '<div class="vmodal-loading"><span class="vmodal-spinner">⟳</span><br>영상 불러오는 중...</div>';
+  bg.classList.add('open');
+  fetch('/api/video-proxy?id='+id)
+    .then(r=>r.json())
+    .then(data=>{
+      if(data.url){
+        body.innerHTML = '<video controls autoplay preload="metadata" style="width:100%;border-radius:12px;background:#000;max-height:460px"><source src="'+data.url+'" type="video/mp4">영상을 재생할 수 없습니다.</video>';
+      } else {
+        body.innerHTML = '<div class="vmodal-loading" style="padding:40px 20px"><div style="font-size:32px;margin-bottom:12px">🎬</div><div style="font-size:14px;margin-bottom:8px">영상은 TikTok Academy에서 직접 확인하세요.</div><a href="'+fb.href+'" target="_blank" style="color:#c4b5fd;font-weight:700">열기 ↗</a></div>';
+      }
+    })
+    .catch(()=>{
+      body.innerHTML = '<div class="vmodal-loading"><div style="font-size:14px;color:var(--accent2)">불러오기 실패 — 아래 버튼으로 직접 열어주세요.</div></div>';
+    });
+}
+function closeVideo(){
+  const bg = document.getElementById('vmodal-bg');
+  bg.classList.remove('open');
+  const v = bg.querySelector('video');
+  if(v){ v.pause(); v.src=''; }
+  document.getElementById('vmodal-body').innerHTML = '';
+}
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeVideo(); });
+
+// ── Stats ──
+function updateStats(){
+  const done = getDone();
+  const d = done.length, pct = Math.round(d/TOTAL*100), rem = TOTAL-d;
+  document.getElementById('stat-done').textContent = d;
+  document.getElementById('stat-pct').textContent = pct+'%';
+  document.getElementById('stat-remain').textContent = rem;
+  document.getElementById('progress-fill').style.width = pct+'%';
+  document.getElementById('progress-label-right').textContent = d+' / '+TOTAL+' lessons completed';
+  document.getElementById('sb-prog-all').textContent = d+'/'+TOTAL;
+}
+
+// ── Sidebar ──
+function updateSidebar(){
+  const done = getDone();
+  const sb = document.getElementById('sidebar-courses');
+  sb.innerHTML = COURSES.map(c=>{
+    const catDone = c.articles.filter(a=>done.includes(a.id)).length;
+    const active  = currentCourse && currentCourse.id === c.id ? 'active' : '';
+    return `<div class="sb-item ${active}" onclick="showCourse('${c.id}',this)">
+      <span>${c.emoji}</span>
+      <span style="flex:1;font-size:12px">${c.cat}</span>
+      <span class="sb-item-progress" style="${catDone===c.articles.length?'background:rgba(16,185,129,.2);color:#10B981':''}">${catDone}/${c.articles.length}</span>
+    </div>`;
+  }).join('');
+}
+
+// ── Views ──
+function showAll(el){
+  currentCourse = null;
+  document.querySelectorAll('.sb-item').forEach(x=>x.classList.remove('active'));
+  el.classList.add('active');
+  renderAll();
+}
+function showCourse(id, el){
+  currentCourse = COURSES.find(c=>c.id===id);
+  document.querySelectorAll('.sb-item').forEach(x=>x.classList.remove('active'));
+  el.classList.add('active');
+  updateSidebar();
+  renderCourse(currentCourse);
+}
+
+function renderAll(){
+  const done = getDone();
+  const panel = document.getElementById('main-panel');
+  let html = '<div class="all-grid">';
+  COURSES.forEach(c=>{
+    const catDone = c.articles.filter(a=>done.includes(a.id)).length;
+    const catPct  = Math.round(catDone/c.articles.length*100);
+    html += `<div class="mini-card" onclick="showCourse('${c.id}',document.querySelector('.sb-item:nth-child(${COURSES.indexOf(c)+2})'))">
+      <div class="mini-card-head" style="border-color:${c.color}22">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <div style="font-size:15px;font-weight:800;color:${c.color}">${c.emoji} ${c.cat}</div>
+          <span style="font-size:13px;font-weight:800;color:${catPct===100?'#10B981':'var(--muted)'}">${catDone}/${c.articles.length}</span>
+        </div>
+        <div style="background:rgba(255,255,255,.08);border-radius:4px;height:4px;overflow:hidden">
+          <div style="height:100%;background:${c.color};width:${catPct}%;border-radius:4px"></div>
+        </div>
+      </div>
+      <div class="mini-card-body">
+        ${c.articles.slice(0,4).map(a=>`
+          <div class="mini-article ${done.includes(a.id)?'done':''}">
+            <div class="mini-dot" style="background:${done.includes(a.id)?c.color:'rgba(255,255,255,.15)'}"></div>
+            <span>${a.title}</span>
+          </div>`).join('')}
+        ${c.articles.length>4?`<div class="mini-article" style="color:${c.color};font-weight:700;margin-top:4px">+ ${c.articles.length-4} more lessons →</div>`:''}
+      </div>
+    </div>`;
+  });
+  html += '</div>';
+  panel.innerHTML = html;
+}
+
+function renderCourse(c){
+  const done = getDone();
+  const catDone = c.articles.filter(a=>done.includes(a.id)).length;
+  const catPct  = Math.round(catDone/c.articles.length*100);
+  const allDone = catDone === c.articles.length;
+
+  let html = `
+  <div class="course-header">
+    <div class="course-icon">${c.emoji}</div>
+    <div>
+      <div class="course-title">${c.cat}</div>
+      <div class="course-sub">${c.articles.length} lessons · TikTok Shop Academy</div>
+    </div>
+    <div class="course-pct" style="color:${catPct===100?'#10B981':catPct>=50?'#F59E0B':'#FE2C55'}">${catPct}%</div>
+  </div>
+  <div class="course-progress">
+    <div class="course-progress-fill" style="width:${catPct}%;background:${c.color}"></div>
+  </div>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+    <div style="font-size:13px;color:var(--muted)">${catDone} of ${c.articles.length} lessons completed</div>
+    <button class="btn-complete-all" onclick="completeAll('${c.id}')">${allDone?'✓ All Done! Unmark All':'Mark All Complete'}</button>
+  </div>
+  <div class="article-list">`;
+
+  c.articles.forEach((a,i)=>{
+    const isDone = done.includes(a.id);
+    html += `<div class="article-item ${isDone?'done':''}">
+      <div class="article-check" onclick="toggle('${a.id}')"
+        style="border-color:${isDone?c.color:'var(--border)'};background:${isDone?c.color:'transparent'};color:#fff">
+        ${isDone?'✓':''}
+      </div>
+      <div class="article-num">${String(i+1).padStart(2,'0')}</div>
+      <div class="article-title">${a.title}</div>
+      <button class="btn-watch" onclick="openVideo('${a.id}','${a.title.replace(/'/g,"\\'")}')">▶ Watch</button>
+      <button class="btn-open" onclick="openArticle('${a.id}')">Open ↗</button>
+    </div>`;
+  });
+
+  html += '</div>';
+  document.getElementById('main-panel').innerHTML = html;
+}
+
+function completeAll(courseId){
+  const c = COURSES.find(x=>x.id===courseId);
+  if(!c) return;
+  let done = getDone();
+  const allDone = c.articles.every(a=>done.includes(a.id));
+  if(allDone){
+    done = done.filter(id=>!c.articles.find(a=>a.id===id));
+  } else {
+    c.articles.forEach(a=>{ if(!done.includes(a.id)) done.push(a.id); });
+  }
+  setDone(done);
+  updateStats(); updateSidebar(); renderCourse(c);
+}
+
+// ── Init ──
+updateStats();
+updateSidebar();
+renderAll();
+</script>
+</body>
+</html>
