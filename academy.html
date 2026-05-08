@@ -158,18 +158,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 </head>
 <body>
 
-<!-- VIDEO MODAL -->
+<!-- ARTICLE MODAL -->
 <div class="vmodal-bg" id="vmodal-bg" onclick="if(event.target===this)closeVideo()">
-  <div class="vmodal">
+  <div class="vmodal" style="max-height:90vh;overflow-y:auto;width:min(960px,96vw)">
     <div class="vmodal-title" id="vmodal-title">Loading...</div>
     <button class="vmodal-close" onclick="closeVideo()">✕</button>
     <div id="vmodal-body">
-      <div class="vmodal-loading"><span class="vmodal-spinner">⟳</span>영상 불러오는 중...</div>
+      <div class="vmodal-loading"><span class="vmodal-spinner">⟳</span><br>Loading article...</div>
     </div>
     <div style="margin-top:14px;display:flex;justify-content:flex-end">
       <a id="vmodal-fallback" href="#" target="_blank"
         style="font-size:12px;color:var(--muted);text-decoration:none;border:1px solid var(--border);border-radius:8px;padding:6px 14px">
-        TikTok Academy에서 열기 ↗
+        Open in TikTok Academy ↗
       </a>
     </div>
   </div>
@@ -326,27 +326,65 @@ function resetAll(){
 }
 function openArticle(id){ window.open('https://seller-us.tiktok.com/university/essay?knowledge_id='+id,'_blank'); }
 
-// ── Video Modal ──
+// ── Article Modal (text + images + video) ──
 function openVideo(id, title){
-  const bg = document.getElementById('vmodal-bg');
+  const bg   = document.getElementById('vmodal-bg');
   const body = document.getElementById('vmodal-body');
-  const tEl = document.getElementById('vmodal-title');
-  const fb = document.getElementById('vmodal-fallback');
+  const tEl  = document.getElementById('vmodal-title');
+  const fb   = document.getElementById('vmodal-fallback');
   tEl.textContent = title;
   fb.href = 'https://seller-us.tiktok.com/university/essay?knowledge_id='+id;
-  body.innerHTML = '<div class="vmodal-loading"><span class="vmodal-spinner">⟳</span><br>영상 불러오는 중...</div>';
+  body.innerHTML = '<div class="vmodal-loading"><span class="vmodal-spinner">⟳</span><br>Loading article content...</div>';
   bg.classList.add('open');
-  fetch('/api/video-proxy?id='+id)
+
+  fetch('/api/article-content?id='+id)
     .then(r=>r.json())
     .then(data=>{
-      if(data.url){
-        body.innerHTML = '<video controls autoplay preload="metadata" style="width:100%;border-radius:12px;background:#000;max-height:460px"><source src="'+data.url+'" type="video/mp4">영상을 재생할 수 없습니다.</video>';
+      if(data.title) tEl.textContent = data.title;
+      let html = '';
+
+      // Video player
+      if(data.videoUrl){
+        html += '<video controls autoplay preload="metadata" style="width:100%;border-radius:12px;background:#000;max-height:400px;margin-bottom:20px">'
+               +'<source src="'+data.videoUrl+'" type="video/mp4">Your browser does not support video.</video>';
       } else {
-        body.innerHTML = '<div class="vmodal-loading" style="padding:40px 20px"><div style="font-size:32px;margin-bottom:12px">🎬</div><div style="font-size:14px;margin-bottom:8px">영상은 TikTok Academy에서 직접 확인하세요.</div><a href="'+fb.href+'" target="_blank" style="color:#c4b5fd;font-weight:700">열기 ↗</a></div>';
+        html += '<div style="background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.2);border-radius:10px;padding:14px 16px;margin-bottom:20px;display:flex;align-items:center;gap:10px">'
+               +'<span style="font-size:22px">🎬</span><span style="font-size:13px;color:var(--muted)">No video available for this article. Use the button below to watch on TikTok Academy.</span></div>';
       }
+
+      // Text sections
+      if(data.sections && data.sections.length){
+        html += '<div style="margin-bottom:20px">';
+        data.sections.forEach(s=>{
+          if(s.type==='heading'){
+            html += '<h3 style="font-size:15px;font-weight:800;color:#c4b5fd;margin:16px 0 6px;letter-spacing:.3px">'+s.text+'</h3>';
+          } else if(s.type==='body'){
+            s.paragraphs.forEach(p=>{
+              html += '<p style="font-size:13px;color:rgba(255,255,255,.75);line-height:1.65;margin-bottom:8px">'+p+'</p>';
+            });
+          } else if(s.type==='list'){
+            html += '<ul style="margin:8px 0 12px 18px">';
+            s.items.forEach(i=>{ html += '<li style="font-size:13px;color:rgba(255,255,255,.75);line-height:1.6;margin-bottom:4px">'+i+'</li>'; });
+            html += '</ul>';
+          }
+        });
+        html += '</div>';
+      }
+
+      // Images
+      if(data.images && data.images.length){
+        html += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-top:8px">';
+        data.images.forEach(src=>{
+          html += '<img src="'+src+'" alt="Article image" style="width:100%;border-radius:10px;border:1px solid var(--border);object-fit:cover" onerror="this.style.display=\'none\'">';
+        });
+        html += '</div>';
+      }
+
+      if(!html) html = '<div class="vmodal-loading" style="padding:40px"><span style="font-size:28px">📄</span><br><span style="font-size:13px;color:var(--muted)">No content extracted. Open in TikTok Academy directly.</span></div>';
+      body.innerHTML = html;
     })
     .catch(()=>{
-      body.innerHTML = '<div class="vmodal-loading"><div style="font-size:14px;color:var(--accent2)">불러오기 실패 — 아래 버튼으로 직접 열어주세요.</div></div>';
+      body.innerHTML = '<div class="vmodal-loading"><div style="font-size:13px;color:var(--accent2)">Failed to load — use the button below to open directly.</div></div>';
     });
 }
 function closeVideo(){
