@@ -3920,7 +3920,6 @@ const OKR_KR_TEXT = {
 
 let _okrActiveObj = 4;
 let _okrView = 'cards';
-let _okrView = 'cards';
 
 function okrSetObj(num, btn) {
   _okrActiveObj = num;
@@ -4243,7 +4242,7 @@ function renderOKRCalendar() {
 
       out += '<tr>';
       out += '<td style="' + tdB + 'text-align:center;font-weight:700;color:' + objColor + ';font-size:10px">KR' + p.krNum + '</td>';
-      out += '<td style="' + tdB + 'cursor:pointer;color:#1a1a2e;font-weight:600;padding-left:8px;max-width:130px;overflow:hidden;text-overflow:ellipsis" onclick="okrOpenDetail('' + projKey + '')" title="' + p.projName + '">' + p.projName + '</td>';
+      out += '<td style="' + tdB + 'cursor:pointer;color:#1a1a2e;font-weight:600;padding-left:8px;max-width:130px;overflow:hidden;text-overflow:ellipsis" onclick="okrOpenDetail(\''+pk+'\')" title="'+p.projName.replace(/'/g,'&#39;')+'">' + p.projName + '</td>';
       out += '<td style="' + tdB + 'text-align:center;color:#6B7280">' + (p.owner || '') + '</td>';
       runs.forEach(function(run) {
         var cs = run.len > 1 ? ' colspan="' + run.len + '"' : '';
