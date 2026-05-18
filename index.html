@@ -4179,7 +4179,11 @@ function renderOKRCalendar() {
   var tdB = 'padding:5px 4px;border:1px solid #E5E7EB;font-size:11px;vertical-align:middle;white-space:nowrap;';
   var thB = 'padding:5px 6px;border:1px solid #E5E7EB;font-size:11px;font-weight:700;background:#F9FAFB;text-align:center;white-space:nowrap;';
   var out = '<div style="margin-top:8px">';
-  out += '<div style="font-size:13px;font-weight:700;color:' + objColor + ';margin-bottom:12px">' + flag + ' Q2 2026 마일스톤 캘린더 — Object ' + _okrActiveObj + '</div>';
+  var _calTitle = localStorage.getItem('okr_cal_title_' + _okrActiveObj) || ('Q2 2026 마일스톤 캘린더 — Object ' + _okrActiveObj);
+  out += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">'
+    + '<div id="okr-cal-title" ondblclick="okrEditCalTitle(this,' + _okrActiveObj + ')" style="font-size:13px;font-weight:700;color:' + objColor + ';cursor:text" title="더블클릭 편집">' + flag + ' ' + _calTitle + '</div>'
+    + '<span style="font-size:10px;color:#9CA3AF;background:#F3F4F6;padding:2px 8px;border-radius:10px">더블클릭 편집</span>'
+    + '</div>';
   out += '<div style="overflow-x:auto;border-radius:10px;border:1px solid #E5E7EB;box-shadow:0 1px 4px rgba(0,0,0,.06)">';
   out += '<table style="border-collapse:collapse;width:100%;min-width:860px">';
   out += '<thead><tr>';
@@ -4262,6 +4266,27 @@ function renderOKRCalendar() {
   if (cal) cal.innerHTML = out;
 }
 
+function okrEditCalTitle(el, objNum) {
+  if (el.tagName === 'INPUT') return;
+  var cur = el.textContent;
+  var inp = document.createElement('input');
+  inp.value = cur;
+  inp.style.cssText = 'font-size:13px;font-weight:700;border:1.5px solid #7C3AED;border-radius:4px;padding:2px 10px;outline:none;background:#fff;min-width:260px';
+  el.parentNode.replaceChild(inp, el);
+  inp.focus(); inp.select();
+  var saved = false;
+  var save = function() {
+    if (saved) return; saved = true;
+    var val = inp.value.trim() || cur;
+    localStorage.setItem('okr_cal_title_' + objNum, val);
+    renderOKRCalendar();
+  };
+  inp.onblur = save;
+  inp.onkeydown = function(e) {
+    if (e.key === 'Enter') { e.preventDefault(); save(); }
+    if (e.key === 'Escape') { saved = true; renderOKRCalendar(); }
+  };
+}
 function okrCloseModal() {
   const m = document.getElementById('okr-modal-bg');
   if (m) m.remove();
