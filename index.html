@@ -449,6 +449,9 @@ window.fsSet = (key, val) => {
     <div class="nav-item" onclick="nav('euka',this)">
       <span class="nav-icon">&#128200;</span> EUKA Live Data
     </div>
+    <div class="nav-item" onclick="nav('academy',this)">
+      <span class="nav-icon">&#127891;</span> Affiliate 101 Academy
+    </div>
     <div class="sb-section">Finance</div>
     <div class="nav-item" onclick="nav('settlement',this)">
       <span class="nav-icon">&#128181;</span> 정산 트래커
@@ -2158,6 +2161,21 @@ window.fsSet = (key, val) => {
       </div>
     </div>
 
+    <!-- ═══ AFFILIATE 101 ACADEMY ════════════════ -->
+    <div id="sec-academy" class="page-section">
+      <div class="sec-head">
+        <div>
+          <div class="sec-title">🎓 Affiliate 101 Academy</div>
+          <div class="sec-sub">from Dr.Reju-All · Powered by TikTok Shop Academy</div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <span id="academy-pct-badge" style="font-size:12px;color:var(--muted)"></span>
+          <button class="btn-primary" onclick="academyResetAll()" style="font-size:12px;padding:7px 16px;background:#333;border:1px solid var(--border)">초기화</button>
+        </div>
+      </div>
+      <div id="academy-panel"></div>
+    </div>
+
     <!-- ═══ TEAM DASHBOARD ═══════════════════════ -->
     <div id="sec-team" class="page-section">
       <!-- TikTok Shop Team 배너 -->
@@ -2392,6 +2410,7 @@ function renderSection(id) {
   if (id === 'launch')      renderLaunch();
   if (id === 'reseller')    renderReseller();
   if (id === 'euka')        renderEUKA();
+  if (id === 'academy')     renderAcademy();
   if (id === 'revdash')     renderRevDash();
   if (id === 'partnerdb')   renderPartnerDB();
 }
@@ -4693,6 +4712,165 @@ async function renderEUKA(forceRefresh = false) {
   eukaCurrentTab = 'overview';
   document.querySelectorAll('#euka-tabs .crm-tab').forEach((b,i) => b.classList.toggle('active', i===0));
   eukaShowTab('overview');
+}
+
+// ═══════════════════════════════════════════════
+// AFFILIATE 101 ACADEMY
+// ═══════════════════════════════════════════════
+const ACADEMY_COURSES = [
+  { id:'sss', cat:'📱 Swipe, Shop, Sell', color:'#FE2C55', articles:[
+    { id:'8149952795297578', title:'Drive Sales as a Creator on TikTok Shop' },
+    { id:'8718706103224110', title:'Introduction to Promoting Products on TikTok Shop' },
+    { id:'8735996364867374', title:'Consistency and Your Signature Style' },
+    { id:'8735996365457198', title:'Content Pillars' },
+    { id:'8745654088648491', title:'Creating a Content Strategy' },
+    { id:'8745654088730411', title:'Understanding Your Customers' },
+    { id:'8765099267786539', title:'Building + Nurturing a Loyal Community' },
+    { id:'2012404309444398', title:'Promoting Your Products' },
+    { id:'2012404309772078', title:'Choosing the Right Tool: Shoppable Videos' },
+    { id:'1988373398275882', title:'Debunking Common Myths' },
+  ]},
+  { id:'f14', cat:'🚀 First 14 Days as a Creator', color:'#FF9500', articles:[
+    { id:'7785076719601454', title:'Policy Basics' },
+    { id:'7804495782512426', title:'Short Shoppable Videos' },
+    { id:'7809109885929259', title:'I Got the Sample. Now What?' },
+    { id:'7809109886011179', title:'Product Demos' },
+    { id:'7809109886060331', title:'Storytelling' },
+    { id:'7809109886109483', title:'Tutorials' },
+    { id:'7796438264743722', title:'Posting Your TikTok Shop Video' },
+  ]},
+  { id:'policy', cat:'📋 Become a Policy Pro', color:'#10B981', articles:[
+    { id:'72523215669005',   title:'Get Started' },
+    { id:'8917916020770573', title:'Manage Your Account' },
+    { id:'7794751162126',   title:'Create Content' },
+    { id:'522044710389534', title:'How to Use Disclaimers Properly' },
+    { id:'6903598869677837', title:'AI-Generated Content: Permitted & Prohibited Practices' },
+  ]},
+  { id:'tts', cat:'🛒 TikTok Shop Overview', color:'#6366F1', articles:[
+    { id:'84434503206657',   title:'Creating LIVE Shopping' },
+    { id:'84434503026433',   title:'Creating Shoppable Video' },
+    { id:'4401155330393899', title:'Content Styles to Help Your Creative Process' },
+    { id:'3538110404118314', title:'Content Quality Guidelines' },
+  ]},
+  { id:'recharge', cat:'⚡ #Recharge', color:'#F59E0B', articles:[
+    { id:'2488222777771819', title:'How to Choose the "Right" Product' },
+    { id:'2488222777952043', title:'How to Manage Samples' },
+  ]},
+  { id:'excellence', cat:'✨ Content Excellence', color:'#14B8A6', articles:[
+    { id:'3547281110648618', title:'Sound & Vision: Level Up Your Videos' },
+    { id:'3547281111025450', title:'Product Focus & Content Relevance' },
+    { id:'3547281111402282', title:'Product Knowledge' },
+    { id:'3547281111746346', title:'Keep it Real' },
+    { id:'3551405818677035', title:'Cultivate Originality' },
+    { id:'3551405819692843', title:'Keep it Engaging' },
+    { id:'3538110403266346', title:'Content Quality Guidelines (Advanced)' },
+  ]},
+  { id:'lab', cat:'🎯 TikTok Shop Lab: Content Quality', color:'#EC4899', articles:[
+    { id:'2785973613659947', title:'Start Here!' },
+    { id:'575032298653486',  title:'Overview of Most Common Quality Issues' },
+    { id:'570368428525354',  title:'Low Quality Production' },
+    { id:'551152115599150',  title:'Not Safe for Work (Inappropriate) Content' },
+    { id:'565946717964075',  title:'Pre-Recorded Content in Live' },
+    { id:'570368427919146',  title:'Pirated and Unoriginal Content' },
+    { id:'514984285849390',  title:'Irrelevant Product Promotion' },
+    { id:'573307552909098',  title:'Exaggerated and False Claims' },
+    { id:'547767349036843',  title:'Description Not Detailed' },
+    { id:'547767350085419',  title:'No Physical Product Displayed' },
+    { id:'573307553580842',  title:'5 Most Common Issues: Shoppable Videos' },
+    { id:'573307554072362',  title:'5 Most Common Issues: Live Videos' },
+  ]},
+  { id:'loop', cat:'📰 THE LOOP – Creator Newsletter', color:'#8B5CF6', articles:[
+    { id:'7925382742640415', title:'THE LOOP: #DestinationShop' },
+    { id:'7947767805495053', title:'THE LOOP: December Edition' },
+    { id:'3547698293901111', title:'THE LOOP: November Edition' },
+    { id:'8974080364971789', title:'THE LOOP: October Edition' },
+    { id:'4405262607058743', title:'THE LOOP: September Edition' },
+    { id:'5186417179019021', title:'THE LOOP: August Edition' },
+  ]},
+];
+
+function academyGetCompleted(){ return lsGet('academy_done') || []; }
+function academySetCompleted(arr){ lsSet('academy_done', arr); }
+function academyToggle(articleId){
+  let done = academyGetCompleted();
+  done = done.includes(articleId) ? done.filter(x=>x!==articleId) : [...done, articleId];
+  academySetCompleted(done);
+  renderAcademy();
+}
+function academyOpen(id){
+  window.open('https://seller-us.tiktok.com/university/essay?knowledge_id='+id,'_blank');
+}
+function academyResetAll(){
+  if(!confirm('모든 학습 진행 상황을 초기화할까요?')) return;
+  academySetCompleted([]);
+  renderAcademy();
+}
+
+function renderAcademy(){
+  const panel = gEl('academy-panel'); if(!panel) return;
+  const done = academyGetCompleted();
+  const total = ACADEMY_COURSES.reduce((s,c)=>s+c.articles.length,0);
+  const doneCount = done.length;
+  const pct = Math.round(doneCount/total*100);
+
+  const badge = gEl('academy-pct-badge');
+  if(badge) badge.textContent = doneCount+'/'+total+' 완료 · '+pct+'%';
+
+  // Overall progress bar
+  let html = '<div class="card full" style="margin-bottom:20px;padding:16px 20px">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">'
+    +'<div style="font-size:14px;font-weight:700">전체 학습 진행률</div>'
+    +'<div style="font-size:22px;font-weight:900;color:'+(pct>=80?'#10B981':pct>=40?'#F59E0B':'#FE2C55')+'">'+pct+'%</div>'
+    +'</div>'
+    +'<div style="background:#222;border-radius:8px;height:10px;overflow:hidden">'
+    +'<div style="height:100%;border-radius:8px;background:linear-gradient(90deg,#FE2C55,#8B5CF6);width:'+pct+'%;transition:width .4s"></div>'
+    +'</div>'
+    +'<div style="display:flex;gap:20px;margin-top:12px">'
+    +ACADEMY_COURSES.map(c=>{
+      const catDone = c.articles.filter(a=>done.includes(a.id)).length;
+      const catPct = Math.round(catDone/c.articles.length*100);
+      return '<div style="text-align:center">'
+        +'<div style="font-size:11px;color:'+c.color+';font-weight:700;margin-bottom:2px">'+c.cat.split(' ').slice(1).join(' ')+'</div>'
+        +'<div style="font-size:13px;font-weight:800">'+catDone+'/'+c.articles.length+'</div>'
+        +'</div>';
+    }).join('')
+    +'</div>'
+    +'</div>';
+
+  // Course cards grid
+  html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:16px">';
+
+  ACADEMY_COURSES.forEach(course => {
+    const catDone = course.articles.filter(a=>done.includes(a.id)).length;
+    const catPct  = Math.round(catDone/course.articles.length*100);
+    html += '<div class="card" style="padding:0;overflow:hidden">'
+      // Category header
+      +'<div style="background:linear-gradient(135deg,'+course.color+'22,'+course.color+'11);border-bottom:1px solid '+course.color+'33;padding:14px 16px">'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">'
+      +'<div style="font-size:14px;font-weight:800;color:'+course.color+'">'+course.cat+'</div>'
+      +'<span style="font-size:11px;font-weight:700;color:'+course.color+'">'+catDone+'/'+course.articles.length+'</span>'
+      +'</div>'
+      +'<div style="background:rgba(255,255,255,.1);border-radius:4px;height:4px;overflow:hidden">'
+      +'<div style="height:100%;background:'+course.color+';width:'+catPct+'%;border-radius:4px"></div>'
+      +'</div>'
+      +'</div>'
+      // Article list
+      +'<div style="padding:8px 0">'
+      +course.articles.map((a,i)=>{
+        const isDone = done.includes(a.id);
+        return '<div style="display:flex;align-items:center;gap:10px;padding:9px 14px;border-bottom:'+(i<course.articles.length-1?'1px solid var(--border)':'none')+';'+(isDone?'opacity:.55':'')+'">'
+          +'<div onclick="academyToggle(\''+a.id+'\')" style="width:20px;height:20px;border-radius:50%;border:2px solid '+(isDone?course.color:'var(--border)')+';background:'+(isDone?course.color:'transparent')+';cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;transition:all .2s">'
+          +(isDone?'✓':'')+'</div>'
+          +'<div style="flex:1;font-size:13px;font-weight:'+(isDone?'400':'600')+';color:'+(isDone?'var(--muted)':'var(--fg)')+'">'+a.title+'</div>'
+          +'<button onclick="academyOpen(\''+a.id+'\')" style="background:none;border:1px solid var(--border);border-radius:6px;padding:4px 10px;cursor:pointer;font-size:11px;color:var(--muted);white-space:nowrap" onmouseover="this.style.borderColor=\''+course.color+'\';this.style.color=\''+course.color+'\'" onmouseout="this.style.borderColor=\'var(--border)\';this.style.color=\'var(--muted)\'">열기 ↗</button>'
+          +'</div>';
+      }).join('')
+      +'</div>'
+      +'</div>';
+  });
+
+  html += '</div>';
+  panel.innerHTML = html;
 }
 
 function renderReseller(){
