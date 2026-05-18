@@ -1951,12 +1951,19 @@ window.fsSet = (key, val) => {
           <div class="sec-title">🎯 OKR 대시보드</div>
           <div class="sec-sub">2026 Q2 · Object 4 (UK) &amp; Object 5 (US)</div>
         </div>
-        <div style="display:flex;gap:8px">
-          <button onclick="okrSetObj(4,this)" id="okr-btn-4" style="padding:6px 16px;border-radius:20px;border:1.5px solid #7C3AED;background:#7C3AED;color:#fff;font-size:12px;font-weight:700;cursor:pointer">🇬🇧 Object 4 · UK</button>
-          <button onclick="okrSetObj(5,this)" id="okr-btn-5" style="padding:6px 16px;border-radius:20px;border:1.5px solid #E5E7EB;background:#fff;color:#374151;font-size:12px;font-weight:700;cursor:pointer">🇺🇸 Object 5 · US</button>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+          <div style="display:flex;gap:6px">
+            <button onclick="okrSetObj(4,this)" id="okr-btn-4" style="padding:6px 16px;border-radius:20px;border:1.5px solid #7C3AED;background:#7C3AED;color:#fff;font-size:12px;font-weight:700;cursor:pointer">🇬🇧 Object 4 · UK</button>
+            <button onclick="okrSetObj(5,this)" id="okr-btn-5" style="padding:6px 16px;border-radius:20px;border:1.5px solid #E5E7EB;background:#fff;color:#374151;font-size:12px;font-weight:700;cursor:pointer">🇺🇸 Object 5 · US</button>
+          </div>
+          <div style="display:flex;gap:6px;border-left:1px solid #E5E7EB;padding-left:10px">
+            <button onclick="okrSetView('cards',this)" id="okr-view-cards" style="padding:6px 14px;border-radius:20px;border:1.5px solid #1a1a2e;background:#1a1a2e;color:#fff;font-size:12px;font-weight:700;cursor:pointer">📋 카드뷰</button>
+            <button onclick="okrSetView('calendar',this)" id="okr-view-calendar" style="padding:6px 14px;border-radius:20px;border:1.5px solid #E5E7EB;background:#fff;color:#374151;font-size:12px;font-weight:700;cursor:pointer">📅 캘린더</button>
+          </div>
         </div>
       </div>
       <div id="okr-body"></div>
+      <div id="okr-calendar" style="display:none"></div>
     </div>
     <!-- ═══ 매출 대시보드 ═══════════════════════ -->
     <div id="sec-revdash" class="page-section">
@@ -3891,10 +3898,11 @@ function rdSave() {
 }
 
 
+
 /* ════════════════════════════════════════════════
    OKR DASHBOARD
 ════════════════════════════════════════════════ */
-const OKR_DATA = [{"objNum":"4","krNum":"1","projNum":"1","owner":"온기철","projName":"영국샵 온고지신","objective":"TikTok에서 영국 Grand Opening을 발판으로 글로벌 데이터·콘텐츠 자산을 축적한다.","keyResult":"TikTok Shop UK Brand Grand Opening(재고 라이브 + 30일 기준) GMV 2천만원 달성","projWhy":"영국 TikTok Shop 운영을 통해 축적된 검증된 자산(인플루언서 풀, 고성과 콘텐츠 포맷, 라이브·숏폼 운영 프로세스)을 체계적으로 재활용하여 신규 브랜드 및 신규 시장 진출 시 초기 시행착오를 최소화하고자 함. 또한 기존 인플루언서 네트워크를 카테고리·성과 기반으로 재분류 및 재활성화함으로써 신규 셀러/브랜드의 onboarding 기간을 단축하고, 초기 단계부터 빠른 GMV 성장을 실현하는 것을 목표로 함.","kpis":[{"metric":"Boots 및 다른 영국 콘텐츠","current":0,"target":200,"method":"TikTok Seller Centre","period":"출시 후 2주"},{"metric":"영국  target outreach 숫자 해제","current":0,"target":2000,"method":"TikTok Afifliate Seller Centre","period":"출시 후  4주"}],"tasks":[{"task":"TikTok Ads Manager UK 계정 셋업, 픽셀·카탈로그 연동, Spark Ads / VSA / GMV Max 캠페인 구조 설계","milestone":"M1","owner":"왕지윤","start":"2026-05-13","finish":"2026-05-14","deliverable":"TikTok Business Center"},{"task":"기존 UK 향 콘텐츠 전수조사 (영상·이미지·카피), 사용 가능 자산 분류","milestone":"M1","owner":"왕지윤","start":"2026-05-13","finish":"2026-05-14","deliverable":"컨텐츠 퍼포먼스 마스터 시트"},{"task":"틱톡샵 UK 와 소통하여,  상위 크리에이터 식별  수수료 인센티브 / 독점 코드 / 장기 파트너십 제안","milestone":"M2","owner":"온기철","start":"2026-05-18","finish":"2026-05-24","deliverable":"Lark Suite"},{"task":"기존 UK 향 콘텐츠 광고 부분 진행","milestone":"M2","owner":"왕지윤","start":"2026-05-18","finish":"2026-05-24","deliverable":"TikTok Business Center"},{"task":"UK Shop Star 산정 지표 정리, 현재 스토어의 각 지표 현황 진단 (GMV / 리뷰 평점 / 분쟁률 / 배송)","milestone":"M3","owner":"온기철","start":"2026-05-26","finish":"2026-06-08","deliverable":"Seller Centre"},{"task":"3PL / 배송 SLA 확보, 고객 응대(CS) 24~48시간 응답 체계 구축, 반품·환불 SOP 정비","milestone":"M3","owner":"온기철","start":"2026-05-26","finish":"2026-06-08","deliverable":"Seller Centre"},{"task":"Free Sample / Post-purchase 메시지로 리뷰 적극 수집, 평점 4.7+ 유지","milestone":"M4","owner":"왕지윤","start":"2026-05-26","finish":"2026-06-30","deliverable":"Seller Centre"},{"task":"Silver Star 달성, 스토어 페이지·콘텐츠·광고 소재에 배지 노출하여 신뢰도 마케팅 활용","milestone":"M4","owner":"온기철","start":"2026-05-26","finish":"2026-06-30","deliverable":"Seller Centre"}],"initiatives":[{"name":"김세빈","owner":"","status":"Not Started"},{"name":"조희지","owner":"","status":"Done"},{"name":"오유찬","owner":"","status":""},{"name":"오유찬","owner":"","status":""},{"name":"김세빈","owner":"","status":""},{"name":"조희지","owner":"","status":""}]},{"objNum":"4","krNum":"1","projNum":"2","owner":"왕지윤","projName":"샘플의 민족 주문~!","objective":"TikTok에서 영국 Grand Opening을 발판으로 글로벌 데이터·콘텐츠 자산을 축적한다.","keyResult":"TikTok Shop UK Brand Grand Opening(재고 라이브 + 30일 기준) GMV 2천만원 달성","projWhy":"이 프로젝트를 통하여, 영국 affiliate 확보 및 영국 affiliate들에게 우리 샘플을 사용햘 기회를 제공한다. 그로 인해 우리 브랜드에 애정이 가게끔 하여 틱톡샵 매출 목표 달성에 기여한다","kpis":[{"metric":"샘플 발송량","current":0,"target":2000,"method":"TikTok Shop UK Seller centre 데이터 기준","period":"재고 입고 후 ~ 5/31"},{"metric":"샘플 발송량","current":0,"target":2000,"method":"TikTok Shop UK Seller centre 데이터 기준","period":"6/1 ~ 재고 입고 후 4주 되는 시점"}],"tasks":[{"task":"틱톡샵 UK 재고 확보 및 FBT 입고","milestone":"M1","owner":"온기철, SCM팀","start":"","finish":"","deliverable":"FBT 창고 대시보드"},{"task":"Open Plan 및 Target Plan 커미션 설정\nSample Approval Criteria 설정","milestone":"M1","owner":"왕지윤","start":"","finish":"","deliverable":"Affiliate Center"},{"task":"Agency Initiated TAP 등록 및 Agency 미팅","milestone":"M1","owner":"온기철, 왕지윤","start":"","finish":"","deliverable":"Lark Suite, Lark Docs"},{"task":"어필리에이트 리크루팅 안내 콘텐츠 기획 및 온드 계정 업로드","milestone":"M2","owner":"왕지윤, Gl_BE팀","start":"","finish":"","deliverable":"Lark, Discord, Canva"},{"task":"Seller Initiated TAP 등록","milestone":"M2","owner":"왕지윤","start":"","finish":"","deliverable":"Affiliate Center"},{"task":"어필리에이트 타겟 인비 발송 W1","milestone":"M3","owner":"왕지윤","start":"","finish":"","deliverable":"EUKA"},{"task":"어필리에이트 타겟 인비 발송 W2","milestone":"M3","owner":"왕지윤","start":"","finish":"","deliverable":"EUKA"},{"task":"어필리에이트 타겟 인비 발송 W3","milestone":"M3","owner":"왕지윤","start":"","finish":"","deliverable":"EUKA"}],"initiatives":[{"name":"김세빈","owner":"","status":"Not Started"},{"name":"조희지","owner":"","status":"Done"},{"name":"오유찬","owner":"","status":""},{"name":"오유찬","owner":"","status":""},{"name":"김세빈","owner":"","status":""},{"name":"조희지","owner":"","status":""}]},{"objNum":"4","krNum":"1","projNum":"3","owner":"왕지윤","projName":"영국고객관시","objective":"TikTok에서 영국 Grand Opening을 발판으로 글로벌 데이터·콘텐츠 자산을 축적한다.","keyResult":"TikTok Shop UK Brand Grand Opening(재고 라이브 + 30일 기준) GMV 2천만원 달성","projWhy":"이 프로젝트를 통하여, 고객과의 긍정적인 관계 구축 및 리뷰 확보를 확보함으로써 높은 Shop Performance Score을 유지한다.","kpis":[],"tasks":[{"task":"US 틱톡샵 기존 부정 리뷰 분석","milestone":"M1","owner":"왕지윤","start":"2026-05-04","finish":"2026-05-08","deliverable":"[TTS US] 부정리뷰 분석"},{"task":"기존 CS 템플릿 고도화 - AI 활용 3점 이상 긍정 리뷰 자동 답변 시스템 구축","milestone":"M1","owner":"왕지윤","start":"2026-05-11","finish":"2026-05-13","deliverable":"고객 CS 답변 템플릿"},{"task":"리뷰 작성 이벤트 기획","milestone":"M1","owner":"왕지윤","start":"2026-05-13","finish":"2026-05-19","deliverable":"Figma 기획안"},{"task":"AI 활용 3점 이상 긍정 리뷰 자동 답변 시스템 구축","milestone":"M2","owner":"온기철","start":"2026-05-11","finish":"2026-05-15","deliverable":"자동답변 스크립트"},{"task":"M1 시기 정립된 프로세스 및 템플릿 토대로 운영","milestone":"M2","owner":"왕지윤","start":"2026-05-18","finish":"2026-05-22","deliverable":"CS 챗 소통 내역"},{"task":"제품 관련 FAQ 정리 및 템플릿 고도화","milestone":"M2","owner":"왕지윤","start":"2026-05-18","finish":"2026-05-24","deliverable":"제품 관련 FAQ"},{"task":"CRM 메시지 템플릿 작성 및 설정","milestone":"M3","owner":"왕지윤","start":"2026-05-25","finish":"2026-05-31","deliverable":"TikTok Shop Seller Centre_CRM"},{"task":"M2 시기 CS 운영 점검 및 피드백 사항 바탕으로 운영","milestone":"M3","owner":"왕지윤","start":"2026-05-25","finish":"2026-05-31","deliverable":"CS 챗 소통 내역"}],"initiatives":[{"name":"김세빈","owner":"","status":"Not Started"},{"name":"조희지","owner":"","status":"Done"},{"name":"오유찬","owner":"","status":""},{"name":"오유찬","owner":"","status":""},{"name":"김세빈","owner":"","status":""},{"name":"조희지","owner":"","status":""}]},{"objNum":"4","krNum":"2","projNum":"1","owner":"온기철","projName":"영국 TAP 관시","objective":"","keyResult":"US Affiliate L4+급 50명 이상의 콘텐츠 업로드 유도","projWhy":"이 프로젝트는 ___을 위해, ___을 만든다","kpis":[{"metric":"월간 검색량","current":3,"target":20,"method":"Amazon 셀러 센트럴","period":"출시 후 8주"},{"metric":"월간 검색량","current":3,"target":20,"method":"Amazon 셀러 센트럴","period":"출시 후 8주"},{"metric":"월간 검색량","current":3,"target":20,"method":"Amazon 셀러 센트럴","period":"출시 후 8주"}],"tasks":[{"task":"각 TAP의 운영 크리에이터 수 · L3~L5 등급 비중 · 카테고리 강점 · 수수료 구조 · 평균 GMV 기여도 비교 분석","milestone":"M1","owner":"온기철","start":"2026-05-08","finish":"2026-05-15","deliverable":"[UK] TAP Agency Dashboard"},{"task":"각 TAP Agency 콜 진행","milestone":"M1","owner":"온기철","start":"2026-05-08","finish":"2026-05-15","deliverable":"Lark Suite, [UK] TAP Agency Dashboard"},{"task":"TAP들로부터 L4 등급 크리에이터 풀 데이터 수령 (팔로워 수, 평균 조회수, 카테고리 적합도, 과거 K-Beauty 콜라보 경험)","milestone":"M2","owner":"온기철","start":"2026-05-11","finish":"2026-05-15","deliverable":"[UK] TAP Agency Dashboard"},{"task":"TAP를 통한 공식 아웃리치 진행 (브랜드 소개서 + 제품 정보 + 콜라보 조건 패키지 전달)","milestone":"M2","owner":"왕지윤","start":"2026-05-11","finish":"2026-05-15","deliverable":"[UK] TAP Agency Dashboard"},{"task":"TAP별 온보딩 SOP 운영: 콘텐츠 가이드라인 / 해시태그 / CTA  사전 교육","milestone":"M3","owner":"온기철","start":"2026-05-18","finish":"2026-05-29","deliverable":"[UK] TAP Agency Dashboard"},{"task":"매칭 성사된 크리에이터 대상 샘플 발송 및 콘텐츠 브리프 전달 (US 검증 브리프 UK 현지화 버전)","milestone":"M3","owner":"왕지윤","start":"2026-05-18","finish":"2026-05-29","deliverable":"[UK] TAP Agency Dashboard"},{"task":"1차 콘텐츠 성과 데이터 기반 상위 크리에이터(Key Affiliate) 선별 (GMV 기여 Top 10~20%)","milestone":"M4","owner":"온기철","start":"2026-06-01","finish":"2026-06-30","deliverable":"TikTok Affilite Centre"},{"task":"Key Affiliate 대상 장기 파트너십 조건 제안: 추가 수수료 인센티브 / 독점 할인 코드 / 시즌 캠페인 우선 매칭 / 콘텐츠 사용권 확장","milestone":"M4","owner":"온기철","start":"2026-06-01","finish":"2026-06-30","deliverable":"[UK] TAP Agency Dashboard"}],"initiatives":[{"name":"김세빈","owner":"","status":"Not Started"},{"name":"조희지","owner":"","status":"Done"},{"name":"오유찬","owner":"","status":""},{"name":"오유찬","owner":"","status":""},{"name":"김세빈","owner":"","status":""},{"name":"조희지","owner":"","status":""}]},{"objNum":"4","krNum":"2","projNum":"2","owner":"왕지윤","projName":"천하제일매출대회","objective":"TikTok에서 영국 Grand Opening을 발판으로 글로벌 데이터·콘텐츠 자산을 축적한다.","keyResult":"UK L4 등급 크리에이터 25명 이상 확보","projWhy":"이 프로젝트를 통해 탑 티어 어필리에이트 유입과 양질의 콘텐츠 창출, Affiliate GMV 확보를 도모한다.","kpis":[],"tasks":[{"task":"경쟁사 어필리에이트 챌린지 현황 스터디","milestone":"M1","owner":"왕지윤","start":"2026-05-04","finish":"2026-05-12","deliverable":"경쟁사 EUKA 활용 현황"},{"task":"어필리에이트 챌린지 기획","milestone":"M1","owner":"왕지윤","start":"2026-05-13","finish":"2026-05-15","deliverable":"[TTS UK] Challenges"},{"task":"어필리에이트 챌린지 홍보물 기획","milestone":"M2","owner":"왕지윤","start":"2026-05-18","finish":"2026-05-20","deliverable":"Figma 기획안 형태"},{"task":"어필리에이트 챌린지 홍보물 제작 및 업로드","milestone":"M2","owner":"디자인팀,\nGlobal_BE","start":"2026-05-20","finish":"2026-05-29","deliverable":"Carousel 또는 GIF의 콘텐츠"},{"task":"Discord UK Channel에 챌린지 안내 및 홍보","milestone":"M2","owner":"왕지윤","start":"2026-05-26","finish":"2026-05-29","deliverable":"디스코드 내 UK Community"},{"task":"기존 및 신규 어필리에이트에게 챌린지 안내 메시지 발송","milestone":"M3","owner":"왕지윤","start":"2026-05-28","finish":"2026-06-17","deliverable":"Affiliate Center 내 메시지"},{"task":"챌린지 진행 및 현황 트래킹","milestone":"M3","owner":"왕지윤","start":"2026-06-01","finish":"2026-06-30","deliverable":"챌린지 해시태그 및 \nAffiliate Center 데이터"},{"task":"챌린지 Winner 선정 및 아웃리치, 정산","milestone":"M4","owner":"왕지윤","start":"2026-07-01","finish":"2026-07-10","deliverable":"당첨자 명단 및 인보이스"}],"initiatives":[{"name":"김세빈","owner":"","status":"Not Started"},{"name":"조희지","owner":"","status":"Done"},{"name":"오유찬","owner":"","status":""},{"name":"오유찬","owner":"","status":""},{"name":"김세빈","owner":"","status":""},{"name":"조희지","owner":"","status":""}]},{"objNum":"4","krNum":"3","projNum":"1","owner":"왕지윤","projName":"GMV MAX on the NEX LEVEL","objective":"TikTok에서 영국 Grand Opening을 발판으로 글로벌 데이터·콘텐츠 자산을 축적한다.","keyResult":"UK 틱톡 100만뷰+ 영상 2Q 내 3개 확보","projWhy":"Global MKT CG파트의 시딩 콘텐츠의 GMV Max 세팅을 통해 2Q 내 틱톡 1M+ VV를 가진 위닝콘텐츠를 생산하여 틱톡샵 매출에 기여한다.","kpis":[{"metric":"콘텐츠 수","current":640,"target":2000,"method":"TikTok Seller Centre_GMV Max_Creatives","period":""}],"tasks":[{"task":"기존 US 및 UK 타겟 시딩 콘텐츠 Spark Ads Code 확보","milestone":"M1","owner":"왕지윤","start":"2026-05-04","finish":"2026-05-08","deliverable":"컨텐츠 퍼포먼스 마스터 시트"},{"task":"GMV Max 초기 Target ROI 및 Daily Budget 설정","milestone":"M1","owner":"왕지윤","start":"2026-05-04","finish":"2026-05-08","deliverable":"Seller Centre_GMV Max"},{"task":"신규 UK 타겟 시딩 콘텐츠 Spark Ads Code 확보","milestone":"M2","owner":"Global MKT_CG","start":"2026-05-11","finish":"2026-05-31","deliverable":"컨텐츠 퍼포먼스 마스터 시트"},{"task":"Affiliate 대상 Spark Ads Code 제출 독려 메시지 발송","milestone":"M2","owner":"왕지윤","start":"2026-05-18","finish":"2026-05-24","deliverable":"Affiliate Message"},{"task":"GMV Max 초기 Target ROI 및 Daily Budget 확인 및 조정","milestone":"M3","owner":"왕지윤","start":"2026-05-18","finish":"2026-05-24","deliverable":"Seller Centre_GMV Max"},{"task":"Global MKT_CG 협업 콘텐츠 Boosting","milestone":"M3","owner":"왕지윤","start":"2026-05-26","finish":"2026-06-08","deliverable":"컨텐츠 퍼포먼스 마스터 시트"},{"task":"Affiliate 대상 Spark Ads Code 제출 독려 메시지 발송","milestone":"M3","owner":"왕지윤","start":"2026-05-26","finish":"2026-05-31","deliverable":"Affiliate Message"},{"task":"GMV Max 초기 Target ROI 및 Daily Budget 확인 및 조정","milestone":"M3","owner":"왕지윤","start":"2026-05-26","finish":"2026-05-31","deliverable":"Seller Centre_GMV Max"}],"initiatives":[{"name":"김세빈","owner":"","status":"Not Started"},{"name":"조희지","owner":"","status":"Done"},{"name":"오유찬","owner":"","status":""},{"name":"오유찬","owner":"","status":""},{"name":"김세빈","owner":"","status":""},{"name":"조희지","owner":"","status":""}]},{"objNum":"4","krNum":"3","projNum":"2","owner":"온기철","projName":"UK바이럴 플젝","objective":"","keyResult":"","projWhy":"이 프로젝트는 ___을 위해, ___을 만든다","kpis":[{"metric":"월간 검색량","current":3,"target":20,"method":"Amazon 셀러 센트럴","period":"출시 후 8주"},{"metric":"월간 검색량","current":3,"target":20,"method":"Amazon 셀러 센트럴","period":"출시 후 8주"},{"metric":"월간 검색량","current":3,"target":20,"method":"Amazon 셀러 센트럴","period":"출시 후 8주"}],"tasks":[{"task":"UK TikTok Shop 과거 데이터 기반 벤치마크 지표 산출 (6초 이상 View, 좋아요, 팔로워, 댓글 수 등)","milestone":"M1","owner":"온기철","start":"2026-05-04","finish":"2026-05-08","deliverable":"컨텐츠 퍼포먼스 마스터 시트"},{"task":"부스팅 Tier 분류 기준 정의: (S-Tier -> 1M+ View, ER % 등)","milestone":"M1","owner":"온기철","start":"2026-05-04","finish":"2026-05-15","deliverable":"컨텐츠 퍼포먼스 마스터 시트"},{"task":"신규 UK 타겟 시딩 콘텐츠 Spark Ads Code 확보","milestone":"M2","owner":"Global MKT_CG","start":"2026-05-11","finish":"2026-05-31","deliverable":"컨텐츠 퍼포먼스 마스터 시트"},{"task":"1차 Broad View Ads 광고 집행","milestone":"M2","owner":"온기철","start":"2026-05-18","finish":"2026-05-24","deliverable":"TikTok Ad Manager"},{"task":"1차 Broad View Ads 광고 데이터 효율 분석","milestone":"M3","owner":"온기철","start":"2026-05-18","finish":"2026-05-24","deliverable":"TikTok Ad Manager"},{"task":"A~ S-Tier 콘텐츠 대상 Engaged Spark Ads 캠페인 집행","milestone":"M3","owner":"온기철","start":"2026-05-26","finish":"2026-05-31","deliverable":"TikTok Ad Manager"},{"task":"2차 Engaged View Ads 광고 데이터 효율 분석","milestone":"M4","owner":"온기철","start":"2026-06-01","finish":"2026-06-12","deliverable":"TikTok Ad Manager"},{"task":"2차 Engaged View Ads 영상들 조회수 1~2백만 달성 체크","milestone":"M4","owner":"온기철","start":"2026-06-15","finish":"2026-06-26","deliverable":"컨텐츠 퍼포먼스 마스터 시트"}],"initiatives":[{"name":"김세빈","owner":"","status":"Not Started"},{"name":"조희지","owner":"","status":"Done"},{"name":"오유찬","owner":"","status":""},{"name":"오유찬","owner":"","status":""},{"name":"김세빈","owner":"","status":""},{"name":"조희지","owner":"","status":""}]},{"objNum":"5","krNum":"1","projNum":"1","owner":"온기철","projName":"미국샵 온고지신","objective":"미국법인으로의 Tiktok Shop Transition 이후 빠르게 기존 T3 수준 실적을 회복한다.","keyResult":"미국법인 계정 틱톡샵 5월 중 Open 후 2Q 내 T3(Tier 3, 월 GMV 80K USD 이상) 실적 확보","projWhy":"미국 TikTok Shop 운영 과정에서 이미 검증된 자산(인플루언서·콘텐츠·운영 프로세스)을 재활용함으로써 신규 시장/브랜드 확장 시 시행착오와 CAC를 최소화하고,  기존 인플루언서 네트워크를 재분류·재활성화하여 신규 셀러/브랜드 onboarding 기간을 단축하고 빠르게 GMV를 확보하기 위함","kpis":[{"metric":"미국 Silver Star 점수에 가까워지는 지표","current":0,"target":20,"method":"TikTok 셀러 센터","period":"Phase 1 (5월 중)"},{"metric":"미국 active creator","current":0,"target":20,"method":"TikTok 셀러 센터","period":"Phase 2 (6월 초)"},{"metric":"미국 매출","current":0,"target":20,"method":"TikTok 셀러 센터","period":"Phase 3 (6월 말)"}],"tasks":[{"task":"TikTok Ads Manager US 계정 셋업, 픽셀·카탈로그 연동, Spark Ads / VSA / GMV Max 캠페인 구조 설계","milestone":"M1","owner":"온기철","start":"2026-05-13","finish":"2026-05-14","deliverable":"TikTok Business Center"},{"task":"기존 US 향 콘텐츠 전수조사 (영상·이미지·카피), 사용 가능 자산 분류","milestone":"M1","owner":"김세원","start":"2026-05-13","finish":"2026-05-14","deliverable":"컨텐츠 퍼포먼스 마스터 시트"},{"task":"틱톡샵 US 와 소통하여,  상위 크리에이터 식별  수수료 인센티브 / 독점 코드 / 장기 파트너십 제안","milestone":"M2","owner":"온기철","start":"2026-05-18","finish":"2026-05-24","deliverable":"Lark Suite"},{"task":"기존 US 향 콘텐츠 광고 부분 진행","milestone":"M2","owner":"김세원","start":"2026-05-18","finish":"2026-05-24","deliverable":"TikTok Business Center"},{"task":"US Shop Star 산정 지표 정리, 현재 스토어의 각 지표 현황 진단 (GMV / 리뷰 평점 / 분쟁률 / 배송)","milestone":"M3","owner":"온기철","start":"2026-05-26","finish":"2026-06-08","deliverable":"Seller Center"},{"task":"3PL / 배송 SLA 확보, 고객 응대(CS) 24~48시간 응답 체계 구축, 반품·환불 SOP 정비","milestone":"M3","owner":"김세원","start":"2026-05-26","finish":"2026-06-08","deliverable":"Seller Center"},{"task":"Free Sample / Post-purchase 메시지로 리뷰 적극 수집, 평점 4.7+ 유지","milestone":"M4","owner":"김세원","start":"2026-05-26","finish":"2026-06-30","deliverable":"Seller Center"},{"task":"Silver Star 달성, 스토어 페이지·콘텐츠·광고 소재에 배지 노출하여 신뢰도 마케팅 활용","milestone":"M4","owner":"온기철","start":"2026-05-26","finish":"2026-06-30","deliverable":"Seller Center"}],"initiatives":[{"name":"김세빈","owner":"","status":"Not Started"},{"name":"조희지","owner":"","status":"Done"},{"name":"오유찬","owner":"","status":""},{"name":"오유찬","owner":"","status":""},{"name":"김세빈","owner":"","status":""},{"name":"조희지","owner":"","status":""}]},{"objNum":"5","krNum":"1","projNum":"2","owner":"온기철","projName":"이벤트 영역전개","objective":"미국법인으로의 Tiktok Shop Transition 이후 빠르게 기존 T3 수준 실적을 회복한다.","keyResult":"미국법인 계정 틱톡샵 5월 중 Open 후 2Q 내 T3(Tier 3, 월 GMV 80K USD 이상) 실적 확보","projWhy":"TikTok 내 주요 시즌성 이벤트 및 플랫폼 공식 행사에 선제적으로 참여함으로써 브랜드 노출, 신뢰도, 트래픽을 동시에 확보하기 위함. 또한 TikTok US 샵 매니저와의 협업을 통해 향후 우선 프로모션·캠페인·베타 기능 참여 기회를 지속적으로 선점하기 위함.","kpis":[{"metric":"이벤트 자리 선점표, 광고표 단가 획득 등","current":3,"target":20,"method":"틱톡샵 이벤트 자리","period":"Phase 1 (5월 초~중)"},{"metric":"이벤트 혹은 광고 배너 1-2건","current":3,"target":20,"method":"틱톡샵 이벤트 자리","period":"Phase 2 (5월 말)"},{"metric":"3분기 자리 미리 확보 내역","current":3,"target":20,"method":"틱톡샵 이벤트 자리","period":"Phase 3 (6월)"}],"tasks":[{"task":"TikTok US 시즌성 이벤트 캘린더 매핑 (Summer Sale, TikTok UK 이벤트 등)","milestone":"M1","owner":"온기철","start":"2026-05-04","finish":"2026-05-08","deliverable":"이벤트 캘린더"},{"task":"TikTok US 샵 매니저 미팅 → 우선 참여 기회 리스트 확보 (TC·K-Beauty Collective·배너·Smart Promo)","milestone":"M1","owner":"온기철","start":"2026-05-11","finish":"2026-05-15","deliverable":"매니저 미팅록 + 기회 리스트"},{"task":"May Deal Drops – Sunshine Essentials 참여","milestone":"M2","owner":"이지윤","start":"2026-05-13","finish":"2026-05-22","deliverable":"Seller Center"},{"task":"K-Beauty Collective 차기 자리 확보 신청 (온라인 캠페인 + HY2 이벤트)","milestone":"M2","owner":"온기철","start":"2026-06-02","finish":"2026-06-15","deliverable":"신청서 + 매니저 컨펌"},{"task":"Summer Sale 회고 + HY2 이벤트 로드맵 수립 (Q3 BFCM·Holiday까지)","milestone":"M3","owner":"온기철","start":"2026-06-01","finish":"2026-06-26","deliverable":"로드맵 및 데이터 정리"},{"task":"TikTok 베타 기능 / 신규 프로그램 참여 신청","milestone":"M3","owner":"온기철","start":"2026-06-01","finish":"2026-06-30","deliverable":"베타 access 확인"}],"initiatives":[{"name":"김세빈","owner":"","status":"Not Started"},{"name":"조희지","owner":"","status":"Done"},{"name":"오유찬","owner":"","status":""},{"name":"오유찬","owner":"","status":""},{"name":"김세빈","owner":"","status":""},{"name":"조희지","owner":"","status":""}]},{"objNum":"5","krNum":"1","projNum":"3","owner":"김세원","projName":"미국고객관시","objective":"미국법인으로의 Tiktok Shop Transition 이후 빠르게 기존 T3 수준 실적을 회복한다.","keyResult":"미국법인 계정 틱톡샵 5월 중 Open 후 2Q 내 T3(Tier 3, 월 GMV 80K USD 이상) 실적 확보","projWhy":"새 TTS US 샵 개설 후, 고객들의 문의를 안정적으로 응대하고 CRM 효율적으로 운영해 기존샵의 실적 회복을 가속화","kpis":[{"metric":"24시간 응답률","current":0,"target":0.9,"method":"TTS CS chat overview","period":"TTS US 제품 판매 시작 후 2주 ~ 6월 말까지"},{"metric":"Satisfaction rate","current":0,"target":0.8,"method":"TTS CS chat overview","period":"TTS US 제품 판매 시작 후 2주 ~ 6월 말까지"},{"metric":"제품 평점(5점만점)","current":0,"target":4.5,"method":"TTS CS chat overview","period":"TTS US 제품 판매 시작 후 2주 ~ 6월 말까지"}],"tasks":[{"task":"1–2점 부정 리뷰 개별 맞춤 답변 작성","milestone":"M1","owner":"김세원","start":"2026-05-18","finish":"2026-06-30","deliverable":"틱톡샵 CS 답변 템플릿 모음"},{"task":"AI 활용 3점 이상 긍정 리뷰 자동 답변 시스템 구축","milestone":"M1","owner":"온기철","start":"2026-05-11","finish":"2026-05-15","deliverable":"자동답변 스크립트"},{"task":"구매 후 리뷰 작성 안내 아웃리치 메시지 발송","milestone":"M2","owner":"김세원","start":"2026-05-25","finish":"2026-05-29","deliverable":"CRM 메시지 발송 내역"},{"task":"리뷰 작성 이벤트 기획 및 운영","milestone":"M2","owner":"김세원","start":"2026-06-01","finish":"2026-06-05","deliverable":"CRM 메시지 발송 내역"},{"task":"AI 활용 반복 CS 문의 자동 처리 시스템 구축","milestone":"M3","owner":"온기철","start":"2026-06-01","finish":"2026-06-05","deliverable":"자동 답변 봇"},{"task":"1–2점 부정 리뷰 유형 리스트업 및 분석","milestone":"M3","owner":"김세원","start":"2026-06-08","finish":"2026-06-12","deliverable":"CS 운영시트 내 탭"},{"task":"부정 경험 고객 대상 사후관리 메시지 발송","milestone":"M4","owner":"김세원","start":"2026-06-15","finish":"2026-06-19","deliverable":"CS 챗 소통 내역"},{"task":"부정 리뷰 대응 프로세스 수립 및 가이드 작성","milestone":"M4","owner":"김세원","start":"2026-06-22","finish":"2026-06-30","deliverable":"CS 운영시트 내 탭"}],"initiatives":[{"name":"김세빈","owner":"","status":"Not Started"},{"name":"조희지","owner":"","status":"Done"},{"name":"오유찬","owner":"","status":""},{"name":"오유찬","owner":"","status":""},{"name":"김세빈","owner":"","status":""},{"name":"조희지","owner":"","status":""}]},{"objNum":"5","krNum":"2","projNum":"1","owner":"김세원","projName":"디스코드 다단계","objective":"미국법인으로의 Tiktok Shop Transition 이후 빠르게 기존 T3 수준 실적을 회복한다.","keyResult":"US Affiliate L4+급 50명 이상의 콘텐츠 업로드 유도","projWhy":"디스코드 내 Afiiliate 커뮤니티 형성 및 활성화 시켜 자사 제품 영상 수 부스트 업시키고 신뢰 관계 형성","kpis":[{"metric":"멤버수","current":593,"target":650,"method":"디스코드 내 멤버수 측정","period":"~5월 말"},{"metric":"멤버수","current":593,"target":1000,"method":"디스코드 내 멤버수 측정","period":"~6월 말"}],"tasks":[{"task":"타브랜드 디스코드 운영 전략 및 캠페인 운영 분석","milestone":"M1","owner":"왕지윤","start":"2026-05-01","finish":"2026-05-10","deliverable":"디스코드 운영 기획 (시트)"},{"task":"타브랜드 디스코드 채널명 및 온보딩 시스템 분석","milestone":"M1","owner":"김세원","start":"2026-05-01","finish":"2026-05-10","deliverable":"디스코드 운영 기획 (시트)"},{"task":"디스코드 온보딩 시스템 셋팅 및 채널명 변경","milestone":"M1","owner":"김세원","start":"2026-05-11","finish":"2026-05-15","deliverable":"디스코드 채널명"},{"task":"구글 폼 작성 Varification 시스템 셋팅","milestone":"M2","owner":"김세원","start":"2026-05-11","finish":"2026-05-15","deliverable":"구글폼"},{"task":"기존 채널 콘텐츠 정리 및 업데이트","milestone":"M2","owner":"김세원","start":"2026-05-18","finish":"2026-05-22","deliverable":"디스코드 채널 내 게시물"},{"task":"새로 오픈한 채널 콘텐츠 기획 및 제작(전반)","milestone":"M2","owner":"김세원","start":"2026-05-18","finish":"2026-06-30","deliverable":"디스코드 채널 내 게시물"},{"task":"디스코드 이벤트,챌린지 기획 및 운영","milestone":"M3","owner":"김세원","start":"2026-05-25","finish":"2026-06-30","deliverable":"디스코드 채널 내 게시물"},{"task":"Affiliate 101 아카데미 콘텐츠 제작","milestone":"M3","owner":"온기철","start":"2026-05-25","finish":"2026-06-30","deliverable":"Affiliate 101 대시보드"}],"initiatives":[{"name":"김세빈","owner":"","status":"Not Started"},{"name":"조희지","owner":"","status":"Done"},{"name":"오유찬","owner":"","status":""},{"name":"오유찬","owner":"","status":""},{"name":"김세빈","owner":"","status":""},{"name":"조희지","owner":"","status":""}]},{"objNum":"5","krNum":"2","projNum":"2","owner":"온기철","projName":"미국 TAP 관시","objective":"미국법인으로의 Tiktok Shop Transition 이후 빠르게 기존 T3 수준 실적을 회복한다.","keyResult":"미국법인 계정 틱톡샵 5월 중 Open 후 2Q 내 T3(Tier 3, 월 GMV 80K USD 이상) 실적 확보","projWhy":"TikTok Shop TAP 파트너와 협력해 L4급 크리에이터를 확보함으로써 일정 수준 이상의 콘텐츠 생산력·판매력·라이브 운영 경험을 빠르게 활용하기 위함. 또한 검증된 크리에이터 풀을 선점하여 경쟁 브랜드 대비 안정적인 어필리에이트 매출 구조와 장기 협업 네트워크를 구축하기 위함.","kpis":[{"metric":"TAP Agency 5곳 이상 캠페인 진행","current":0,"target":5,"method":"틱톡 Affiliate Seller Center","period":"Phase 1 (5월 중)"},{"metric":"L4급 크리에이터 3명  확보","current":0,"target":3,"method":"틱톡 Affiliate Seller Center","period":"Phase 2 (6월 초)"}],"tasks":[{"task":"각 TAP의 운영 크리에이터 수 · L3~L5 등급 비중 · 카테고리 강점 · 수수료 구조 · 평균 GMV 기여도 비교 분석","milestone":"M1","owner":"온기철","start":"2026-05-08","finish":"2026-05-15","deliverable":"[US] TAP Agency Dashboard"},{"task":"각 TAP Agency 콜 진행","milestone":"M1","owner":"온기철","start":"2026-05-08","finish":"2026-05-15","deliverable":"Lark Suite, [US] TAP Agency Dashboard"},{"task":"TAP들로부터 L4 등급 크리에이터 풀 데이터 수령 (팔로워 수, 평균 조회수, 카테고리 적합도, 과거 K-Beauty 콜라보 경험)","milestone":"M2","owner":"온기철","start":"2026-05-11","finish":"2026-05-15","deliverable":"[US] TAP Agency Dashboard"},{"task":"TAP를 통한 공식 아웃리치 진행 (브랜드 소개서 + 제품 정보 + 콜라보 조건 패키지 전달)","milestone":"M2","owner":"왕지윤","start":"2026-05-11","finish":"2026-05-15","deliverable":"[US] TAP Agency Dashboard"},{"task":"TAP별 온보딩 SOP 운영: 콘텐츠 가이드라인 / 해시태그 / CTA  사전 교육","milestone":"M3","owner":"온기철","start":"2026-05-18","finish":"2026-05-29","deliverable":"[US] TAP Agency Dashboard"},{"task":"매칭 성사된 크리에이터 대상 샘플 발송 및 콘텐츠 브리프 전달 (US 검증 브리프 UK 현지화 버전)","milestone":"M3","owner":"왕지윤","start":"2026-05-18","finish":"2026-05-29","deliverable":"[US] TAP Agency Dashboard"},{"task":"1차 콘텐츠 성과 데이터 기반 상위 크리에이터(Key Affiliate) 선별 (GMV 기여 Top 10~20%)","milestone":"M4","owner":"온기철","start":"2026-06-01","finish":"2026-06-30","deliverable":"TikTok Affilite Centre"},{"task":"Key Affiliate 대상 장기 파트너십 조건 제안: 추가 수수료 인센티브 / 독점 할인 코드 / 시즌 캠페인 우선 매칭 / 콘텐츠 사용권 확장","milestone":"M4","owner":"온기철","start":"2026-06-01","finish":"2026-06-30","deliverable":"[US] TAP Agency Dashboard"}],"initiatives":[{"name":"김세빈","owner":"","status":"Not Started"},{"name":"조희지","owner":"","status":"Done"},{"name":"오유찬","owner":"","status":""},{"name":"오유찬","owner":"","status":""},{"name":"김세빈","owner":"","status":""},{"name":"조희지","owner":"","status":""}]},{"objNum":"5","krNum":"2","projNum":"3","owner":"온기철","projName":"US 천하제일 매출대회","objective":"미국법인으로의 Tiktok Shop Transition 이후 빠르게 기존 T3 수준 실적을 회복한다.","keyResult":"미국법인 계정 틱톡샵 5월 중 Open 후 2Q 내 T3(Tier 3, 월 GMV 80K USD 이상) 실적 확보","projWhy":"미국 크리에이터의 Affiliate 판매 성공 사례를 만들고, 반복 가능한 성장 구조를 검증하기 위해,\n고매출 크리에이터를 지속적으로 배출할 수 있는 Affiliate 챌린지 운영 모델을 만든다","kpis":[{"metric":"Affiliate 수","current":0,"target":500,"method":"TikTok Affiliate Seller Center","period":"Phase 1 (5월 중)"},{"metric":"Affiliate Target 가능 Outreach 수","current":0,"target":2000,"method":"TikTok Affiliate Seller Center","period":"Phase 2 (6월 초)"},{"metric":"Affiliate Target 가능 Outreach 수","current":0,"target":7000,"method":"TikTok Affiliate Seller Center","period":"Phase 3 (6월 말)"}],"tasks":[{"task":"경쟁사 어필리에이트 챌린지 현황 스터디","milestone":"M1","owner":"온기철","start":"2026-05-04","finish":"2026-05-12","deliverable":"경쟁사 EUKA 활용 현황"},{"task":"어필리에이트 챌린지 기획","milestone":"M1","owner":"온기철","start":"2026-05-13","finish":"2026-05-15","deliverable":"TTS US Challenge"},{"task":"어필리에이트 챌린지 홍보물 기획","milestone":"M2","owner":"온기철","start":"2026-05-18","finish":"2026-05-20","deliverable":"Figma 기획안 형태"},{"task":"어필리에이트 챌린지 홍보물 제작 및 업로드","milestone":"M2","owner":"디자인팀,\nGlobal_BE","start":"2026-05-20","finish":"2026-05-29","deliverable":"Carousel 또는 GIF의 콘텐츠"},{"task":"Discord UK Channel에 챌린지 안내 및 홍보","milestone":"M2","owner":"온기철","start":"2026-05-26","finish":"2026-05-29","deliverable":"디스코드 내 UK Community"},{"task":"기존 및 신규 어필리에이트에게 챌린지 안내 메시지 발송","milestone":"M3","owner":"온기철","start":"2026-05-28","finish":"2026-06-17","deliverable":"Affiliate Center 내 메시지"},{"task":"챌린지 진행 및 현황 트래킹","milestone":"M3","owner":"온기철","start":"2026-06-01","finish":"2026-06-30","deliverable":"챌린지 해시태그 및 \nAffiliate Center 데이터"},{"task":"챌린지 Winner 선정 및 아웃리치, 정산","milestone":"M4","owner":"온기철","start":"2026-07-01","finish":"2026-07-10","deliverable":"당첨자 명단 및 인보이스"}],"initiatives":[{"name":"김세빈","owner":"","status":"Not Started"},{"name":"조희지","owner":"","status":"Done"},{"name":"오유찬","owner":"","status":""},{"name":"오유찬","owner":"","status":""},{"name":"김세빈","owner":"","status":""},{"name":"조희지","owner":"","status":""}]},{"objNum":"5","krNum":"2","projNum":"4","owner":"온기철","projName":"브랜드 앰버서더","objective":"미국법인으로의 Tiktok Shop Transition 이후 빠르게 기존 T3 수준 실적을 회복한다.","keyResult":"미국법인 계정 틱톡샵 5월 중 Open 후 2Q 내 T3(Tier 3, 월 GMV 80K USD 이상) 실적 확보","projWhy":"이 프로젝트는 Dr. Rejuall의 미국 내 영향력과 매출 기여도를 안정적으로 확대하기 위해,\n브랜드 충성도와 판매 성과를 동시에 만드는 앰버서더급 Key Affiliate 파트너십 체계를 만든다.","kpis":[{"metric":"월간 검색량","current":3,"target":20,"method":"Amazon 셀러 센트럴","period":"출시 후 8주"},{"metric":"월간 검색량","current":3,"target":20,"method":"Amazon 셀러 센트럴","period":"출시 후 8주"},{"metric":"월간 검색량","current":3,"target":20,"method":"Amazon 셀러 센트럴","period":"출시 후 8주"}],"tasks":[{"task":"미국법인 TikTok Shop Open + Hero SKU 5종 리스팅 활성화","milestone":"M1","owner":"온기철","start":"2026-05-09","finish":"2026-05-15","deliverable":"Selelr Center"},{"task":"기존 affiliate 전체 신규 샵 재초대 + 어그레시브 commission 셋업 (Product 40% / Shop Ads 30%)","milestone":"M1","owner":"김세원","start":"2026-05-19","finish":"2026-05-26","deliverable":"초대발송 리스트, EUKA"},{"task":"Key Affiliate 5인 후보 longlist 작성 + 1차 컨택 (T4~T5급 + 브랜드 fit 기준)","milestone":"M2","owner":"온기철","start":"2026-05-26","finish":"2026-05-30","deliverable":"EUKA 리스트"},{"task":"GMV MAX + Shop Ads + Smart Promotion 동시 가동으로 일 GMV $2.6K 회복 (T3 = 월 $80K)","milestone":"M2","owner":"온기철","start":"2026-06-02","finish":"2026-06-16","deliverable":"GMV Ads"},{"task":"Key Affiliate 5인 최종 선발 + 장기 파트너십 계약 체결 (월 콘텐츠 본수·전속성·commission 조건)","milestone":"M3","owner":"온기철","start":"2026-06-09","finish":"2026-06-26","deliverable":"Analytics Dashboard"},{"task":"월 GMV $80~$100K (T3) 달성 + Key Affiliate 콘텐츠 첫 사이클 실행","milestone":"M3","owner":"온기철","start":"2026-06-23","finish":"2026-06-30","deliverable":"계약서 5건, 컨텐츠 일정표"},{"task":"Transition 회고 + Key Affiliate 운영 SOP 정착 + 3Q T4 도약 로드맵","milestone":"M4","owner":"온기철","start":"2026-07-01","finish":"2026-07-04","deliverable":"Analytics Dashboard"}],"initiatives":[{"name":"김세빈","owner":"","status":"Not Started"},{"name":"조희지","owner":"","status":"Done"},{"name":"오유찬","owner":"","status":""},{"name":"오유찬","owner":"","status":""},{"name":"김세빈","owner":"","status":""},{"name":"조희지","owner":"","status":""}]},{"objNum":"5","krNum":"3","projNum":"1","owner":"온기철","projName":"GMV MAX on the NEX Level","objective":"미국법인으로의 Tiktok Shop Transition 이후 빠르게 기존 T3 수준 실적을 회복한다.","keyResult":"미국법인 계정 틱톡샵 5월 중 Open 후 2Q 내 T3(Tier 3, 월 GMV 80K USD 이상) 실적 확보","projWhy":"이 프로젝트는 US 틱톡 광고 효율과 매출 규모를 동시에 확대하기 위해,\nGlobal MKT CG 파트와 연계한 고성과 영상 기반의 GMV Max 광고 운영 체계를 만든다.","kpis":[{"metric":"월간 검색량","current":3,"target":20,"method":"Amazon 셀러 센트럴","period":"출시 후 8주"},{"metric":"월간 검색량","current":3,"target":20,"method":"Amazon 셀러 센트럴","period":"출시 후 8주"},{"metric":"월간 검색량","current":3,"target":20,"method":"Amazon 셀러 센트럴","period":"출시 후 8주"}],"tasks":[{"task":"기존 US 타겟 시딩 콘텐츠 Spark Ads Code 확보","milestone":"M1","owner":"온기철","start":"2026-05-04","finish":"2026-05-08","deliverable":"컨텐츠 퍼포먼스 마스터 시트"},{"task":"GMV Max 초기 Target ROI 및 Daily Budget 설정","milestone":"M1","owner":"온기철","start":"2026-05-04","finish":"2026-05-08","deliverable":"컨텐츠 퍼포먼스 결과 시트"},{"task":"신규 US 타겟 시딩 콘텐츠 Spark Ads Code 확보","milestone":"M2","owner":"Global MKT_CG","start":"2026-05-11","finish":"2026-05-31","deliverable":"컨텐츠 퍼포먼스 마스터 시트"},{"task":"Affiliate 대상 Spark Ads Code 제출 독려 메시지 발송","milestone":"M2","owner":"온기철","start":"2026-05-18","finish":"2026-05-24","deliverable":"Affiliate Message"},{"task":"GMV Max 초기 Target ROI 및 Daily Budget 확인 및 조정","milestone":"M3","owner":"온기철","start":"2026-05-18","finish":"2026-05-24","deliverable":"Seller Centre_GMV Max"},{"task":"Global MKT_CG 협업 콘텐츠 Boosting","milestone":"M3","owner":"온기철","start":"2026-05-26","finish":"2026-06-08","deliverable":"컨텐츠 퍼포먼스 마스터 시트"},{"task":"Affiliate 대상 Spark Ads Code 제출 독려 메시지 발송","milestone":"M3","owner":"온기철","start":"2026-05-26","finish":"2026-05-31","deliverable":"Affiliate Message"},{"task":"GMV Max 초기 Target ROI 및 Daily Budget 확인 및 조정","milestone":"M3","owner":"온기철","start":"2026-05-26","finish":"2026-05-31","deliverable":"Shop ads"}],"initiatives":[{"name":"김세빈","owner":"","status":"Not Started"},{"name":"조희지","owner":"","status":"Done"},{"name":"오유찬","owner":"","status":""},{"name":"오유찬","owner":"","status":""},{"name":"김세빈","owner":"","status":""},{"name":"조희지","owner":"","status":""}]},{"objNum":"5","krNum":"3","projNum":"2","owner":"온기철","projName":"US 바이럴 플젝","objective":"미국법인으로의 Tiktok Shop Transition 이후 빠르게 기존 T3 수준 실적을 회복한다.","keyResult":"미국법인 계정 틱톡샵 5월 중 Open 후 2Q 내 T3(Tier 3, 월 GMV 80K USD 이상) 실적 확보","projWhy":"이 프로젝트는 고성과 콘텐츠의 광고 효율을 극대화하고 운영 판단을 표준화하기 위해,\nSpark Ads 기반 영상 부스팅 운영 기준과 확장 가능한 퍼포먼스 체계를 만들어 닥터 리쥬올 바이럴을 일으킨다","kpis":[{"metric":"월간 검색량","current":3,"target":20,"method":"Amazon 셀러 센트럴","period":"출시 후 8주"},{"metric":"월간 검색량","current":3,"target":20,"method":"Amazon 셀러 센트럴","period":"출시 후 8주"},{"metric":"월간 검색량","current":3,"target":20,"method":"Amazon 셀러 센트럴","period":"출시 후 8주"}],"tasks":[{"task":"US TikTok Shop 과거 데이터 기반 벤치마크 지표 산출 (6초 이상 View, 좋아요, 팔로워, 댓글 수 등)","milestone":"M1","owner":"온기철","start":"2026-05-04","finish":"2026-05-08","deliverable":"컨텐츠 퍼포먼스 마스터 시트"},{"task":"부스팅 Tier 분류 기준 정의: (S-Tier -> 1M+ View, ER % 등)","milestone":"M1","owner":"온기철","start":"2026-05-04","finish":"2026-05-15","deliverable":"컨텐츠 퍼포먼스 마스터 시트"},{"task":"신규 US 타겟 시딩 콘텐츠 Spark Ads Code 확보","milestone":"M2","owner":"Global MKT_CG","start":"2026-05-11","finish":"2026-05-31","deliverable":"컨텐츠 퍼포먼스 마스터 시트"},{"task":"1차 Broad View Ads 광고 집행","milestone":"M2","owner":"온기철","start":"2026-05-18","finish":"2026-05-24","deliverable":"TikTok Ad Manager"},{"task":"1차 Broad View Ads 광고 데이터 효율 분석","milestone":"M3","owner":"온기철","start":"2026-05-18","finish":"2026-05-24","deliverable":"TikTok Ad Manager"},{"task":"A~ S-Tier 콘텐츠 대상 Engaged Spark Ads 캠페인 집행","milestone":"M3","owner":"온기철","start":"2026-05-26","finish":"2026-05-31","deliverable":"TikTok Ad Manager"},{"task":"2차 Engaged View Ads 광고 데이터 효율 분석","milestone":"M4","owner":"온기철","start":"2026-06-01","finish":"2026-06-12","deliverable":"TikTok Ad Manager"},{"task":"2차 Engaged View Ads 영상들 조회수 1~2백만 달성 체크","milestone":"M4","owner":"온기철","start":"2026-06-15","finish":"2026-06-26","deliverable":"컨텐츠 퍼포먼스 마스터 시트"}],"initiatives":[{"name":"김세빈","owner":"","status":"Not Started"},{"name":"조희지","owner":"","status":"Done"},{"name":"오유찬","owner":"","status":""},{"name":"오유찬","owner":"","status":""},{"name":"김세빈","owner":"","status":""},{"name":"조희지","owner":"","status":""}]}];
+const OKR_DATA = [{"objNum":"4","krNum":"1","projNum":"1","owner":"온기철","projName":"영국샵 온고지신","objective":"TikTok에서 영국 Grand Opening을 발판으로 글로벌 데이터·콘텐츠 자산을 축적한다.","keyResult":"TikTok Shop UK Brand Grand Opening(재고 라이브 + 30일 기준) GMV 2천만원 달성","projWhy":"영국 TikTok Shop 운영을 통해 축적된 검증된 자산(인플루언서 풀, 고성과 콘텐츠 포맷, 라이브·숏폼 운영 프로세스)을 체계적으로 재활용하여 신규 브랜드 및 신규 시장 진출 시 초기 시행착오를 최소화하고자 함. 또한 기존 인플루언서 네트워크를 카테고리·성과 기반으로 재분류 및 재활성화함으로써 신규 셀러/브랜드의 onboarding 기간을 단축하고, 초기 단계부터 빠른 GMV 성장을 실현하는 것을 목표로 함.","kpis":[{"metric":"Boots 및 다른 영국 콘텐츠","current":0,"target":200,"method":"TikTok Seller Centre","period":"출시 후 2주"},{"metric":"영국  target outreach 숫자 해제","current":0,"target":2000,"method":"TikTok Afifliate Seller Centre","period":"출시 후  4주"}],"tasks":[{"task":"TikTok Ads Manager UK 계정 셋업, 픽셀·카탈로그 연동, Spark Ads / VSA / GMV Max 캠페인 구조 설계","milestone":"M1","owner":"왕지윤","start":"2026-05-13","finish":"2026-05-14","deliverable":"TikTok Business Center"},{"task":"기존 UK 향 콘텐츠 전수조사 (영상·이미지·카피), 사용 가능 자산 분류","milestone":"M1","owner":"왕지윤","start":"2026-05-13","finish":"2026-05-14","deliverable":"컨텐츠 퍼포먼스 마스터 시트"},{"task":"틱톡샵 UK 와 소통하여,  상위 크리에이터 식별  수수료 인센티브 / 독점 코드 / 장기 파트너십 제안","milestone":"M2","owner":"온기철","start":"2026-05-18","finish":"2026-05-24","deliverable":"Lark Suite"},{"task":"기존 UK 향 콘텐츠 광고 부분 진행","milestone":"M2","owner":"왕지윤","start":"2026-05-18","finish":"2026-05-24","deliverable":"TikTok Business Center"},{"task":"UK Shop Star 산정 지표 정리, 현재 스토어의 각 지표 현황 진단 (GMV / 리뷰 평점 / 분쟁률 / 배송)","milestone":"M3","owner":"온기철","start":"2026-05-26","finish":"2026-06-08","deliverable":"Seller Centre"},{"task":"3PL / 배송 SLA 확보, 고객 응대(CS) 24~48시간 응답 체계 구축, 반품·환불 SOP 정비","milestone":"M3","owner":"온기철","start":"2026-05-26","finish":"2026-06-08","deliverable":"Seller Centre"},{"task":"Free Sample / Post-purchase 메시지로 리뷰 적극 수집, 평점 4.7+ 유지","milestone":"M4","owner":"왕지윤","start":"2026-05-26","finish":"2026-06-30","deliverable":"Seller Centre"},{"task":"Silver Star 달성, 스토어 페이지·콘텐츠·광고 소재에 배지 노출하여 신뢰도 마케팅 활용","milestone":"M4","owner":"온기철","start":"2026-05-26","finish":"2026-06-30","deliverable":"Seller Centre"}],"initiatives":[{"name":"김세빈","owner":"","status":"Not Started"},{"name":"조희지","owner":"","status":"Done"},{"name":"오유찬","owner":"","status":""},{"name":"오유찬","owner":"","status":""},{"name":"김세빈","owner":"","status":""},{"name":"조희지","owner":"","status":""}],"sheetUrl":"https://docs.google.com/spreadsheets/d/1H_q9cBcaHrvqDHZhcLf6NurZdyvyzsNy64M5sMOx3x0/edit"},{"objNum":"4","krNum":"1","projNum":"2","owner":"왕지윤","projName":"샘플의 민족 주문~!","objective":"TikTok에서 영국 Grand Opening을 발판으로 글로벌 데이터·콘텐츠 자산을 축적한다.","keyResult":"TikTok Shop UK Brand Grand Opening(재고 라이브 + 30일 기준) GMV 2천만원 달성","projWhy":"이 프로젝트를 통하여, 영국 affiliate 확보 및 영국 affiliate들에게 우리 샘플을 사용햘 기회를 제공한다. 그로 인해 우리 브랜드에 애정이 가게끔 하여 틱톡샵 매출 목표 달성에 기여한다","kpis":[{"metric":"샘플 발송량","current":0,"target":2000,"method":"TikTok Shop UK Seller centre 데이터 기준","period":"재고 입고 후 ~ 5/31"},{"metric":"샘플 발송량","current":0,"target":2000,"method":"TikTok Shop UK Seller centre 데이터 기준","period":"6/1 ~ 재고 입고 후 4주 되는 시점"}],"tasks":[{"task":"틱톡샵 UK 재고 확보 및 FBT 입고","milestone":"M1","owner":"온기철, SCM팀","start":"","finish":"","deliverable":"FBT 창고 대시보드"},{"task":"Open Plan 및 Target Plan 커미션 설정\nSample Approval Criteria 설정","milestone":"M1","owner":"왕지윤","start":"","finish":"","deliverable":"Affiliate Center"},{"task":"Agency Initiated TAP 등록 및 Agency 미팅","milestone":"M1","owner":"온기철, 왕지윤","start":"","finish":"","deliverable":"Lark Suite, Lark Docs"},{"task":"어필리에이트 리크루팅 안내 콘텐츠 기획 및 온드 계정 업로드","milestone":"M2","owner":"왕지윤, Gl_BE팀","start":"","finish":"","deliverable":"Lark, Discord, Canva"},{"task":"Seller Initiated TAP 등록","milestone":"M2","owner":"왕지윤","start":"","finish":"","deliverable":"Affiliate Center"},{"task":"어필리에이트 타겟 인비 발송 W1","milestone":"M3","owner":"왕지윤","start":"","finish":"","deliverable":"EUKA"},{"task":"어필리에이트 타겟 인비 발송 W2","milestone":"M3","owner":"왕지윤","start":"","finish":"","deliverable":"EUKA"},{"task":"어필리에이트 타겟 인비 발송 W3","milestone":"M3","owner":"왕지윤","start":"","finish":"","deliverable":"EUKA"}],"initiatives":[{"name":"김세빈","owner":"","status":"Not Started"},{"name":"조희지","owner":"","status":"Done"},{"name":"오유찬","owner":"","status":""},{"name":"오유찬","owner":"","status":""},{"name":"김세빈","owner":"","status":""},{"name":"조희지","owner":"","status":""}],"sheetUrl":"https://docs.google.com/spreadsheets/d/13i9Zuxcw68scMfY9OSz3XwmPfKRwtzCJZmF3zww1n2s/edit"},{"objNum":"4","krNum":"1","projNum":"3","owner":"왕지윤","projName":"영국고객관시","objective":"TikTok에서 영국 Grand Opening을 발판으로 글로벌 데이터·콘텐츠 자산을 축적한다.","keyResult":"TikTok Shop UK Brand Grand Opening(재고 라이브 + 30일 기준) GMV 2천만원 달성","projWhy":"이 프로젝트를 통하여, 고객과의 긍정적인 관계 구축 및 리뷰 확보를 확보함으로써 높은 Shop Performance Score을 유지한다.","kpis":[],"tasks":[{"task":"US 틱톡샵 기존 부정 리뷰 분석","milestone":"M1","owner":"왕지윤","start":"2026-05-04","finish":"2026-05-08","deliverable":"[TTS US] 부정리뷰 분석"},{"task":"기존 CS 템플릿 고도화 - AI 활용 3점 이상 긍정 리뷰 자동 답변 시스템 구축","milestone":"M1","owner":"왕지윤","start":"2026-05-11","finish":"2026-05-13","deliverable":"고객 CS 답변 템플릿"},{"task":"리뷰 작성 이벤트 기획","milestone":"M1","owner":"왕지윤","start":"2026-05-13","finish":"2026-05-19","deliverable":"Figma 기획안"},{"task":"AI 활용 3점 이상 긍정 리뷰 자동 답변 시스템 구축","milestone":"M2","owner":"온기철","start":"2026-05-11","finish":"2026-05-15","deliverable":"자동답변 스크립트"},{"task":"M1 시기 정립된 프로세스 및 템플릿 토대로 운영","milestone":"M2","owner":"왕지윤","start":"2026-05-18","finish":"2026-05-22","deliverable":"CS 챗 소통 내역"},{"task":"제품 관련 FAQ 정리 및 템플릿 고도화","milestone":"M2","owner":"왕지윤","start":"2026-05-18","finish":"2026-05-24","deliverable":"제품 관련 FAQ"},{"task":"CRM 메시지 템플릿 작성 및 설정","milestone":"M3","owner":"왕지윤","start":"2026-05-25","finish":"2026-05-31","deliverable":"TikTok Shop Seller Centre_CRM"},{"task":"M2 시기 CS 운영 점검 및 피드백 사항 바탕으로 운영","milestone":"M3","owner":"왕지윤","start":"2026-05-25","finish":"2026-05-31","deliverable":"CS 챗 소통 내역"}],"initiatives":[{"name":"김세빈","owner":"","status":"Not Started"},{"name":"조희지","owner":"","status":"Done"},{"name":"오유찬","owner":"","status":""},{"name":"오유찬","owner":"","status":""},{"name":"김세빈","owner":"","status":""},{"name":"조희지","owner":"","status":""}],"sheetUrl":"https://docs.google.com/spreadsheets/d/1wpNnEzcWTcduifAUY2o1lCabagEWiuCxEHviUV9JWzs/edit"},{"objNum":"4","krNum":"2","projNum":"1","owner":"온기철","projName":"영국 TAP 관시","objective":"","keyResult":"US Affiliate L4+급 50명 이상의 콘텐츠 업로드 유도","projWhy":"이 프로젝트는 ___을 위해, ___을 만든다","kpis":[{"metric":"월간 검색량","current":3,"target":20,"method":"Amazon 셀러 센트럴","period":"출시 후 8주"},{"metric":"월간 검색량","current":3,"target":20,"method":"Amazon 셀러 센트럴","period":"출시 후 8주"},{"metric":"월간 검색량","current":3,"target":20,"method":"Amazon 셀러 센트럴","period":"출시 후 8주"}],"tasks":[{"task":"각 TAP의 운영 크리에이터 수 · L3~L5 등급 비중 · 카테고리 강점 · 수수료 구조 · 평균 GMV 기여도 비교 분석","milestone":"M1","owner":"온기철","start":"2026-05-08","finish":"2026-05-15","deliverable":"[UK] TAP Agency Dashboard"},{"task":"각 TAP Agency 콜 진행","milestone":"M1","owner":"온기철","start":"2026-05-08","finish":"2026-05-15","deliverable":"Lark Suite, [UK] TAP Agency Dashboard"},{"task":"TAP들로부터 L4 등급 크리에이터 풀 데이터 수령 (팔로워 수, 평균 조회수, 카테고리 적합도, 과거 K-Beauty 콜라보 경험)","milestone":"M2","owner":"온기철","start":"2026-05-11","finish":"2026-05-15","deliverable":"[UK] TAP Agency Dashboard"},{"task":"TAP를 통한 공식 아웃리치 진행 (브랜드 소개서 + 제품 정보 + 콜라보 조건 패키지 전달)","milestone":"M2","owner":"왕지윤","start":"2026-05-11","finish":"2026-05-15","deliverable":"[UK] TAP Agency Dashboard"},{"task":"TAP별 온보딩 SOP 운영: 콘텐츠 가이드라인 / 해시태그 / CTA  사전 교육","milestone":"M3","owner":"온기철","start":"2026-05-18","finish":"2026-05-29","deliverable":"[UK] TAP Agency Dashboard"},{"task":"매칭 성사된 크리에이터 대상 샘플 발송 및 콘텐츠 브리프 전달 (US 검증 브리프 UK 현지화 버전)","milestone":"M3","owner":"왕지윤","start":"2026-05-18","finish":"2026-05-29","deliverable":"[UK] TAP Agency Dashboard"},{"task":"1차 콘텐츠 성과 데이터 기반 상위 크리에이터(Key Affiliate) 선별 (GMV 기여 Top 10~20%)","milestone":"M4","owner":"온기철","start":"2026-06-01","finish":"2026-06-30","deliverable":"TikTok Affilite Centre"},{"task":"Key Affiliate 대상 장기 파트너십 조건 제안: 추가 수수료 인센티브 / 독점 할인 코드 / 시즌 캠페인 우선 매칭 / 콘텐츠 사용권 확장","milestone":"M4","owner":"온기철","start":"2026-06-01","finish":"2026-06-30","deliverable":"[UK] TAP Agency Dashboard"}],"initiatives":[{"name":"김세빈","owner":"","status":"Not Started"},{"name":"조희지","owner":"","status":"Done"},{"name":"오유찬","owner":"","status":""},{"name":"오유찬","owner":"","status":""},{"name":"김세빈","owner":"","status":""},{"name":"조희지","owner":"","status":""}],"sheetUrl":"https://docs.google.com/spreadsheets/d/1uszhvyUDStrxcBtN0uyzswvw9aLtO05kSkH21_Xm1q8/edit"},{"objNum":"4","krNum":"2","projNum":"2","owner":"왕지윤","projName":"천하제일매출대회","objective":"TikTok에서 영국 Grand Opening을 발판으로 글로벌 데이터·콘텐츠 자산을 축적한다.","keyResult":"UK L4 등급 크리에이터 25명 이상 확보","projWhy":"이 프로젝트를 통해 탑 티어 어필리에이트 유입과 양질의 콘텐츠 창출, Affiliate GMV 확보를 도모한다.","kpis":[],"tasks":[{"task":"경쟁사 어필리에이트 챌린지 현황 스터디","milestone":"M1","owner":"왕지윤","start":"2026-05-04","finish":"2026-05-12","deliverable":"경쟁사 EUKA 활용 현황"},{"task":"어필리에이트 챌린지 기획","milestone":"M1","owner":"왕지윤","start":"2026-05-13","finish":"2026-05-15","deliverable":"[TTS UK] Challenges"},{"task":"어필리에이트 챌린지 홍보물 기획","milestone":"M2","owner":"왕지윤","start":"2026-05-18","finish":"2026-05-20","deliverable":"Figma 기획안 형태"},{"task":"어필리에이트 챌린지 홍보물 제작 및 업로드","milestone":"M2","owner":"디자인팀,\nGlobal_BE","start":"2026-05-20","finish":"2026-05-29","deliverable":"Carousel 또는 GIF의 콘텐츠"},{"task":"Discord UK Channel에 챌린지 안내 및 홍보","milestone":"M2","owner":"왕지윤","start":"2026-05-26","finish":"2026-05-29","deliverable":"디스코드 내 UK Community"},{"task":"기존 및 신규 어필리에이트에게 챌린지 안내 메시지 발송","milestone":"M3","owner":"왕지윤","start":"2026-05-28","finish":"2026-06-17","deliverable":"Affiliate Center 내 메시지"},{"task":"챌린지 진행 및 현황 트래킹","milestone":"M3","owner":"왕지윤","start":"2026-06-01","finish":"2026-06-30","deliverable":"챌린지 해시태그 및 \nAffiliate Center 데이터"},{"task":"챌린지 Winner 선정 및 아웃리치, 정산","milestone":"M4","owner":"왕지윤","start":"2026-07-01","finish":"2026-07-10","deliverable":"당첨자 명단 및 인보이스"}],"initiatives":[{"name":"김세빈","owner":"","status":"Not Started"},{"name":"조희지","owner":"","status":"Done"},{"name":"오유찬","owner":"","status":""},{"name":"오유찬","owner":"","status":""},{"name":"김세빈","owner":"","status":""},{"name":"조희지","owner":"","status":""}],"sheetUrl":"https://docs.google.com/spreadsheets/d/1AQmOPnIp9CahFnKixeVZ_PdMdblgBrYxtiTheDvWIjo/edit"},{"objNum":"4","krNum":"3","projNum":"1","owner":"왕지윤","projName":"GMV MAX on the NEX LEVEL","objective":"TikTok에서 영국 Grand Opening을 발판으로 글로벌 데이터·콘텐츠 자산을 축적한다.","keyResult":"UK 틱톡 100만뷰+ 영상 2Q 내 3개 확보","projWhy":"Global MKT CG파트의 시딩 콘텐츠의 GMV Max 세팅을 통해 2Q 내 틱톡 1M+ VV를 가진 위닝콘텐츠를 생산하여 틱톡샵 매출에 기여한다.","kpis":[{"metric":"콘텐츠 수","current":640,"target":2000,"method":"TikTok Seller Centre_GMV Max_Creatives","period":""}],"tasks":[{"task":"기존 US 및 UK 타겟 시딩 콘텐츠 Spark Ads Code 확보","milestone":"M1","owner":"왕지윤","start":"2026-05-04","finish":"2026-05-08","deliverable":"컨텐츠 퍼포먼스 마스터 시트"},{"task":"GMV Max 초기 Target ROI 및 Daily Budget 설정","milestone":"M1","owner":"왕지윤","start":"2026-05-04","finish":"2026-05-08","deliverable":"Seller Centre_GMV Max"},{"task":"신규 UK 타겟 시딩 콘텐츠 Spark Ads Code 확보","milestone":"M2","owner":"Global MKT_CG","start":"2026-05-11","finish":"2026-05-31","deliverable":"컨텐츠 퍼포먼스 마스터 시트"},{"task":"Affiliate 대상 Spark Ads Code 제출 독려 메시지 발송","milestone":"M2","owner":"왕지윤","start":"2026-05-18","finish":"2026-05-24","deliverable":"Affiliate Message"},{"task":"GMV Max 초기 Target ROI 및 Daily Budget 확인 및 조정","milestone":"M3","owner":"왕지윤","start":"2026-05-18","finish":"2026-05-24","deliverable":"Seller Centre_GMV Max"},{"task":"Global MKT_CG 협업 콘텐츠 Boosting","milestone":"M3","owner":"왕지윤","start":"2026-05-26","finish":"2026-06-08","deliverable":"컨텐츠 퍼포먼스 마스터 시트"},{"task":"Affiliate 대상 Spark Ads Code 제출 독려 메시지 발송","milestone":"M3","owner":"왕지윤","start":"2026-05-26","finish":"2026-05-31","deliverable":"Affiliate Message"},{"task":"GMV Max 초기 Target ROI 및 Daily Budget 확인 및 조정","milestone":"M3","owner":"왕지윤","start":"2026-05-26","finish":"2026-05-31","deliverable":"Seller Centre_GMV Max"}],"initiatives":[{"name":"김세빈","owner":"","status":"Not Started"},{"name":"조희지","owner":"","status":"Done"},{"name":"오유찬","owner":"","status":""},{"name":"오유찬","owner":"","status":""},{"name":"김세빈","owner":"","status":""},{"name":"조희지","owner":"","status":""}],"sheetUrl":"https://docs.google.com/spreadsheets/d/1ZV0K8h5TOTIJTpRWN4mUnoEDTESUcyUJ6qAt1Fncd3I/edit"},{"objNum":"4","krNum":"3","projNum":"2","owner":"온기철","projName":"UK바이럴 플젝","objective":"","keyResult":"","projWhy":"이 프로젝트는 ___을 위해, ___을 만든다","kpis":[{"metric":"월간 검색량","current":3,"target":20,"method":"Amazon 셀러 센트럴","period":"출시 후 8주"},{"metric":"월간 검색량","current":3,"target":20,"method":"Amazon 셀러 센트럴","period":"출시 후 8주"},{"metric":"월간 검색량","current":3,"target":20,"method":"Amazon 셀러 센트럴","period":"출시 후 8주"}],"tasks":[{"task":"UK TikTok Shop 과거 데이터 기반 벤치마크 지표 산출 (6초 이상 View, 좋아요, 팔로워, 댓글 수 등)","milestone":"M1","owner":"온기철","start":"2026-05-04","finish":"2026-05-08","deliverable":"컨텐츠 퍼포먼스 마스터 시트"},{"task":"부스팅 Tier 분류 기준 정의: (S-Tier -> 1M+ View, ER % 등)","milestone":"M1","owner":"온기철","start":"2026-05-04","finish":"2026-05-15","deliverable":"컨텐츠 퍼포먼스 마스터 시트"},{"task":"신규 UK 타겟 시딩 콘텐츠 Spark Ads Code 확보","milestone":"M2","owner":"Global MKT_CG","start":"2026-05-11","finish":"2026-05-31","deliverable":"컨텐츠 퍼포먼스 마스터 시트"},{"task":"1차 Broad View Ads 광고 집행","milestone":"M2","owner":"온기철","start":"2026-05-18","finish":"2026-05-24","deliverable":"TikTok Ad Manager"},{"task":"1차 Broad View Ads 광고 데이터 효율 분석","milestone":"M3","owner":"온기철","start":"2026-05-18","finish":"2026-05-24","deliverable":"TikTok Ad Manager"},{"task":"A~ S-Tier 콘텐츠 대상 Engaged Spark Ads 캠페인 집행","milestone":"M3","owner":"온기철","start":"2026-05-26","finish":"2026-05-31","deliverable":"TikTok Ad Manager"},{"task":"2차 Engaged View Ads 광고 데이터 효율 분석","milestone":"M4","owner":"온기철","start":"2026-06-01","finish":"2026-06-12","deliverable":"TikTok Ad Manager"},{"task":"2차 Engaged View Ads 영상들 조회수 1~2백만 달성 체크","milestone":"M4","owner":"온기철","start":"2026-06-15","finish":"2026-06-26","deliverable":"컨텐츠 퍼포먼스 마스터 시트"}],"initiatives":[{"name":"김세빈","owner":"","status":"Not Started"},{"name":"조희지","owner":"","status":"Done"},{"name":"오유찬","owner":"","status":""},{"name":"오유찬","owner":"","status":""},{"name":"김세빈","owner":"","status":""},{"name":"조희지","owner":"","status":""}],"sheetUrl":"https://docs.google.com/spreadsheets/d/1VpKfwuNZZi6qlioY-TgZ-VoInP-P4HsUNmTHMsmuYv8/edit"},{"objNum":"5","krNum":"1","projNum":"1","owner":"온기철","projName":"미국샵 온고지신","objective":"미국법인으로의 Tiktok Shop Transition 이후 빠르게 기존 T3 수준 실적을 회복한다.","keyResult":"미국법인 계정 틱톡샵 5월 중 Open 후 2Q 내 T3(Tier 3, 월 GMV 80K USD 이상) 실적 확보","projWhy":"미국 TikTok Shop 운영 과정에서 이미 검증된 자산(인플루언서·콘텐츠·운영 프로세스)을 재활용함으로써 신규 시장/브랜드 확장 시 시행착오와 CAC를 최소화하고,  기존 인플루언서 네트워크를 재분류·재활성화하여 신규 셀러/브랜드 onboarding 기간을 단축하고 빠르게 GMV를 확보하기 위함","kpis":[{"metric":"미국 Silver Star 점수에 가까워지는 지표","current":0,"target":20,"method":"TikTok 셀러 센터","period":"Phase 1 (5월 중)"},{"metric":"미국 active creator","current":0,"target":20,"method":"TikTok 셀러 센터","period":"Phase 2 (6월 초)"},{"metric":"미국 매출","current":0,"target":20,"method":"TikTok 셀러 센터","period":"Phase 3 (6월 말)"}],"tasks":[{"task":"TikTok Ads Manager US 계정 셋업, 픽셀·카탈로그 연동, Spark Ads / VSA / GMV Max 캠페인 구조 설계","milestone":"M1","owner":"온기철","start":"2026-05-13","finish":"2026-05-14","deliverable":"TikTok Business Center"},{"task":"기존 US 향 콘텐츠 전수조사 (영상·이미지·카피), 사용 가능 자산 분류","milestone":"M1","owner":"김세원","start":"2026-05-13","finish":"2026-05-14","deliverable":"컨텐츠 퍼포먼스 마스터 시트"},{"task":"틱톡샵 US 와 소통하여,  상위 크리에이터 식별  수수료 인센티브 / 독점 코드 / 장기 파트너십 제안","milestone":"M2","owner":"온기철","start":"2026-05-18","finish":"2026-05-24","deliverable":"Lark Suite"},{"task":"기존 US 향 콘텐츠 광고 부분 진행","milestone":"M2","owner":"김세원","start":"2026-05-18","finish":"2026-05-24","deliverable":"TikTok Business Center"},{"task":"US Shop Star 산정 지표 정리, 현재 스토어의 각 지표 현황 진단 (GMV / 리뷰 평점 / 분쟁률 / 배송)","milestone":"M3","owner":"온기철","start":"2026-05-26","finish":"2026-06-08","deliverable":"Seller Center"},{"task":"3PL / 배송 SLA 확보, 고객 응대(CS) 24~48시간 응답 체계 구축, 반품·환불 SOP 정비","milestone":"M3","owner":"김세원","start":"2026-05-26","finish":"2026-06-08","deliverable":"Seller Center"},{"task":"Free Sample / Post-purchase 메시지로 리뷰 적극 수집, 평점 4.7+ 유지","milestone":"M4","owner":"김세원","start":"2026-05-26","finish":"2026-06-30","deliverable":"Seller Center"},{"task":"Silver Star 달성, 스토어 페이지·콘텐츠·광고 소재에 배지 노출하여 신뢰도 마케팅 활용","milestone":"M4","owner":"온기철","start":"2026-05-26","finish":"2026-06-30","deliverable":"Seller Center"}],"initiatives":[{"name":"김세빈","owner":"","status":"Not Started"},{"name":"조희지","owner":"","status":"Done"},{"name":"오유찬","owner":"","status":""},{"name":"오유찬","owner":"","status":""},{"name":"김세빈","owner":"","status":""},{"name":"조희지","owner":"","status":""}],"sheetUrl":"https://docs.google.com/spreadsheets/d/1F2goA2HidSR-mzM5iYoU9H2rxmQrK2NbhO540GxtkcM/edit"},{"objNum":"5","krNum":"1","projNum":"2","owner":"온기철","projName":"이벤트 영역전개","objective":"미국법인으로의 Tiktok Shop Transition 이후 빠르게 기존 T3 수준 실적을 회복한다.","keyResult":"미국법인 계정 틱톡샵 5월 중 Open 후 2Q 내 T3(Tier 3, 월 GMV 80K USD 이상) 실적 확보","projWhy":"TikTok 내 주요 시즌성 이벤트 및 플랫폼 공식 행사에 선제적으로 참여함으로써 브랜드 노출, 신뢰도, 트래픽을 동시에 확보하기 위함. 또한 TikTok US 샵 매니저와의 협업을 통해 향후 우선 프로모션·캠페인·베타 기능 참여 기회를 지속적으로 선점하기 위함.","kpis":[{"metric":"이벤트 자리 선점표, 광고표 단가 획득 등","current":3,"target":20,"method":"틱톡샵 이벤트 자리","period":"Phase 1 (5월 초~중)"},{"metric":"이벤트 혹은 광고 배너 1-2건","current":3,"target":20,"method":"틱톡샵 이벤트 자리","period":"Phase 2 (5월 말)"},{"metric":"3분기 자리 미리 확보 내역","current":3,"target":20,"method":"틱톡샵 이벤트 자리","period":"Phase 3 (6월)"}],"tasks":[{"task":"TikTok US 시즌성 이벤트 캘린더 매핑 (Summer Sale, TikTok UK 이벤트 등)","milestone":"M1","owner":"온기철","start":"2026-05-04","finish":"2026-05-08","deliverable":"이벤트 캘린더"},{"task":"TikTok US 샵 매니저 미팅 → 우선 참여 기회 리스트 확보 (TC·K-Beauty Collective·배너·Smart Promo)","milestone":"M1","owner":"온기철","start":"2026-05-11","finish":"2026-05-15","deliverable":"매니저 미팅록 + 기회 리스트"},{"task":"May Deal Drops – Sunshine Essentials 참여","milestone":"M2","owner":"이지윤","start":"2026-05-13","finish":"2026-05-22","deliverable":"Seller Center"},{"task":"K-Beauty Collective 차기 자리 확보 신청 (온라인 캠페인 + HY2 이벤트)","milestone":"M2","owner":"온기철","start":"2026-06-02","finish":"2026-06-15","deliverable":"신청서 + 매니저 컨펌"},{"task":"Summer Sale 회고 + HY2 이벤트 로드맵 수립 (Q3 BFCM·Holiday까지)","milestone":"M3","owner":"온기철","start":"2026-06-01","finish":"2026-06-26","deliverable":"로드맵 및 데이터 정리"},{"task":"TikTok 베타 기능 / 신규 프로그램 참여 신청","milestone":"M3","owner":"온기철","start":"2026-06-01","finish":"2026-06-30","deliverable":"베타 access 확인"}],"initiatives":[{"name":"김세빈","owner":"","status":"Not Started"},{"name":"조희지","owner":"","status":"Done"},{"name":"오유찬","owner":"","status":""},{"name":"오유찬","owner":"","status":""},{"name":"김세빈","owner":"","status":""},{"name":"조희지","owner":"","status":""}],"sheetUrl":"https://docs.google.com/spreadsheets/d/1ms_MPvZr7jsT-ynm18ZHAhO184J8eSnQzOfCzkhaWt4/edit"},{"objNum":"5","krNum":"1","projNum":"3","owner":"김세원","projName":"미국고객관시","objective":"미국법인으로의 Tiktok Shop Transition 이후 빠르게 기존 T3 수준 실적을 회복한다.","keyResult":"미국법인 계정 틱톡샵 5월 중 Open 후 2Q 내 T3(Tier 3, 월 GMV 80K USD 이상) 실적 확보","projWhy":"새 TTS US 샵 개설 후, 고객들의 문의를 안정적으로 응대하고 CRM 효율적으로 운영해 기존샵의 실적 회복을 가속화","kpis":[{"metric":"24시간 응답률","current":0,"target":0.9,"method":"TTS CS chat overview","period":"TTS US 제품 판매 시작 후 2주 ~ 6월 말까지"},{"metric":"Satisfaction rate","current":0,"target":0.8,"method":"TTS CS chat overview","period":"TTS US 제품 판매 시작 후 2주 ~ 6월 말까지"},{"metric":"제품 평점(5점만점)","current":0,"target":4.5,"method":"TTS CS chat overview","period":"TTS US 제품 판매 시작 후 2주 ~ 6월 말까지"}],"tasks":[{"task":"1–2점 부정 리뷰 개별 맞춤 답변 작성","milestone":"M1","owner":"김세원","start":"2026-05-18","finish":"2026-06-30","deliverable":"틱톡샵 CS 답변 템플릿 모음"},{"task":"AI 활용 3점 이상 긍정 리뷰 자동 답변 시스템 구축","milestone":"M1","owner":"온기철","start":"2026-05-11","finish":"2026-05-15","deliverable":"자동답변 스크립트"},{"task":"구매 후 리뷰 작성 안내 아웃리치 메시지 발송","milestone":"M2","owner":"김세원","start":"2026-05-25","finish":"2026-05-29","deliverable":"CRM 메시지 발송 내역"},{"task":"리뷰 작성 이벤트 기획 및 운영","milestone":"M2","owner":"김세원","start":"2026-06-01","finish":"2026-06-05","deliverable":"CRM 메시지 발송 내역"},{"task":"AI 활용 반복 CS 문의 자동 처리 시스템 구축","milestone":"M3","owner":"온기철","start":"2026-06-01","finish":"2026-06-05","deliverable":"자동 답변 봇"},{"task":"1–2점 부정 리뷰 유형 리스트업 및 분석","milestone":"M3","owner":"김세원","start":"2026-06-08","finish":"2026-06-12","deliverable":"CS 운영시트 내 탭"},{"task":"부정 경험 고객 대상 사후관리 메시지 발송","milestone":"M4","owner":"김세원","start":"2026-06-15","finish":"2026-06-19","deliverable":"CS 챗 소통 내역"},{"task":"부정 리뷰 대응 프로세스 수립 및 가이드 작성","milestone":"M4","owner":"김세원","start":"2026-06-22","finish":"2026-06-30","deliverable":"CS 운영시트 내 탭"}],"initiatives":[{"name":"김세빈","owner":"","status":"Not Started"},{"name":"조희지","owner":"","status":"Done"},{"name":"오유찬","owner":"","status":""},{"name":"오유찬","owner":"","status":""},{"name":"김세빈","owner":"","status":""},{"name":"조희지","owner":"","status":""}],"sheetUrl":"https://docs.google.com/spreadsheets/d/10d7AraWHu9RnJQYRDdt735DpiWf4pWvHRJPwcPTRHj8/edit"},{"objNum":"5","krNum":"2","projNum":"1","owner":"김세원","projName":"디스코드 다단계","objective":"미국법인으로의 Tiktok Shop Transition 이후 빠르게 기존 T3 수준 실적을 회복한다.","keyResult":"US Affiliate L4+급 50명 이상의 콘텐츠 업로드 유도","projWhy":"디스코드 내 Afiiliate 커뮤니티 형성 및 활성화 시켜 자사 제품 영상 수 부스트 업시키고 신뢰 관계 형성","kpis":[{"metric":"멤버수","current":593,"target":650,"method":"디스코드 내 멤버수 측정","period":"~5월 말"},{"metric":"멤버수","current":593,"target":1000,"method":"디스코드 내 멤버수 측정","period":"~6월 말"}],"tasks":[{"task":"타브랜드 디스코드 운영 전략 및 캠페인 운영 분석","milestone":"M1","owner":"왕지윤","start":"2026-05-01","finish":"2026-05-10","deliverable":"디스코드 운영 기획 (시트)"},{"task":"타브랜드 디스코드 채널명 및 온보딩 시스템 분석","milestone":"M1","owner":"김세원","start":"2026-05-01","finish":"2026-05-10","deliverable":"디스코드 운영 기획 (시트)"},{"task":"디스코드 온보딩 시스템 셋팅 및 채널명 변경","milestone":"M1","owner":"김세원","start":"2026-05-11","finish":"2026-05-15","deliverable":"디스코드 채널명"},{"task":"구글 폼 작성 Varification 시스템 셋팅","milestone":"M2","owner":"김세원","start":"2026-05-11","finish":"2026-05-15","deliverable":"구글폼"},{"task":"기존 채널 콘텐츠 정리 및 업데이트","milestone":"M2","owner":"김세원","start":"2026-05-18","finish":"2026-05-22","deliverable":"디스코드 채널 내 게시물"},{"task":"새로 오픈한 채널 콘텐츠 기획 및 제작(전반)","milestone":"M2","owner":"김세원","start":"2026-05-18","finish":"2026-06-30","deliverable":"디스코드 채널 내 게시물"},{"task":"디스코드 이벤트,챌린지 기획 및 운영","milestone":"M3","owner":"김세원","start":"2026-05-25","finish":"2026-06-30","deliverable":"디스코드 채널 내 게시물"},{"task":"Affiliate 101 아카데미 콘텐츠 제작","milestone":"M3","owner":"온기철","start":"2026-05-25","finish":"2026-06-30","deliverable":"Affiliate 101 대시보드"}],"initiatives":[{"name":"김세빈","owner":"","status":"Not Started"},{"name":"조희지","owner":"","status":"Done"},{"name":"오유찬","owner":"","status":""},{"name":"오유찬","owner":"","status":""},{"name":"김세빈","owner":"","status":""},{"name":"조희지","owner":"","status":""}],"sheetUrl":"https://docs.google.com/spreadsheets/d/1QUGYt9sxgUJGqW8Z6cwXG-rkifDdPHZ9VzG12lElTDI/edit"},{"objNum":"5","krNum":"2","projNum":"2","owner":"온기철","projName":"미국 TAP 관시","objective":"미국법인으로의 Tiktok Shop Transition 이후 빠르게 기존 T3 수준 실적을 회복한다.","keyResult":"미국법인 계정 틱톡샵 5월 중 Open 후 2Q 내 T3(Tier 3, 월 GMV 80K USD 이상) 실적 확보","projWhy":"TikTok Shop TAP 파트너와 협력해 L4급 크리에이터를 확보함으로써 일정 수준 이상의 콘텐츠 생산력·판매력·라이브 운영 경험을 빠르게 활용하기 위함. 또한 검증된 크리에이터 풀을 선점하여 경쟁 브랜드 대비 안정적인 어필리에이트 매출 구조와 장기 협업 네트워크를 구축하기 위함.","kpis":[{"metric":"TAP Agency 5곳 이상 캠페인 진행","current":0,"target":5,"method":"틱톡 Affiliate Seller Center","period":"Phase 1 (5월 중)"},{"metric":"L4급 크리에이터 3명  확보","current":0,"target":3,"method":"틱톡 Affiliate Seller Center","period":"Phase 2 (6월 초)"}],"tasks":[{"task":"각 TAP의 운영 크리에이터 수 · L3~L5 등급 비중 · 카테고리 강점 · 수수료 구조 · 평균 GMV 기여도 비교 분석","milestone":"M1","owner":"온기철","start":"2026-05-08","finish":"2026-05-15","deliverable":"[US] TAP Agency Dashboard"},{"task":"각 TAP Agency 콜 진행","milestone":"M1","owner":"온기철","start":"2026-05-08","finish":"2026-05-15","deliverable":"Lark Suite, [US] TAP Agency Dashboard"},{"task":"TAP들로부터 L4 등급 크리에이터 풀 데이터 수령 (팔로워 수, 평균 조회수, 카테고리 적합도, 과거 K-Beauty 콜라보 경험)","milestone":"M2","owner":"온기철","start":"2026-05-11","finish":"2026-05-15","deliverable":"[US] TAP Agency Dashboard"},{"task":"TAP를 통한 공식 아웃리치 진행 (브랜드 소개서 + 제품 정보 + 콜라보 조건 패키지 전달)","milestone":"M2","owner":"왕지윤","start":"2026-05-11","finish":"2026-05-15","deliverable":"[US] TAP Agency Dashboard"},{"task":"TAP별 온보딩 SOP 운영: 콘텐츠 가이드라인 / 해시태그 / CTA  사전 교육","milestone":"M3","owner":"온기철","start":"2026-05-18","finish":"2026-05-29","deliverable":"[US] TAP Agency Dashboard"},{"task":"매칭 성사된 크리에이터 대상 샘플 발송 및 콘텐츠 브리프 전달 (US 검증 브리프 UK 현지화 버전)","milestone":"M3","owner":"왕지윤","start":"2026-05-18","finish":"2026-05-29","deliverable":"[US] TAP Agency Dashboard"},{"task":"1차 콘텐츠 성과 데이터 기반 상위 크리에이터(Key Affiliate) 선별 (GMV 기여 Top 10~20%)","milestone":"M4","owner":"온기철","start":"2026-06-01","finish":"2026-06-30","deliverable":"TikTok Affilite Centre"},{"task":"Key Affiliate 대상 장기 파트너십 조건 제안: 추가 수수료 인센티브 / 독점 할인 코드 / 시즌 캠페인 우선 매칭 / 콘텐츠 사용권 확장","milestone":"M4","owner":"온기철","start":"2026-06-01","finish":"2026-06-30","deliverable":"[US] TAP Agency Dashboard"}],"initiatives":[{"name":"김세빈","owner":"","status":"Not Started"},{"name":"조희지","owner":"","status":"Done"},{"name":"오유찬","owner":"","status":""},{"name":"오유찬","owner":"","status":""},{"name":"김세빈","owner":"","status":""},{"name":"조희지","owner":"","status":""}],"sheetUrl":"https://docs.google.com/spreadsheets/d/1b6jz8WDMwBB2zqcl5ZOgzsI8TFhqSyDb-nFGNbeyskg/edit"},{"objNum":"5","krNum":"2","projNum":"3","owner":"온기철","projName":"US 천하제일 매출대회","objective":"미국법인으로의 Tiktok Shop Transition 이후 빠르게 기존 T3 수준 실적을 회복한다.","keyResult":"미국법인 계정 틱톡샵 5월 중 Open 후 2Q 내 T3(Tier 3, 월 GMV 80K USD 이상) 실적 확보","projWhy":"미국 크리에이터의 Affiliate 판매 성공 사례를 만들고, 반복 가능한 성장 구조를 검증하기 위해,\n고매출 크리에이터를 지속적으로 배출할 수 있는 Affiliate 챌린지 운영 모델을 만든다","kpis":[{"metric":"Affiliate 수","current":0,"target":500,"method":"TikTok Affiliate Seller Center","period":"Phase 1 (5월 중)"},{"metric":"Affiliate Target 가능 Outreach 수","current":0,"target":2000,"method":"TikTok Affiliate Seller Center","period":"Phase 2 (6월 초)"},{"metric":"Affiliate Target 가능 Outreach 수","current":0,"target":7000,"method":"TikTok Affiliate Seller Center","period":"Phase 3 (6월 말)"}],"tasks":[{"task":"경쟁사 어필리에이트 챌린지 현황 스터디","milestone":"M1","owner":"온기철","start":"2026-05-04","finish":"2026-05-12","deliverable":"경쟁사 EUKA 활용 현황"},{"task":"어필리에이트 챌린지 기획","milestone":"M1","owner":"온기철","start":"2026-05-13","finish":"2026-05-15","deliverable":"TTS US Challenge"},{"task":"어필리에이트 챌린지 홍보물 기획","milestone":"M2","owner":"온기철","start":"2026-05-18","finish":"2026-05-20","deliverable":"Figma 기획안 형태"},{"task":"어필리에이트 챌린지 홍보물 제작 및 업로드","milestone":"M2","owner":"디자인팀,\nGlobal_BE","start":"2026-05-20","finish":"2026-05-29","deliverable":"Carousel 또는 GIF의 콘텐츠"},{"task":"Discord UK Channel에 챌린지 안내 및 홍보","milestone":"M2","owner":"온기철","start":"2026-05-26","finish":"2026-05-29","deliverable":"디스코드 내 UK Community"},{"task":"기존 및 신규 어필리에이트에게 챌린지 안내 메시지 발송","milestone":"M3","owner":"온기철","start":"2026-05-28","finish":"2026-06-17","deliverable":"Affiliate Center 내 메시지"},{"task":"챌린지 진행 및 현황 트래킹","milestone":"M3","owner":"온기철","start":"2026-06-01","finish":"2026-06-30","deliverable":"챌린지 해시태그 및 \nAffiliate Center 데이터"},{"task":"챌린지 Winner 선정 및 아웃리치, 정산","milestone":"M4","owner":"온기철","start":"2026-07-01","finish":"2026-07-10","deliverable":"당첨자 명단 및 인보이스"}],"initiatives":[{"name":"김세빈","owner":"","status":"Not Started"},{"name":"조희지","owner":"","status":"Done"},{"name":"오유찬","owner":"","status":""},{"name":"오유찬","owner":"","status":""},{"name":"김세빈","owner":"","status":""},{"name":"조희지","owner":"","status":""}],"sheetUrl":"https://docs.google.com/spreadsheets/d/1uIfwlwBQS3yJVUDbtR-molaVN9OA5dtqjraDHp_RjQQ/edit"},{"objNum":"5","krNum":"2","projNum":"4","owner":"온기철","projName":"브랜드 앰버서더","objective":"미국법인으로의 Tiktok Shop Transition 이후 빠르게 기존 T3 수준 실적을 회복한다.","keyResult":"미국법인 계정 틱톡샵 5월 중 Open 후 2Q 내 T3(Tier 3, 월 GMV 80K USD 이상) 실적 확보","projWhy":"이 프로젝트는 Dr. Rejuall의 미국 내 영향력과 매출 기여도를 안정적으로 확대하기 위해,\n브랜드 충성도와 판매 성과를 동시에 만드는 앰버서더급 Key Affiliate 파트너십 체계를 만든다.","kpis":[{"metric":"월간 검색량","current":3,"target":20,"method":"Amazon 셀러 센트럴","period":"출시 후 8주"},{"metric":"월간 검색량","current":3,"target":20,"method":"Amazon 셀러 센트럴","period":"출시 후 8주"},{"metric":"월간 검색량","current":3,"target":20,"method":"Amazon 셀러 센트럴","period":"출시 후 8주"}],"tasks":[{"task":"미국법인 TikTok Shop Open + Hero SKU 5종 리스팅 활성화","milestone":"M1","owner":"온기철","start":"2026-05-09","finish":"2026-05-15","deliverable":"Selelr Center"},{"task":"기존 affiliate 전체 신규 샵 재초대 + 어그레시브 commission 셋업 (Product 40% / Shop Ads 30%)","milestone":"M1","owner":"김세원","start":"2026-05-19","finish":"2026-05-26","deliverable":"초대발송 리스트, EUKA"},{"task":"Key Affiliate 5인 후보 longlist 작성 + 1차 컨택 (T4~T5급 + 브랜드 fit 기준)","milestone":"M2","owner":"온기철","start":"2026-05-26","finish":"2026-05-30","deliverable":"EUKA 리스트"},{"task":"GMV MAX + Shop Ads + Smart Promotion 동시 가동으로 일 GMV $2.6K 회복 (T3 = 월 $80K)","milestone":"M2","owner":"온기철","start":"2026-06-02","finish":"2026-06-16","deliverable":"GMV Ads"},{"task":"Key Affiliate 5인 최종 선발 + 장기 파트너십 계약 체결 (월 콘텐츠 본수·전속성·commission 조건)","milestone":"M3","owner":"온기철","start":"2026-06-09","finish":"2026-06-26","deliverable":"Analytics Dashboard"},{"task":"월 GMV $80~$100K (T3) 달성 + Key Affiliate 콘텐츠 첫 사이클 실행","milestone":"M3","owner":"온기철","start":"2026-06-23","finish":"2026-06-30","deliverable":"계약서 5건, 컨텐츠 일정표"},{"task":"Transition 회고 + Key Affiliate 운영 SOP 정착 + 3Q T4 도약 로드맵","milestone":"M4","owner":"온기철","start":"2026-07-01","finish":"2026-07-04","deliverable":"Analytics Dashboard"}],"initiatives":[{"name":"김세빈","owner":"","status":"Not Started"},{"name":"조희지","owner":"","status":"Done"},{"name":"오유찬","owner":"","status":""},{"name":"오유찬","owner":"","status":""},{"name":"김세빈","owner":"","status":""},{"name":"조희지","owner":"","status":""}],"sheetUrl":"https://docs.google.com/spreadsheets/d/171ymNMXilTT4i7hLSm5KPhSKqO9dRP9sZVZ-1S4Rris/edit"},{"objNum":"5","krNum":"3","projNum":"1","owner":"온기철","projName":"GMV MAX on the NEX Level","objective":"미국법인으로의 Tiktok Shop Transition 이후 빠르게 기존 T3 수준 실적을 회복한다.","keyResult":"미국법인 계정 틱톡샵 5월 중 Open 후 2Q 내 T3(Tier 3, 월 GMV 80K USD 이상) 실적 확보","projWhy":"이 프로젝트는 US 틱톡 광고 효율과 매출 규모를 동시에 확대하기 위해,\nGlobal MKT CG 파트와 연계한 고성과 영상 기반의 GMV Max 광고 운영 체계를 만든다.","kpis":[{"metric":"월간 검색량","current":3,"target":20,"method":"Amazon 셀러 센트럴","period":"출시 후 8주"},{"metric":"월간 검색량","current":3,"target":20,"method":"Amazon 셀러 센트럴","period":"출시 후 8주"},{"metric":"월간 검색량","current":3,"target":20,"method":"Amazon 셀러 센트럴","period":"출시 후 8주"}],"tasks":[{"task":"기존 US 타겟 시딩 콘텐츠 Spark Ads Code 확보","milestone":"M1","owner":"온기철","start":"2026-05-04","finish":"2026-05-08","deliverable":"컨텐츠 퍼포먼스 마스터 시트"},{"task":"GMV Max 초기 Target ROI 및 Daily Budget 설정","milestone":"M1","owner":"온기철","start":"2026-05-04","finish":"2026-05-08","deliverable":"컨텐츠 퍼포먼스 결과 시트"},{"task":"신규 US 타겟 시딩 콘텐츠 Spark Ads Code 확보","milestone":"M2","owner":"Global MKT_CG","start":"2026-05-11","finish":"2026-05-31","deliverable":"컨텐츠 퍼포먼스 마스터 시트"},{"task":"Affiliate 대상 Spark Ads Code 제출 독려 메시지 발송","milestone":"M2","owner":"온기철","start":"2026-05-18","finish":"2026-05-24","deliverable":"Affiliate Message"},{"task":"GMV Max 초기 Target ROI 및 Daily Budget 확인 및 조정","milestone":"M3","owner":"온기철","start":"2026-05-18","finish":"2026-05-24","deliverable":"Seller Centre_GMV Max"},{"task":"Global MKT_CG 협업 콘텐츠 Boosting","milestone":"M3","owner":"온기철","start":"2026-05-26","finish":"2026-06-08","deliverable":"컨텐츠 퍼포먼스 마스터 시트"},{"task":"Affiliate 대상 Spark Ads Code 제출 독려 메시지 발송","milestone":"M3","owner":"온기철","start":"2026-05-26","finish":"2026-05-31","deliverable":"Affiliate Message"},{"task":"GMV Max 초기 Target ROI 및 Daily Budget 확인 및 조정","milestone":"M3","owner":"온기철","start":"2026-05-26","finish":"2026-05-31","deliverable":"Shop ads"}],"initiatives":[{"name":"김세빈","owner":"","status":"Not Started"},{"name":"조희지","owner":"","status":"Done"},{"name":"오유찬","owner":"","status":""},{"name":"오유찬","owner":"","status":""},{"name":"김세빈","owner":"","status":""},{"name":"조희지","owner":"","status":""}],"sheetUrl":"https://docs.google.com/spreadsheets/d/1eqfXoNJ-6CocYgfEbOL4--uTZxyyxwr1T19YeSYValY/edit"},{"objNum":"5","krNum":"3","projNum":"2","owner":"온기철","projName":"US 바이럴 플젝","objective":"미국법인으로의 Tiktok Shop Transition 이후 빠르게 기존 T3 수준 실적을 회복한다.","keyResult":"미국법인 계정 틱톡샵 5월 중 Open 후 2Q 내 T3(Tier 3, 월 GMV 80K USD 이상) 실적 확보","projWhy":"이 프로젝트는 고성과 콘텐츠의 광고 효율을 극대화하고 운영 판단을 표준화하기 위해,\nSpark Ads 기반 영상 부스팅 운영 기준과 확장 가능한 퍼포먼스 체계를 만들어 닥터 리쥬올 바이럴을 일으킨다","kpis":[{"metric":"월간 검색량","current":3,"target":20,"method":"Amazon 셀러 센트럴","period":"출시 후 8주"},{"metric":"월간 검색량","current":3,"target":20,"method":"Amazon 셀러 센트럴","period":"출시 후 8주"},{"metric":"월간 검색량","current":3,"target":20,"method":"Amazon 셀러 센트럴","period":"출시 후 8주"}],"tasks":[{"task":"US TikTok Shop 과거 데이터 기반 벤치마크 지표 산출 (6초 이상 View, 좋아요, 팔로워, 댓글 수 등)","milestone":"M1","owner":"온기철","start":"2026-05-04","finish":"2026-05-08","deliverable":"컨텐츠 퍼포먼스 마스터 시트"},{"task":"부스팅 Tier 분류 기준 정의: (S-Tier -> 1M+ View, ER % 등)","milestone":"M1","owner":"온기철","start":"2026-05-04","finish":"2026-05-15","deliverable":"컨텐츠 퍼포먼스 마스터 시트"},{"task":"신규 US 타겟 시딩 콘텐츠 Spark Ads Code 확보","milestone":"M2","owner":"Global MKT_CG","start":"2026-05-11","finish":"2026-05-31","deliverable":"컨텐츠 퍼포먼스 마스터 시트"},{"task":"1차 Broad View Ads 광고 집행","milestone":"M2","owner":"온기철","start":"2026-05-18","finish":"2026-05-24","deliverable":"TikTok Ad Manager"},{"task":"1차 Broad View Ads 광고 데이터 효율 분석","milestone":"M3","owner":"온기철","start":"2026-05-18","finish":"2026-05-24","deliverable":"TikTok Ad Manager"},{"task":"A~ S-Tier 콘텐츠 대상 Engaged Spark Ads 캠페인 집행","milestone":"M3","owner":"온기철","start":"2026-05-26","finish":"2026-05-31","deliverable":"TikTok Ad Manager"},{"task":"2차 Engaged View Ads 광고 데이터 효율 분석","milestone":"M4","owner":"온기철","start":"2026-06-01","finish":"2026-06-12","deliverable":"TikTok Ad Manager"},{"task":"2차 Engaged View Ads 영상들 조회수 1~2백만 달성 체크","milestone":"M4","owner":"온기철","start":"2026-06-15","finish":"2026-06-26","deliverable":"컨텐츠 퍼포먼스 마스터 시트"}],"initiatives":[{"name":"김세빈","owner":"","status":"Not Started"},{"name":"조희지","owner":"","status":"Done"},{"name":"오유찬","owner":"","status":""},{"name":"오유찬","owner":"","status":""},{"name":"김세빈","owner":"","status":""},{"name":"조희지","owner":"","status":""}],"sheetUrl":"https://docs.google.com/spreadsheets/d/1HmSXEC0iVq0pPGcEJ4EyF1Tumw7rgXWTK1RX_A0lGfo/edit"}];
 
 const OKR_OBJECTIVES = {
   4: 'TikTok에서 영국 Grand Opening을 발판으로 글로벌 데이터·콘텐츠 자산을 축적한다',
@@ -3911,23 +3919,35 @@ const OKR_KR_TEXT = {
 };
 
 let _okrActiveObj = 4;
+let _okrView = 'cards';
+let _okrView = 'cards';
 
 function okrSetObj(num, btn) {
   _okrActiveObj = num;
-  document.querySelectorAll('[id^="okr-btn-"]').forEach(b => {
+  document.querySelectorAll('[id^="okr-btn-"]').forEach(function(b) {
     b.style.background = '#fff';
     b.style.color = '#374151';
     b.style.borderColor = '#E5E7EB';
   });
-  btn.style.background = '#7C3AED';
+  var _oc = num === 4 ? '#7C3AED' : '#3B82F6';
+  btn.style.background = _oc;
   btn.style.color = '#fff';
-  btn.style.borderColor = '#7C3AED';
-  _renderOKRBody();
+  btn.style.borderColor = _oc;
+  if (_okrView === 'calendar') { renderOKRCalendar(); } else { _renderOKRBody(); }
 }
 
 function renderOKR() {
   _okrActiveObj = 4;
-  ['4','5'].forEach(n => {
+  _okrView = 'cards';
+  var _vc = document.getElementById('okr-view-cards');
+  var _vk = document.getElementById('okr-view-calendar');
+  if (_vc) { _vc.style.background='#1a1a2e'; _vc.style.color='#fff'; _vc.style.borderColor='#1a1a2e'; }
+  if (_vk) { _vk.style.background='#fff'; _vk.style.color='#374151'; _vk.style.borderColor='#E5E7EB'; }
+  var _rb = document.getElementById('okr-body');
+  var _rc = document.getElementById('okr-calendar');
+  if (_rb) _rb.style.display = '';
+  if (_rc) _rc.style.display = 'none';
+  ['4','5'].forEach(function(n) {
     const b = document.getElementById('okr-btn-' + n);
     if (!b) return;
     if (n === '4') {
@@ -3937,6 +3957,315 @@ function renderOKR() {
     }
   });
   _renderOKRBody();
+}
+
+function okrOpenDetail(key) {
+  const p = OKR_DATA.find(function(x) { return (x.objNum+'-'+x.krNum+'-'+x.projNum) === key; });
+  if (!p) return;
+  const objColor = p.objNum === '4' ? '#7C3AED' : '#3B82F6';
+  const flag = p.objNum === '4' ? '🇬🇧' : '🇺🇸';
+
+  // Group tasks by milestone
+  const milestones = {};
+  p.tasks.forEach(function(t) {
+    const m = t.milestone || 'General';
+    if (!milestones[m]) milestones[m] = [];
+    milestones[m].push(t);
+  });
+
+  let milestonesHtml = '';
+  Object.keys(milestones).sort().forEach(function(m) {
+    milestonesHtml += '<div style="margin-bottom:16px">'
+      + '<div style="font-size:11px;font-weight:800;color:' + objColor + ';background:' + objColor + '15;padding:4px 10px;border-radius:6px;display:inline-block;margin-bottom:8px">' + m + '</div>';
+    milestones[m].forEach(function(t) {
+      milestonesHtml += '<div style="display:flex;gap:10px;padding:8px 10px;background:#F9FAFB;border-radius:8px;margin-bottom:6px;align-items:flex-start">'
+        + '<div style="flex:1">'
+        + '<div style="font-size:12px;font-weight:600;color:#1a1a2e;line-height:1.4">' + t.task + '</div>'
+        + '<div style="display:flex;gap:8px;margin-top:4px;flex-wrap:wrap">'
+        + (t.owner ? '<span style="font-size:10px;color:#6B7280">👤 ' + t.owner + '</span>' : '')
+        + (t.start ? '<span style="font-size:10px;color:#6B7280">📅 ' + t.start + (t.finish ? ' ~ ' + t.finish : '') + '</span>' : '')
+        + (t.deliverable ? '<span style="font-size:10px;color:#6B7280">📌 ' + t.deliverable + '</span>' : '')
+        + '</div></div></div>';
+    });
+    milestonesHtml += '</div>';
+  });
+
+  // KPI section
+  let kpiHtml = '';
+  if (p.kpis && p.kpis.length > 0) {
+    kpiHtml = '<div style="margin-bottom:20px"><div style="font-size:13px;font-weight:700;color:#1a1a2e;margin-bottom:10px">📊 KPI 현황</div>';
+    p.kpis.forEach(function(kpi) {
+      const pct = kpi.target > 0 ? Math.min(100, Math.round((kpi.current/kpi.target)*100)) : 0;
+      const barColor = pct >= 80 ? '#22C55E' : pct >= 40 ? '#F59E0B' : '#3B82F6';
+      kpiHtml += '<div style="margin-bottom:12px;padding:10px 12px;background:#F9FAFB;border-radius:8px">'
+        + '<div style="display:flex;justify-content:space-between;margin-bottom:2px">'
+        + '<span style="font-size:12px;font-weight:600;color:#374151">' + kpi.metric + '</span>'
+        + '<span style="font-size:12px;font-weight:800;color:#1a1a2e">' + pct + '%</span>'
+        + '</div>'
+        + '<div style="display:flex;justify-content:space-between;font-size:11px;color:#9CA3AF;margin-bottom:6px">'
+        + '<span>현재: ' + kpi.current.toLocaleString() + '</span>'
+        + '<span>목표: ' + kpi.target.toLocaleString() + '</span>'
+        + '</div>'
+        + '<div style="height:6px;background:#E5E7EB;border-radius:3px">'
+        + '<div style="height:100%;width:' + pct + '%;background:' + barColor + ';border-radius:3px"></div>'
+        + '</div>'
+        + (kpi.period ? '<div style="font-size:10px;color:#9CA3AF;margin-top:4px">측정기간: ' + kpi.period + '</div>' : '')
+        + '</div>';
+    });
+    kpiHtml += '</div>';
+  }
+
+  // Initiatives section (editable: click status to toggle, dblclick name to edit)
+  const _initOv = okrGetInitOverrides(key);
+  const _inits = (p.initiatives || []).map(function(init, idx) {
+    const ov = _initOv[idx] || {};
+    return {
+      name: ov.name !== undefined ? ov.name : init.name,
+      status: ov.status !== undefined ? ov.status : (init.status || ''),
+      owner: init.owner
+    };
+  });
+  let initHtml = '';
+  if (_inits.length > 0) {
+    initHtml = '<div style="margin-bottom:20px">'
+      + '<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">'
+      + '<div style="font-size:13px;font-weight:700;color:#1a1a2e">🚀 Initiatives</div>'
+      + '<div style="font-size:10px;color:#9CA3AF;background:#F3F4F6;padding:2px 8px;border-radius:10px">상태 클릭 토글 · 이름 더블클릭 편집</div>'
+      + '</div>';
+    _inits.forEach(function(init, idx) {
+      const isDone = /done/i.test(init.status) || /완료/.test(init.status);
+      const isInProg = /progress/i.test(init.status) || /진행/.test(init.status);
+      const stColor = isDone ? '#22C55E' : isInProg ? '#D97706' : '#9CA3AF';
+      const stBg = isDone ? '#DCFCE7' : isInProg ? '#FEF9C3' : '#F3F4F6';
+      const stLabel = isDone ? '✓ 완료' : isInProg ? '⏳ 진행중' : '○ 대기';
+      const ek = key.replace(/'/g, "\\'");
+      initHtml += '<div style="display:flex;align-items:flex-start;gap:8px;padding:8px 10px;background:#F9FAFB;border-radius:8px;margin-bottom:6px">'
+        + '<span onclick="okrCycleStatus(\'' + ek + '\',' + idx + ')" style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;background:' + stBg + ';color:' + stColor + ';white-space:nowrap;flex-shrink:0;cursor:pointer;user-select:none" title="클릭 상태 변경">' + stLabel + '</span>'
+        + '<span ondblclick="okrEditName(this,\'' + ek + '\',' + idx + ')" style="font-size:12px;color:#374151;line-height:1.5;cursor:text;flex:1" title="더블클릭 편집">' + init.name + '</span>'
+        + (init.owner ? '<span style="font-size:10px;color:#9CA3AF;white-space:nowrap;flex-shrink:0">' + init.owner + '</span>' : '')
+        + '</div>';
+    });
+    initHtml += '</div>';
+  }
+
+  const modalHtml = '<div id="okr-modal-bg" onclick="if(event.target===this)okrCloseModal()" style="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;display:flex;align-items:flex-start;justify-content:center;padding:40px 20px;overflow-y:auto">'
+    + '<div style="background:#fff;border-radius:16px;width:min(680px,100%);max-height:85vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2)">'
+    + '<div style="background:linear-gradient(135deg,' + objColor + ',' + objColor + 'cc);padding:20px 24px;border-radius:16px 16px 0 0;position:sticky;top:0;z-index:1">'
+    + '<div style="display:flex;justify-content:space-between;align-items:flex-start">'
+    + '<div>'
+    + '<div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.7);margin-bottom:4px">' + flag + ' Object ' + p.objNum + ' · KR ' + p.krNum + ' · P' + p.projNum + ' · ' + p.owner + '</div>'
+    + '<div style="font-size:18px;font-weight:900;color:#fff">' + p.projName + '</div>'
+    + '</div>'
+    + '<div style="display:flex;gap:8px;align-items:center">'
+    + (p.sheetUrl ? '<a href="' + p.sheetUrl + '" target="_blank" style="background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.4);padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;text-decoration:none;white-space:nowrap">📊 Google Sheets</a>' : '')
+    + '<button onclick="okrCloseModal()" style="background:rgba(255,255,255,.2);border:none;color:#fff;width:32px;height:32px;border-radius:50%;font-size:16px;cursor:pointer;flex-shrink:0">✕</button>'
+    + '</div></div>'
+    + (p.projWhy ? '<div style="font-size:12px;color:rgba(255,255,255,.8);margin-top:8px;line-height:1.5">' + p.projWhy + '</div>' : '')
+    + '</div>'
+    + '<div style="padding:20px 24px">'
+    + kpiHtml
+    + initHtml
+    + '<div><div style="font-size:13px;font-weight:700;color:#1a1a2e;margin-bottom:10px">📋 마일스톤 & Tasks</div>'
+    + milestonesHtml + '</div>'
+    + '</div></div></div>';
+
+  const existing = document.getElementById('okr-modal-bg');
+  if (existing) existing.remove();
+  document.body.insertAdjacentHTML('beforeend', modalHtml);
+}
+
+function okrGetInitOverrides(key) {
+  try { return JSON.parse(localStorage.getItem('okr_init_' + key) || '{}'); } catch(e) { return {}; }
+}
+
+function okrSaveInit(key, idx, field, val) {
+  var ov = okrGetInitOverrides(key);
+  if (!ov[idx]) ov[idx] = {};
+  ov[idx][field] = val;
+  localStorage.setItem('okr_init_' + key, JSON.stringify(ov));
+}
+
+function okrCycleStatus(key, idx) {
+  var ov = okrGetInitOverrides(key);
+  var p = OKR_DATA.find(function(x) { return (x.objNum+'-'+x.krNum+'-'+x.projNum) === key; });
+  if (!p || !p.initiatives[idx]) return;
+  var cur = (ov[idx] && ov[idx].status !== undefined ? ov[idx].status : p.initiatives[idx].status) || '';
+  var isDone = /done/i.test(cur) || /완료/.test(cur);
+  var isInProg = /progress/i.test(cur) || /진행/.test(cur);
+  var next = isDone ? 'Not Started' : isInProg ? 'Done' : 'In Progress';
+  okrSaveInit(key, idx, 'status', next);
+  var modal = document.getElementById('okr-modal-bg');
+  var st = modal ? modal.scrollTop : 0;
+  okrOpenDetail(key);
+  var nm = document.getElementById('okr-modal-bg');
+  if (nm) nm.scrollTop = st;
+}
+
+function okrEditName(el, key, idx) {
+  if (el.tagName === 'INPUT') return;
+  var cur = el.textContent;
+  var inp = document.createElement('input');
+  inp.value = cur;
+  inp.style.cssText = 'font-size:12px;color:#374151;border:1.5px solid #7C3AED;border-radius:4px;padding:2px 8px;width:100%;outline:none;background:#fff';
+  el.parentNode.replaceChild(inp, el);
+  inp.focus(); inp.select();
+  var saved = false;
+  var save = function() {
+    if (saved) return; saved = true;
+    okrSaveInit(key, idx, 'name', inp.value.trim() || cur);
+    var modal = document.getElementById('okr-modal-bg');
+    var st = modal ? modal.scrollTop : 0;
+    okrOpenDetail(key);
+    var nm = document.getElementById('okr-modal-bg');
+    if (nm) nm.scrollTop = st;
+  };
+  inp.onblur = save;
+  inp.onkeydown = function(e) {
+    if (e.key === 'Enter') { e.preventDefault(); save(); }
+    if (e.key === 'Escape') { saved = true; okrOpenDetail(key); }
+  };
+}
+
+function okrSetView(view, btn) {
+  _okrView = view;
+  ['cards','calendar'].forEach(function(v) {
+    var b = document.getElementById('okr-view-' + v);
+    if (!b) return;
+    if (v === view) { b.style.background='#1a1a2e'; b.style.color='#fff'; b.style.borderColor='#1a1a2e'; }
+    else { b.style.background='#fff'; b.style.color='#374151'; b.style.borderColor='#E5E7EB'; }
+  });
+  var body = document.getElementById('okr-body');
+  var cal = document.getElementById('okr-calendar');
+  if (view === 'calendar') {
+    if (body) body.style.display = 'none';
+    if (cal) cal.style.display = '';
+    renderOKRCalendar();
+  } else {
+    if (body) body.style.display = '';
+    if (cal) cal.style.display = 'none';
+    _renderOKRBody();
+  }
+}
+
+function renderOKRCalendar() {
+  var WEEK_RANGES = [
+    {m:'4월',w:'1w',s:'2026-04-01',e:'2026-04-07'},
+    {m:'4월',w:'2w',s:'2026-04-08',e:'2026-04-14'},
+    {m:'4월',w:'3w',s:'2026-04-15',e:'2026-04-21'},
+    {m:'4월',w:'4w',s:'2026-04-22',e:'2026-04-28'},
+    {m:'4월',w:'5w',s:'2026-04-29',e:'2026-04-30'},
+    {m:'5월',w:'1w',s:'2026-05-01',e:'2026-05-07'},
+    {m:'5월',w:'2w',s:'2026-05-08',e:'2026-05-14'},
+    {m:'5월',w:'3w',s:'2026-05-15',e:'2026-05-21'},
+    {m:'5월',w:'4w',s:'2026-05-22',e:'2026-05-28'},
+    {m:'5월',w:'5w',s:'2026-05-29',e:'2026-05-31'},
+    {m:'6월',w:'1w',s:'2026-06-01',e:'2026-06-07'},
+    {m:'6월',w:'2w',s:'2026-06-08',e:'2026-06-14'},
+    {m:'6월',w:'3w',s:'2026-06-15',e:'2026-06-21'},
+    {m:'6월',w:'4w',s:'2026-06-22',e:'2026-06-28'},
+    {m:'6월',w:'5w',s:'2026-06-29',e:'2026-06-30'}
+  ];
+  function d2idx(ds) {
+    if (!ds) return -1;
+    var ts = new Date(ds).getTime();
+    for (var i = 0; i < WEEK_RANGES.length; i++) {
+      if (ts >= new Date(WEEK_RANGES[i].s).getTime() && ts <= new Date(WEEK_RANGES[i].e).getTime()) return i;
+    }
+    return -1;
+  }
+  var projects = OKR_DATA.filter(function(p) { return p.objNum === String(_okrActiveObj); });
+  var objColor = _okrActiveObj === 4 ? '#7C3AED' : '#3B82F6';
+  var flag = _okrActiveObj === 4 ? '&#127468;&#127463;' : '&#127482;&#127480;';
+  var M_COLORS = {M1:'#0D9488',M2:'#0891B2',M3:'#1D4ED8',M4:'#7C3AED',General:'#6B7280'};
+  var tdB = 'padding:5px 4px;border:1px solid #E5E7EB;font-size:11px;vertical-align:middle;white-space:nowrap;';
+  var thB = 'padding:5px 6px;border:1px solid #E5E7EB;font-size:11px;font-weight:700;background:#F9FAFB;text-align:center;white-space:nowrap;';
+  var out = '<div style="margin-top:8px">';
+  out += '<div style="font-size:13px;font-weight:700;color:' + objColor + ';margin-bottom:12px">' + flag + ' Q2 2026 마일스톤 캘린더 — Object ' + _okrActiveObj + '</div>';
+  out += '<div style="overflow-x:auto;border-radius:10px;border:1px solid #E5E7EB;box-shadow:0 1px 4px rgba(0,0,0,.06)">';
+  out += '<table style="border-collapse:collapse;width:100%;min-width:860px">';
+  out += '<thead><tr>';
+  out += '<th rowspan="2" style="' + thB + 'min-width:36px">KR</th>';
+  out += '<th rowspan="2" style="' + thB + 'min-width:120px;text-align:left;padding-left:8px">프로젝트</th>';
+  out += '<th rowspan="2" style="' + thB + 'min-width:44px">담당</th>';
+  ['4월','5월','6월'].forEach(function(m) {
+    out += '<th colspan="5" style="' + thB + 'background:' + objColor + '15;color:' + objColor + '">' + m + '</th>';
+  });
+  out += '</tr><tr>';
+  WEEK_RANGES.forEach(function(wr) {
+    out += '<th style="' + thB + 'min-width:34px;font-size:10px;color:#6B7280">' + wr.w + '</th>';
+  });
+  out += '</tr></thead><tbody>';
+
+  var krNums = [];
+  projects.forEach(function(p) { if (krNums.indexOf(p.krNum) < 0) krNums.push(p.krNum); });
+  krNums.sort();
+
+  krNums.forEach(function(kr) {
+    var krProjs = projects.filter(function(p) { return p.krNum === kr; });
+    var krKey = _okrActiveObj + '-' + kr;
+    var krText = (typeof OKR_KR_TEXT !== 'undefined' && OKR_KR_TEXT[krKey]) ? OKR_KR_TEXT[krKey] : '';
+    out += '<tr><td colspan="18" style="' + tdB + 'font-weight:700;color:' + objColor + ';background:' + objColor + '0d;padding:6px 10px">';
+    out += '<span style="background:' + objColor + ';color:#fff;padding:2px 10px;border-radius:10px;margin-right:8px;font-size:10px">KR ' + kr + '</span>' + krText;
+    out += '</td></tr>';
+
+    krProjs.forEach(function(p) {
+      var projKey = p.objNum + '-' + p.krNum + '-' + p.projNum;
+      var mGroups = {};
+      p.tasks.forEach(function(t) {
+        var m = t.milestone || 'General';
+        if (!mGroups[m]) mGroups[m] = {s:99, e:-1};
+        var si = d2idx(t.start), ei = d2idx(t.finish);
+        if (si >= 0 && si < mGroups[m].s) mGroups[m].s = si;
+        var ae = ei >= 0 ? ei : si;
+        if (ae > mGroups[m].e) mGroups[m].e = ae;
+      });
+
+      // Build cell array
+      var cells = [];
+      for (var i = 0; i < 15; i++) cells.push(null);
+      // Sort milestones so later ones overwrite earlier in same cell
+      var mKeys = Object.keys(mGroups).sort();
+      mKeys.forEach(function(m) {
+        var g = mGroups[m];
+        if (g.s > 14 || g.e < 0 || g.s > g.e) return;
+        var from = Math.max(0, g.s), to = Math.min(14, g.e);
+        for (var i = from; i <= to; i++) cells[i] = m;
+      });
+
+      // Run-length encode for colspan
+      var runs = [], ri = 0;
+      while (ri < 15) {
+        var m = cells[ri], len = 1;
+        while (ri + len < 15 && cells[ri + len] === m) len++;
+        runs.push({m: m, len: len});
+        ri += len;
+      }
+
+      out += '<tr>';
+      out += '<td style="' + tdB + 'text-align:center;font-weight:700;color:' + objColor + ';font-size:10px">KR' + p.krNum + '</td>';
+      out += '<td style="' + tdB + 'cursor:pointer;color:#1a1a2e;font-weight:600;padding-left:8px;max-width:130px;overflow:hidden;text-overflow:ellipsis" onclick="okrOpenDetail('' + projKey + '')" title="' + p.projName + '">' + p.projName + '</td>';
+      out += '<td style="' + tdB + 'text-align:center;color:#6B7280">' + (p.owner || '') + '</td>';
+      runs.forEach(function(run) {
+        var cs = run.len > 1 ? ' colspan="' + run.len + '"' : '';
+        if (!run.m) {
+          out += '<td' + cs + ' style="' + tdB + 'background:#FAFAFA"></td>';
+        } else {
+          var mc = M_COLORS[run.m] || '#6B7280';
+          out += '<td' + cs + ' style="' + tdB + 'background:' + mc + ';color:#fff;text-align:center;font-weight:800;font-size:10px;border-radius:2px">' + run.m + '</td>';
+        }
+      });
+      out += '</tr>';
+    });
+  });
+
+  out += '</tbody></table></div></div>';
+  var cal = document.getElementById('okr-calendar');
+  if (cal) cal.innerHTML = out;
+}
+
+function okrCloseModal() {
+  const m = document.getElementById('okr-modal-bg');
+  if (m) m.remove();
 }
 
 function _renderOKRBody() {
@@ -3957,72 +4286,63 @@ function _renderOKRBody() {
 
     out += '<div style="margin-bottom:28px">'
       + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">'
-      + '<div style="background:' + objColor + ';color:#fff;font-size:11px;font-weight:800;padding:4px 12px;border-radius:20px">KR ' + kr + '</div>'
+      + '<div style="background:' + objColor + ';color:#fff;font-size:11px;font-weight:800;padding:4px 12px;border-radius:20px;flex-shrink:0">KR ' + kr + '</div>'
       + '<div style="font-size:13px;font-weight:600;color:#374151;flex:1">' + krText + '</div>'
       + '</div>'
-      + '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px">';
+      + '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px">';
 
     krProjs.forEach(function(p) {
       const ownerInitial = p.owner ? p.owner[0] : '?';
       const ownerColors = {'온':'#7C3AED','왕':'#3B82F6','김':'#22C55E','박':'#F59E0B'};
       const oc = ownerColors[ownerInitial] || '#6B7280';
+      const projKey = p.objNum + '-' + p.krNum + '-' + p.projNum;
 
       let kpiHtml = '';
       if (p.kpis && p.kpis.length > 0) {
-        kpiHtml = '<div style="margin-top:12px">';
+        kpiHtml = '<div style="margin-top:10px">';
         p.kpis.slice(0,2).forEach(function(kpi) {
           const pct = kpi.target > 0 ? Math.min(100, Math.round((kpi.current/kpi.target)*100)) : 0;
           const barColor = pct >= 80 ? '#22C55E' : pct >= 40 ? '#F59E0B' : '#3B82F6';
-          kpiHtml += '<div style="margin-bottom:8px">'
-            + '<div style="display:flex;justify-content:space-between;font-size:11px;color:#6B7280;margin-bottom:3px">'
-            + '<span style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + kpi.metric + '</span>'
+          kpiHtml += '<div style="margin-bottom:6px">'
+            + '<div style="display:flex;justify-content:space-between;font-size:11px;color:#6B7280;margin-bottom:2px">'
+            + '<span style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + kpi.metric + '</span>'
             + '<span style="font-weight:700;color:#1a1a2e">' + kpi.current.toLocaleString() + ' / ' + kpi.target.toLocaleString() + '</span>'
             + '</div>'
-            + '<div style="height:5px;background:#F3F4F6;border-radius:3px">'
+            + '<div style="height:4px;background:#F3F4F6;border-radius:3px">'
             + '<div style="height:100%;width:' + pct + '%;background:' + barColor + ';border-radius:3px"></div>'
             + '</div></div>';
         });
         kpiHtml += '</div>';
       }
 
-      let initHtml = '';
-      if (p.initiatives && p.initiatives.length > 0) {
-        initHtml = '<div style="margin-top:10px;border-top:1px solid #F3F4F6;padding-top:10px">';
-        p.initiatives.slice(0,4).forEach(function(init) {
-          const st = init.status || '';
-          const isDone = /done/i.test(st);
-          const isInProg = /progress/i.test(st);
-          const stColor = isDone ? '#22C55E' : isInProg ? '#D97706' : '#9CA3AF';
-          const stBg = isDone ? '#DCFCE7' : isInProg ? '#FEF9C3' : '#F3F4F6';
-          const stLabel = isDone ? '완료' : isInProg ? '진행중' : '대기';
-          const name = init.name.length > 60 ? init.name.substring(0,60) + '…' : init.name;
-          initHtml += '<div style="display:flex;align-items:flex-start;gap:6px;margin-bottom:5px">'
-            + '<span style="font-size:9px;font-weight:700;padding:2px 6px;border-radius:10px;background:' + stBg + ';color:' + stColor + ';margin-top:1px;flex-shrink:0">' + stLabel + '</span>'
-            + '<span style="font-size:11px;color:#374151;line-height:1.4">' + name + '</span>'
-            + '</div>';
-        });
-        initHtml += '</div>';
-      }
-
       const doneCnt = p.initiatives.filter(function(i){ return /done/i.test(i.status); }).length;
       const progCnt = p.initiatives.filter(function(i){ return /progress/i.test(i.status); }).length;
+      const milestones = [...new Set(p.tasks.map(function(t){ return t.milestone; }).filter(Boolean))];
 
-      out += '<div style="background:#fff;border:1px solid #E5E7EB;border-radius:12px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,.05)">'
+      out += '<div style="background:#fff;border:1px solid #E5E7EB;border-radius:12px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,.05);cursor:pointer;transition:box-shadow .15s" '
+        + 'onmouseenter="this.style.boxShadow=\'0 4px 16px rgba(0,0,0,.1)\'" '
+        + 'onmouseleave="this.style.boxShadow=\'0 1px 4px rgba(0,0,0,.05)\'" '
+        + 'onclick="okrOpenDetail(\'' + projKey + '\')">' 
         + '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">'
-        + '<div>'
-        + '<div style="font-size:12px;color:#9CA3AF;font-weight:600;margin-bottom:3px">P' + p.projNum + ' · ' + p.owner + '</div>'
+        + '<div style="flex:1;min-width:0">'
+        + '<div style="font-size:11px;color:#9CA3AF;font-weight:600;margin-bottom:3px">P' + p.projNum + ' · ' + p.owner + '</div>'
         + '<div style="font-size:14px;font-weight:800;color:#1a1a2e">' + p.projName + '</div>'
         + '</div>'
-        + '<div style="width:32px;height:32px;border-radius:50%;background:' + oc + ';color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex-shrink:0">' + ownerInitial + '</div>'
+        + '<div style="display:flex;align-items:center;gap:6px;flex-shrink:0;margin-left:8px">'
+        + (p.sheetUrl ? '<a href="' + p.sheetUrl + '" target="_blank" onclick="event.stopPropagation()" style="font-size:10px;background:#F0FDF4;color:#16A34A;border:1px solid #BBF7D0;padding:3px 8px;border-radius:6px;text-decoration:none;font-weight:700;white-space:nowrap">📊 시트</a>' : '')
+        + '<div style="width:30px;height:30px;border-radius:50%;background:' + oc + ';color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800">' + ownerInitial + '</div>'
         + '</div>'
-        + (p.projWhy ? '<div style="font-size:11px;color:#6B7280;line-height:1.5;margin-bottom:8px">' + p.projWhy.substring(0,120) + '…</div>' : '')
+        + '</div>'
         + kpiHtml
-        + '<div style="display:flex;align-items:center;gap:6px;margin-top:10px;flex-wrap:wrap">'
+        + '<div style="display:flex;align-items:center;gap:6px;margin-top:10px;flex-wrap:wrap;border-top:1px solid #F3F4F6;padding-top:10px">'
         + '<span style="font-size:11px;color:#6B7280">Tasks ' + p.tasks.length + '개</span>'
-        + (doneCnt > 0 ? '<span style="font-size:10px;background:#DCFCE7;color:#22C55E;padding:2px 7px;border-radius:10px;font-weight:700">' + doneCnt + ' 완료</span>' : '')
-        + (progCnt > 0 ? '<span style="font-size:10px;background:#FEF9C3;color:#D97706;padding:2px 7px;border-radius:10px;font-weight:700">' + progCnt + ' 진행중</span>' : '')
+        + (milestones.length > 0 ? '<span style="font-size:10px;color:#9CA3AF">·</span><span style="font-size:10px;color:#9CA3AF">' + milestones.join(' · ') + '</span>' : '')
         + '</div>'
-        + initHtml
+        + '<div style="display:flex;gap:5px;margin-top:6px;flex-wrap:wrap">'
+        + (doneCnt > 0 ? '<span style="font-size:10px;background:#DCFCE7;color:#22C55E;padding:2px 7px;border-radius:10px;font-weight:700">✓ ' + doneCnt + ' 완료</span>' : '')
+        + (progCnt > 0 ? '<span style="font-size:10px;background:#FEF9C3;color:#D97706;padding:2px 7px;border-radius:10px;font-weight:700">⏳ ' + progCnt + ' 진행중</span>' : '')
+        + '<span style="font-size:10px;background:#EEF2FF;color:#6366F1;padding:2px 7px;border-radius:10px;font-weight:700;margin-left:auto">상세보기 →</span>'
+        + '</div>'
         + '</div>';
     });
 
